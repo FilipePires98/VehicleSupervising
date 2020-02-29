@@ -1,46 +1,82 @@
 package fi;
 
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
 
 /**
  * Class for the Farm Infrastructure Server for the agricultural harvest.
  * @author Filipe Pires (85122) and João Alegria (85048)
  */
-public class FarmInfrastructure extends Process {
+public class FarmInfrastructure {
+    
+    private JFrame mainFrame;
+    private JLabel headerLabel;
+    private JLabel statusLabel;
+    private JPanel controlPanel;
 
-    public FarmInfrastructure() {
-        System.out.print("Hello world!");
+    public FarmInfrastructure(){
+        prepareGUI();
     }
-
-    @Override
-    public OutputStream getOutputStream() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public static void main(String[] args){
+        FarmInfrastructure fi = new FarmInfrastructure();  
+        fi.showEventDemo();
     }
+    private void prepareGUI(){
+        mainFrame = new JFrame("Java SWING Examples");
+        mainFrame.setSize(400,400);
+        mainFrame.setLayout(new GridLayout(3, 1));
 
-    @Override
-    public InputStream getInputStream() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        headerLabel = new JLabel("",JLabel.CENTER );
+        statusLabel = new JLabel("",JLabel.CENTER);        
+        statusLabel.setSize(350,100);
+
+        mainFrame.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent windowEvent){
+                System.exit(0);
+            }        
+        });    
+        controlPanel = new JPanel();
+        controlPanel.setLayout(new FlowLayout());
+
+        mainFrame.add(headerLabel);
+        mainFrame.add(controlPanel);
+        mainFrame.add(statusLabel);
+        mainFrame.setVisible(true);  
     }
+    private void showEventDemo(){
+        headerLabel.setText("Control in action: Button"); 
 
-    @Override
-    public InputStream getErrorStream() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        JButton okButton = new JButton("OK");
+        JButton submitButton = new JButton("Submit");
+        JButton cancelButton = new JButton("Cancel");
+
+        okButton.setActionCommand("OK");
+        submitButton.setActionCommand("Submit");
+        cancelButton.setActionCommand("Cancel");
+
+        okButton.addActionListener(new ButtonClickListener()); 
+        submitButton.addActionListener(new ButtonClickListener()); 
+        cancelButton.addActionListener(new ButtonClickListener()); 
+
+        controlPanel.add(okButton);
+        controlPanel.add(submitButton);
+        controlPanel.add(cancelButton);       
+
+        mainFrame.setVisible(true);  
     }
+    private class ButtonClickListener implements ActionListener{
+        public void actionPerformed(ActionEvent e) {
+            String command = e.getActionCommand();  
 
-    @Override
-    public int waitFor() throws InterruptedException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public int exitValue() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void destroy() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            if( command.equals( "OK" ))  {
+                statusLabel.setText("Ok Button clicked.");
+            } else if( command.equals( "Submit" ) )  {
+                statusLabel.setText("Submit Button clicked."); 
+            } else {
+                statusLabel.setText("Cancel Button clicked.");
+            }  	
+        }		
     }
     
 }
