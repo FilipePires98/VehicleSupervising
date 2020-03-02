@@ -1,82 +1,43 @@
 package fi;
 
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.PrintStream;
+import java.net.Socket;
 
 /**
- * Class for the Farm Infrastructure Server for the agricultural harvest.
+ * Class for the Farm Infrastructure for the agricultural harvest.
  * @author Filipe Pires (85122) and João Alegria (85048)
  */
 public class FarmInfrastructure {
-    
-    private JFrame mainFrame;
-    private JLabel headerLabel;
-    private JLabel statusLabel;
-    private JPanel controlPanel;
+    public static void main(String[] args) {
+        
+        System.out.println("[FI]: Initializing Farm Infrastructure... ");
+        
+        try {
+            // https://www.javaworld.com/article/2853780/socket-programming-for-scalable-systems.html
+            
+            // Connect to the server
+            Socket socket = new Socket(args[0], Integer.parseInt(args[1]));
 
-    public FarmInfrastructure(){
-        prepareGUI();
+            // Create input and output streams to read from and write to the server
+            PrintStream out = new PrintStream( socket.getOutputStream() );
+            BufferedReader in = new BufferedReader( new InputStreamReader(socket.getInputStream()) );
+
+            // Read data from the server until we finish reading the document
+            String line = in.readLine();
+            while( line != null ) {
+                System.out.println( line );
+                line = in.readLine();
+            }
+
+            // Close streams
+            in.close();
+            out.close();
+            socket.close();
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
-    public static void main(String[] args){
-        FarmInfrastructure fi = new FarmInfrastructure();  
-        fi.showEventDemo();
-    }
-    private void prepareGUI(){
-        mainFrame = new JFrame("Java SWING Examples");
-        mainFrame.setSize(400,400);
-        mainFrame.setLayout(new GridLayout(3, 1));
-
-        headerLabel = new JLabel("",JLabel.CENTER );
-        statusLabel = new JLabel("",JLabel.CENTER);        
-        statusLabel.setSize(350,100);
-
-        mainFrame.addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent windowEvent){
-                System.exit(0);
-            }        
-        });    
-        controlPanel = new JPanel();
-        controlPanel.setLayout(new FlowLayout());
-
-        mainFrame.add(headerLabel);
-        mainFrame.add(controlPanel);
-        mainFrame.add(statusLabel);
-        mainFrame.setVisible(true);  
-    }
-    private void showEventDemo(){
-        headerLabel.setText("Control in action: Button"); 
-
-        JButton okButton = new JButton("OK");
-        JButton submitButton = new JButton("Submit");
-        JButton cancelButton = new JButton("Cancel");
-
-        okButton.setActionCommand("OK");
-        submitButton.setActionCommand("Submit");
-        cancelButton.setActionCommand("Cancel");
-
-        okButton.addActionListener(new ButtonClickListener()); 
-        submitButton.addActionListener(new ButtonClickListener()); 
-        cancelButton.addActionListener(new ButtonClickListener()); 
-
-        controlPanel.add(okButton);
-        controlPanel.add(submitButton);
-        controlPanel.add(cancelButton);       
-
-        mainFrame.setVisible(true);  
-    }
-    private class ButtonClickListener implements ActionListener{
-        public void actionPerformed(ActionEvent e) {
-            String command = e.getActionCommand();  
-
-            if( command.equals( "OK" ))  {
-                statusLabel.setText("Ok Button clicked.");
-            } else if( command.equals( "Submit" ) )  {
-                statusLabel.setText("Submit Button clicked."); 
-            } else {
-                statusLabel.setText("Cancel Button clicked.");
-            }  	
-        }		
-    }
-    
 }
