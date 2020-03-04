@@ -31,7 +31,12 @@ public class SocketServer extends Thread{
             while(!receivedMessage.equals("")){
                 receivedMessage=socketInputStream.readUTF();
                 System.out.println(receivedMessage);
-                this.messageProcessor.process(receivedMessage);
+                if(receivedMessage.equals("initialize client")) {
+                    // create client socket
+                    
+                } else {
+                    this.messageProcessor.process(receivedMessage);
+                }
             }
             socket.close();
         } catch (IOException ex) {

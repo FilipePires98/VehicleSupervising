@@ -28,7 +28,10 @@ public class CCProxy extends Thread implements MessageProcessor {
     
     @Override
     public void process(String message) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        switch(message) {
+            // ...
+                
+        }
     }
     
 }

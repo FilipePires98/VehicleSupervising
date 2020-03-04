@@ -118,11 +118,6 @@ public class FarmInfrastructure extends javax.swing.JFrame {
 
         c1l1.setText("1");
         c1l1.setEnabled(false);
-        c1l1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                c1l1ActionPerformed(evt);
-            }
-        });
 
         c1l2.setText("1");
         c1l2.setEnabled(false);
@@ -657,16 +652,22 @@ public class FarmInfrastructure extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void c1l1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_c1l1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_c1l1ActionPerformed
-
     /**
      * @param args the command line arguments
      */
     public static void main(String args[]) {
         
         System.out.println("Initializing Farm Infrastructure... ");
+        
+        MonitorMetadata metadata = new MonitorMetadata(5,1,1);
+            
+        Storehouse storeHouse = new Storehouse(metadata);
+        Standing standing = new Standing(metadata);
+        Path path = new Path(metadata);
+        Granary granary = new Granary(metadata);
+        
+        CCProxy messageProcessor;
+        SocketClient client;
         
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -704,16 +705,23 @@ public class FarmInfrastructure extends javax.swing.JFrame {
             
             // Connect to the server
             
-            MonitorMetadata metadata = new MonitorMetadata(5,1,1);
+            messageProcessor = new CCProxy(storeHouse, standing, path, granary);
+            client = new SocketClient("localhost", 6666);
             
-            Storehouse storeHouse = new Storehouse(metadata);
-            Standing standing = new Standing(metadata);
-            Path path = new Path(metadata);
-            Granary granary = new Granary(metadata);
+            // Tell the server to create its own client
             
-            CCProxy messageProcessor = new CCProxy(storeHouse, standing, path, granary);
+            String msg = "initialize client";
+            messageProcessor.process(msg);
+            client.send(msg);
             
-            SocketClient client = new SocketClient("localhost", 6666);
+
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        try {
+            
 
             
         } catch (Exception e) {
