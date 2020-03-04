@@ -31,34 +31,161 @@ public class ControlCenter extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
-
-        jButton1.setText("jButton1");
+        titleLabel = new javax.swing.JLabel();
+        cobsLabel = new javax.swing.JLabel();
+        numCornCobs = new javax.swing.JSpinner();
+        farmersLabel = new javax.swing.JLabel();
+        numFarmers = new javax.swing.JSpinner();
+        timeoutLabel = new javax.swing.JLabel();
+        timeout = new javax.swing.JSpinner();
+        stepLabel = new javax.swing.JLabel();
+        maxStep = new javax.swing.JSpinner();
+        prepareBtn = new javax.swing.JButton();
+        startBtn = new javax.swing.JButton();
+        collectBtn = new javax.swing.JButton();
+        returnBtn = new javax.swing.JButton();
+        stopBtn = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jButton2.setText("jButton2");
+        titleLabel.setText("Control Center");
+
+        cobsLabel.setText("Number of Corn Cobs:");
+
+        farmersLabel.setText("Number of Farmers:");
+
+        timeoutLabel.setText("Timeout:");
+
+        stepLabel.setText("Max. Step:");
+
+        prepareBtn.setText("Prepare");
+        prepareBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                prepareBtnActionPerformed(evt);
+            }
+        });
+
+        startBtn.setText("Start");
+        startBtn.setEnabled(false);
+        startBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                startBtnActionPerformed(evt);
+            }
+        });
+
+        collectBtn.setText("Collect");
+        collectBtn.setEnabled(false);
+        collectBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                collectBtnActionPerformed(evt);
+            }
+        });
+
+        returnBtn.setText("Return");
+        returnBtn.setEnabled(false);
+        returnBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                returnBtnActionPerformed(evt);
+            }
+        });
+
+        stopBtn.setText("Stop");
+        stopBtn.setEnabled(false);
+        stopBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                stopBtnActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(770, Short.MAX_VALUE)
-                .addComponent(jButton2)
-                .addGap(107, 107, 107))
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(farmersLabel)
+                            .addComponent(timeoutLabel))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(numFarmers, javax.swing.GroupLayout.DEFAULT_SIZE, 62, Short.MAX_VALUE)
+                            .addComponent(timeout))
+                        .addGap(84, 84, 84)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(cobsLabel)
+                            .addComponent(stepLabel))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(numCornCobs, javax.swing.GroupLayout.PREFERRED_SIZE, 68, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(0, 0, Short.MAX_VALUE))
+                            .addComponent(maxStep)))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(prepareBtn)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(startBtn)
+                                .addGap(51, 51, 51)
+                                .addComponent(collectBtn))
+                            .addComponent(titleLabel))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(returnBtn)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(stopBtn)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(95, 95, 95)
-                .addComponent(jButton2)
-                .addContainerGap(351, Short.MAX_VALUE))
+                .addContainerGap()
+                .addComponent(titleLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(farmersLabel)
+                    .addComponent(cobsLabel)
+                    .addComponent(numFarmers, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(numCornCobs, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(9, 9, 9)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(timeoutLabel)
+                    .addComponent(stepLabel)
+                    .addComponent(timeout, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(maxStep, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(prepareBtn)
+                    .addComponent(startBtn)
+                    .addComponent(collectBtn)
+                    .addComponent(returnBtn)
+                    .addComponent(stopBtn))
+                .addContainerGap(14, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void prepareBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_prepareBtnActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_prepareBtnActionPerformed
+
+    private void startBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startBtnActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_startBtnActionPerformed
+
+    private void collectBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_collectBtnActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_collectBtnActionPerformed
+
+    private void returnBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_returnBtnActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_returnBtnActionPerformed
+
+    private void stopBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stopBtnActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_stopBtnActionPerformed
 
     /**
      * @param args the command line arguments
@@ -96,7 +223,19 @@ public class ControlCenter extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
+    private javax.swing.JLabel cobsLabel;
+    private javax.swing.JButton collectBtn;
+    private javax.swing.JLabel farmersLabel;
+    private javax.swing.JSpinner maxStep;
+    private javax.swing.JSpinner numCornCobs;
+    private javax.swing.JSpinner numFarmers;
+    private javax.swing.JButton prepareBtn;
+    private javax.swing.JButton returnBtn;
+    private javax.swing.JButton startBtn;
+    private javax.swing.JLabel stepLabel;
+    private javax.swing.JButton stopBtn;
+    private javax.swing.JSpinner timeout;
+    private javax.swing.JLabel timeoutLabel;
+    private javax.swing.JLabel titleLabel;
     // End of variables declaration//GEN-END:variables
 }
