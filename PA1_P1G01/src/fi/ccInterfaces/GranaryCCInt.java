@@ -1,8 +1,8 @@
 package fi.ccInterfaces;
 
 /**
- *
- * @author joaoalegria
+ * 
+ * @author Filipe Pires (85122) and João Alegria (85048)
  */
 public interface GranaryCCInt {
     public void waitAllFarmersReadyToCollect();

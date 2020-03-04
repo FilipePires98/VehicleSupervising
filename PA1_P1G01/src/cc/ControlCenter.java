@@ -52,11 +52,19 @@ public class ControlCenter extends javax.swing.JFrame {
 
         cobsLabel.setText("Number of Corn Cobs:");
 
+        numCornCobs.setModel(new javax.swing.SpinnerNumberModel(50, 50, null, 10));
+
         farmersLabel.setText("Number of Farmers:");
 
-        timeoutLabel.setText("Timeout:");
+        numFarmers.setModel(new javax.swing.SpinnerNumberModel(5, 2, 5, 1));
+
+        timeoutLabel.setText("Timeout (ms):");
+
+        timeout.setModel(new javax.swing.SpinnerNumberModel(500, 0, 1000, 50));
 
         stepLabel.setText("Max. Step:");
+
+        maxStep.setModel(new javax.swing.SpinnerNumberModel(1, 1, 2, 1));
 
         prepareBtn.setText("Prepare");
         prepareBtn.addActionListener(new java.awt.event.ActionListener() {
@@ -110,25 +118,24 @@ public class ControlCenter extends javax.swing.JFrame {
                             .addComponent(timeoutLabel))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(numFarmers, javax.swing.GroupLayout.DEFAULT_SIZE, 62, Short.MAX_VALUE)
-                            .addComponent(timeout))
-                        .addGap(84, 84, 84)
+                            .addComponent(timeout, javax.swing.GroupLayout.PREFERRED_SIZE, 68, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(numFarmers))
+                        .addGap(106, 106, 106)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(cobsLabel)
                             .addComponent(stepLabel))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(numCornCobs, javax.swing.GroupLayout.PREFERRED_SIZE, 68, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(0, 0, Short.MAX_VALUE))
-                            .addComponent(maxStep)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(numCornCobs, javax.swing.GroupLayout.DEFAULT_SIZE, 68, Short.MAX_VALUE)
+                            .addComponent(maxStep))
+                        .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(prepareBtn)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(startBtn)
-                                .addGap(51, 51, 51)
+                                .addGap(70, 70, 70)
                                 .addComponent(collectBtn))
                             .addComponent(titleLabel))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -168,23 +175,83 @@ public class ControlCenter extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void prepareBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_prepareBtnActionPerformed
-        // TODO add your handling code here:
+        // Update UI
+        this.startBtn.setEnabled(true); // only if all farmers are in the standing area!
+        this.stopBtn.setEnabled(true);
+        this.prepareBtn.setEnabled(false);
+        this.numFarmers.setEnabled(false);
+        this.numCornCobs.setEnabled(false);
+        this.timeout.setEnabled(false);
+        this.maxStep.setEnabled(false);
+        
+        // Validate input
+        if((Integer)this.numFarmers.getValue()>5 || (Integer)this.numFarmers.getValue()<2) {
+            this.numFarmers.setValue(5);
+            System.err.println("[CC]: Invalid input on 'Number of Farmers'! Set to default (5).");
+        }
+        if((Integer)this.numCornCobs.getValue()<(Integer)this.numFarmers.getValue()*10) {
+            this.numCornCobs.setValue((Integer)this.numFarmers.getValue()*10);
+            System.err.println("[CC]: Not enough 'Number of Corn Cobs' for every farmer! Set to default (" + ((Integer)this.numCornCobs.getValue()).toString() + "0).");
+        }
+        if((Integer)this.timeout.getValue()>1000 || (Integer)this.timeout.getValue()<0) {
+            this.timeout.setValue(500);
+            System.err.println("[CC]: Invalid input on 'Timeout'! Set to default (500ms).");
+        }
+        if((Integer)this.maxStep.getValue()>2 || (Integer)this.maxStep.getValue()<1) {
+            this.maxStep.setValue(1);
+            System.err.println("[CC]: Invalid input on 'Max. Step'! Set to default (1).");
+        }
+        
+        // Send message to FI to place farmer IDs in respective Storehouse positions
+        
+        // Send message to FI to update number of Corn Cobs in Granary
+        
+        // Send message to FI to update farmer positions (move to Standing Area)
+        
     }//GEN-LAST:event_prepareBtnActionPerformed
 
     private void startBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startBtnActionPerformed
-        // TODO add your handling code here:
+        // Update UI
+        this.collectBtn.setEnabled(true); // only if all farmers are in the granary!
+        this.startBtn.setEnabled(false);
+        
+        // Send message to FI to update farmer positions (move to Path and then Granary)
+        
     }//GEN-LAST:event_startBtnActionPerformed
 
     private void collectBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_collectBtnActionPerformed
-        // TODO add your handling code here:
+        // Update UI
+        this.returnBtn.setEnabled(true); // only if all farmers have (tried to) grab corn cobs!
+        this.collectBtn.setEnabled(false);
+        
+        // Send message to FI for farmers to grab corn cobs
+        
     }//GEN-LAST:event_collectBtnActionPerformed
 
     private void returnBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_returnBtnActionPerformed
-        // TODO add your handling code here:
+        // Update UI
+        this.stopBtn.setEnabled(true);
+        this.returnBtn.setEnabled(false);
+        this.prepareBtn.setEnabled(true); // only if all farmers have returned and delivered the corn cobs!
+        
+        // Send message to FI to update farmer positions (move to Storehouse and then deliver corn cobs)
+        
     }//GEN-LAST:event_returnBtnActionPerformed
 
     private void stopBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stopBtnActionPerformed
-        // TODO add your handling code here:
+        // Update UI
+        this.startBtn.setEnabled(false);
+        this.collectBtn.setEnabled(false);
+        this.returnBtn.setEnabled(false);
+        this.stopBtn.setEnabled(false);
+        this.prepareBtn.setEnabled(true); // only if all farmers are in the storehouse!
+        this.numFarmers.setEnabled(true); // same condition for the input fields...
+        this.numCornCobs.setEnabled(true);
+        this.timeout.setEnabled(true);
+        this.maxStep.setEnabled(true);
+        
+        // Send message to FI for farmers to immediately stop what they are doing and go back to the Storehouse
+        
     }//GEN-LAST:event_stopBtnActionPerformed
 
     /**

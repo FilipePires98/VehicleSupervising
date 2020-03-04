@@ -1,13 +1,8 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package fi.workers;
 
 /**
- *
- * @author joaoalegria
+ * Enumerate class containing all possible states of execution of a Farmer Thread.
+ * @author Filipe Pires (85122) and João Alegria (85048)
  */
 public enum FarmerState {
     INITIAL,
