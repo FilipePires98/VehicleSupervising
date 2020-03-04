@@ -1,5 +1,10 @@
 package fi;
 
+import fi.monitors.Standing;
+import fi.monitors.Storehouse;
+import fi.monitors.Path;
+import fi.monitors.Granary;
+import fi.workers.CCProxy;
 import common.SocketClient;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -21,16 +26,16 @@ public class FarmInfrastructure {
             
             // Connect to the server
             
-            Storehouse storeHouse = new Storehouse();
-            Standing standing = new Standing();
-            Path path = new Path();
-            Granary granary = new Granary();
+            MonitorMetadata metadata = new MonitorMetadata(5,1,1);
             
-            FIMessageProcessor messageProcessor = new FIMessageProcessor(storeHouse, standing, path, granary);
+            Storehouse storeHouse = new Storehouse(metadata);
+            Standing standing = new Standing(metadata);
+            Path path = new Path(metadata);
+            Granary granary = new Granary(metadata);
+            
+            CCProxy messageProcessor = new CCProxy(storeHouse, standing, path, granary);
             
             SocketClient client = new SocketClient("localhost", 6666);
-            
-            path.walkThroughPath();
 
             
         } catch (Exception e) {

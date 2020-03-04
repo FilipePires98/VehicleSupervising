@@ -3,22 +3,26 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package fi;
+package fi.workers;
 
 import common.MessageProcessor;
+import fi.monitors.Granary;
+import fi.monitors.Path;
+import fi.monitors.Standing;
+import fi.monitors.Storehouse;
 
 /**
  *
  * @author joaoalegria
  */
-public class FIMessageProcessor extends Thread implements MessageProcessor {
+public class CCProxy extends Thread implements MessageProcessor {
     
     private Storehouse storeHouse;
     private Standing standing;
     private Path path;
     private Granary granary;
 
-    public FIMessageProcessor(Storehouse storeHouse,Standing standing,Path path,Granary granary) {
+    public CCProxy(Storehouse storeHouse,Standing standing,Path path,Granary granary) {
         this.storeHouse=storeHouse;
         this.standing=standing;
         this.path=path;

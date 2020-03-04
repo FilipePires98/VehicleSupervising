@@ -3,19 +3,18 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package fi;
+package fi.ccInterfaces;
+
+import fi.farmerInterfaces.*;
 
 /**
  *
  * @author joaoalegria
  */
-public enum FarmerState {
-    INITIAL,
-    PREPARE,
-    WALK,
-    WAITTOCOLLECT,
-    COLLECT,
-    WAITTORETURN,
-    RETURN,
-    STORE
+public interface StandingCCInt {
+    
+    public void waitForAllFarmers();
+    public void sendStartOrder();
+    public void control();
+    
 }
