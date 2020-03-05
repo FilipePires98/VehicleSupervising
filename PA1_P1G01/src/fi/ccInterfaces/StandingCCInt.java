@@ -15,6 +15,6 @@ public interface StandingCCInt {
     
     public void waitForAllFarmers();
     public void sendStartOrder();
-    public void control();
+    public void control(String action);
     
 }

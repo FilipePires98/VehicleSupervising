@@ -13,8 +13,8 @@ import fi.farmerInterfaces.*;
  */
 public interface StorehouseCCInt {
     
-    public void control();
-    public void sendSelectionAndPrepareOrder();
+    public void control(String action);
+    public void sendSelectionAndPrepareOrder(int numberOfFarmers);
     public void waitAllFarmersReady();
     
 }

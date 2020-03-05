@@ -6,12 +6,16 @@ import fi.monitors.Path;
 import fi.monitors.Granary;
 import fi.workers.CCProxy;
 import common.SocketClient;
+import common.SocketServer;
 
 /**
  * Class for the Farm Infrastructure for the agricultural harvest.
  * @author Filipe Pires (85122) and João Alegria (85048)
  */
 public class FarmInfrastructure extends javax.swing.JFrame {
+    
+    private static SocketServer fiServer;
+    private static SocketClient ccClient;
 
     /**
      * Creates new form NewJFrame
@@ -634,33 +638,43 @@ public class FarmInfrastructure extends javax.swing.JFrame {
         //</editor-fold>
         //</editor-fold>
 
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new FarmInfrastructure().setVisible(true);
-            }
-        });
+        
         
         try {
             // https://www.javaworld.com/article/2853780/socket-programming-for-scalable-systems.html
             
-            // Connect to the server
+            // Init infrastructure
             
-            MonitorMetadata metadata = new MonitorMetadata(5,1,1);
+            MonitorMetadata metadata = new MonitorMetadata(5);
             
             Storehouse storeHouse = new Storehouse(metadata);
             Standing standing = new Standing(metadata);
-            Path path = new Path(metadata);
+            Path path = new Path(metadata,10);
             Granary granary = new Granary(metadata);
             
             CCProxy messageProcessor = new CCProxy(storeHouse, standing, path, granary);
             
-            SocketClient client = new SocketClient("localhost", 6666);
+            // Connect to the server
+            fiServer = new SocketServer(7777, messageProcessor);
+            fiServer.start();
+            ccClient = new SocketClient("localhost", 6666);
+            ccClient.send("infrastructureServerOnline");
+            
+            
 
             
         } catch (Exception e) {
             e.printStackTrace();
+        }finally{
+            /* Create and display the form */
+            java.awt.EventQueue.invokeLater(new Runnable() {
+                public void run() {
+                    new FarmInfrastructure().setVisible(true);
+                }
+            });
         }
+        
+        
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

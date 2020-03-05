@@ -12,10 +12,29 @@ import common.MessageProcessor;
  * @author joaoalegria
  */
 public class CCMessageProcessor extends Thread implements MessageProcessor {
+    
+    private ControlCenter cc;
+
+    public CCMessageProcessor(ControlCenter cc) {
+        this.cc=cc;
+    }
+    
 
     @Override
     public void process(String message) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        switch(message){
+            case "infrastructureServerOnline":
+                this.cc.initFIClient();
+                break;
+            case "allFarmersrReadyToStart":
+                break;
+            case "allFarmersrReadyToCollect":
+                break;
+            case "allFarmersrReadyToReturn":
+                break;
+            case "allFarmersrReadyWaiting":
+                break;
+        }
     }
     
 }

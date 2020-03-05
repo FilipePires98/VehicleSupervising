@@ -3,6 +3,12 @@ package fi.monitors;
 import fi.MonitorMetadata;
 import fi.ccInterfaces.GranaryCCInt;
 import fi.farmerInterfaces.GranaryFarmerInt;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Class for the Granary Sector of the farm.
@@ -11,53 +17,147 @@ import fi.farmerInterfaces.GranaryFarmerInt;
 public class Granary implements GranaryFarmerInt, GranaryCCInt{
     
     private MonitorMetadata metadata;
-
+    
+    private ReentrantLock rl = new ReentrantLock();
+    private Condition allInGranary = rl.newCondition();
+    private Condition allCollected = rl.newCondition();
+    private Condition waitCollectOrder = rl.newCondition();
+    private Condition waitReturnOrder = rl.newCondition();
+    
+    private int farmersInGranary=0;
+    private int farmersCollected=0;
+    private boolean readyToCollect=false;
+    private boolean readyToReturn=false;
+    
     public Granary(MonitorMetadata metadata) {
         this.metadata=metadata;
     }
 
     @Override
     public void farmerEnter(int farmerId) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        rl.lock();
+        try {
+            farmersInGranary++;
+            if(farmersInGranary==metadata.NUMBERFARMERS){
+                allInGranary.signalAll();
+            }
+            while(farmersInGranary<metadata.NUMBERFARMERS){
+                allInGranary.await();
+            }
+        } catch (InterruptedException ex) {
+            Logger.getLogger(Granary.class.getName()).log(Level.SEVERE, null, ex);
+        }finally{
+            rl.unlock();
+        }
     }
 
     @Override
     public void farmerWaitCollectOrder(int farmerId) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        rl.lock();
+        try{
+            while(!this.readyToCollect){
+                this.waitCollectOrder.await();
+            }
+        }
+        catch (InterruptedException ex) {
+            Logger.getLogger(Granary.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        finally{
+            rl.unlock();
+        }
     }
 
     @Override
     public void farmerCollect(int farmerId) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        rl.lock();
+        try{
+            this.farmersCollected++;
+            while(this.farmersCollected<metadata.NUMBERFARMERS){
+                this.allCollected.await();
+            }
+            this.allCollected.signalAll();
+            this.readyToCollect=false;
+        }
+        catch (InterruptedException ex) {
+            Logger.getLogger(Granary.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        finally{
+            rl.unlock();
+        }
     }
 
     @Override
     public void farmerWaitReturnOrder(int farmerId) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        rl.lock();
+        try{
+            this.farmersCollected--;
+            while(!this.readyToReturn){
+                this.waitReturnOrder.await();
+            }
+            this.farmersInGranary--;
+            if(this.farmersInGranary==0){
+                this.readyToReturn=false;
+            }
+        }
+        catch (InterruptedException ex) {
+            Logger.getLogger(Granary.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        finally{
+            rl.unlock();
+        }
     }
 
     @Override
     public void waitAllFarmersReadyToCollect() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        rl.lock();
+        try{
+            while(this.farmersInGranary<metadata.NUMBERFARMERS){
+                this.allCollected.await();
+            }
+        }
+        catch (InterruptedException ex) {
+            Logger.getLogger(Granary.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        finally{
+            rl.unlock();
+        }
     }
 
     @Override
     public void sendCollectOrder() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        this.readyToCollect=true;
+        this.waitCollectOrder.signalAll();
     }
 
     @Override
     public void waitAllFarmersCollect() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        rl.lock();
+        try{
+            while(this.farmersCollected<metadata.NUMBERFARMERS){
+                this.allCollected.await();
+            }
+        }
+        catch (InterruptedException ex) {
+            Logger.getLogger(Granary.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        finally{
+            rl.unlock();
+        }
     }
 
     @Override
     public void sendReturnOrder() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        this.readyToReturn=true;
+        this.waitReturnOrder.signalAll();
     }
 
     @Override
-    public void control() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void control(String action) {
+        switch(action){
+            case "stopHarvest":
+                break;
+            case "endSimulation":
+                break;
+        }
     }
 }

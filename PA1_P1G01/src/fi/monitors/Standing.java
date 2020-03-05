@@ -42,7 +42,7 @@ public class Standing implements StandingFarmerInt, StandingCCInt{
     }
 
     @Override
-    public void control() {
+    public void control(String action) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     

@@ -9,5 +9,5 @@ public interface GranaryCCInt {
     public void sendCollectOrder();
     public void waitAllFarmersCollect();
     public void sendReturnOrder();
-    public void control();
+    public void control(String action);
 }

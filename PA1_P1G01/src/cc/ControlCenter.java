@@ -5,6 +5,7 @@
  */
 package cc;
 
+import common.SocketClient;
 import common.SocketServer;
 
 /**
@@ -13,13 +14,16 @@ import common.SocketServer;
  */
 public class ControlCenter extends javax.swing.JFrame {
 
+    private SocketClient fiClient;
+    private SocketServer ccServer;
+    
     /**
      * Creates new form ControlCenter
      */
     public ControlCenter() {
         initComponents();
-        SocketServer ss = new SocketServer(6666, new CCMessageProcessor());
-        ss.start();
+        this.ccServer = new SocketServer(6666, new CCMessageProcessor(this));
+        this.ccServer.start();
     }
 
     /**
@@ -238,4 +242,9 @@ public class ControlCenter extends javax.swing.JFrame {
     private javax.swing.JLabel timeoutLabel;
     private javax.swing.JLabel titleLabel;
     // End of variables declaration//GEN-END:variables
+
+    void initFIClient() {
+        this.fiClient=new SocketClient("localhost",7777);
+        this.fiClient.send("ok");
+    }
 }

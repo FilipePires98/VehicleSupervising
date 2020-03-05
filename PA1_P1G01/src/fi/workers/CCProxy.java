@@ -6,10 +6,10 @@
 package fi.workers;
 
 import common.MessageProcessor;
-import fi.monitors.Granary;
-import fi.monitors.Path;
-import fi.monitors.Standing;
-import fi.monitors.Storehouse;
+import fi.ccInterfaces.GranaryCCInt;
+import fi.ccInterfaces.PathCCInt;
+import fi.ccInterfaces.StandingCCInt;
+import fi.ccInterfaces.StorehouseCCInt;
 
 /**
  *
@@ -17,12 +17,12 @@ import fi.monitors.Storehouse;
  */
 public class CCProxy extends Thread implements MessageProcessor {
     
-    private Storehouse storeHouse;
-    private Standing standing;
-    private Path path;
-    private Granary granary;
+    private StorehouseCCInt storeHouse;
+    private StandingCCInt standing;
+    private PathCCInt path;
+    private GranaryCCInt granary;
 
-    public CCProxy(Storehouse storeHouse,Standing standing,Path path,Granary granary) {
+    public CCProxy(StorehouseCCInt storeHouse,StandingCCInt standing,PathCCInt path,GranaryCCInt granary) {
         this.storeHouse=storeHouse;
         this.standing=standing;
         this.path=path;
@@ -30,10 +30,35 @@ public class CCProxy extends Thread implements MessageProcessor {
     }
 
     
-    
     @Override
     public void process(String message) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        String[] processedMessage = message.split(";");
+        switch(processedMessage[0]){
+            case "prepareOrder":
+                this.storeHouse.sendSelectionAndPrepareOrder(5);
+                break;
+            case "startHarvestOrder":
+                this.standing.sendStartOrder();
+                break;
+            case "collectOrder":
+                this.granary.sendCollectOrder();
+                break;
+            case "returnOrder":
+                this.granary.sendReturnOrder();
+                break;
+            case "stopHarvestOrder":
+                this.storeHouse.control("stopHarvest");
+                this.standing.control("stopHarvest");
+                this.path.control("stopHarvest");
+                this.granary.control("stopHarvest");
+                break;
+            case "endSimulationOrder":
+                this.storeHouse.control("endSimulation");
+                this.standing.control("endSimulation");
+                this.path.control("endSimulation");
+                this.granary.control("endSimulation");
+                break;
+        }
     }
     
 }

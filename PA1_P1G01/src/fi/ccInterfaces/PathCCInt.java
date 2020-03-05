@@ -12,5 +12,5 @@ import fi.farmerInterfaces.*;
  * @author joaoalegria
  */
 public interface PathCCInt {
-    public void control();
+    public void control(String action);
 }

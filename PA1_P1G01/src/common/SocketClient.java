@@ -18,12 +18,13 @@ import java.util.logging.Logger;
 public class SocketClient {
     
     private DataOutputStream out;
-    private Socket socket;
+    private Socket socket=null;
 
     public SocketClient(String ip, int port) {
         try {
-            this.socket = new Socket(ip, port);
-            // Create input and output streams to read from and write to the server
+            while(this.socket==null){
+                this.socket = new Socket(ip, port);
+            }
             this.out = new DataOutputStream( socket.getOutputStream() );
             
         } catch (IOException ex) {

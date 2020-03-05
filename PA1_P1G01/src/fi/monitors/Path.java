@@ -4,7 +4,9 @@ import fi.MonitorMetadata;
 import fi.ccInterfaces.PathCCInt;
 import fi.farmerInterfaces.PathFarmerInt;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
@@ -14,46 +16,163 @@ import java.util.logging.Logger;
  * Class for the Path Sector of the farm.
  * @author Filipe Pires (85122) and João Alegria (85048)
  */
+
 public class Path implements PathFarmerInt, PathCCInt {
     
+    private class ConditionAndPathDepth{
+        public Condition condition;
+        public int position;
+        public int depth;
+        
+        public ConditionAndPathDepth(Condition condition, int position, int depth){
+            this.condition=condition;
+            this.position=position;
+            this.depth=depth;
+        }
+    } 
+    
     private MonitorMetadata metadata;
+    private int pathLength;
     
-    private int MAXFARMERS=0;
-    private int currentNumFarmers=0;
+    private ReentrantLock rl = new ReentrantLock();
+    private Condition allInPath = rl.newCondition();
     
-    private ReentrantLock lock = new ReentrantLock();
-    private List<Condition> farmers = new ArrayList();
-    private Integer farmerPosition[][] = new Integer[5][10];
-    private int currentIteration=0;
-    private boolean run=true;
+    private int farmersInPath;
+    private List<Integer> farmersOrder;
+    private Integer currentFarmerToMove=null;
+    private Integer path[][];
+    private Map<Integer, ConditionAndPathDepth> farmersMetadata;
 
-    public Path(MonitorMetadata metadata) {
+
+    public Path(MonitorMetadata metadata, int pathLength) {
         this.metadata=metadata;
+        this.farmersInPath = 0;
+        this.farmersOrder=new ArrayList();
+        this.pathLength=pathLength;
+        this.path=new Integer[pathLength][metadata.NUMBERFARMERS];
+        this.farmersMetadata = new HashMap();
+    }
+    
+    private void selectSpot(int farmerId, boolean reverse){
+        int numberOfSteps=(int)((Math.random()*(metadata.NUMBERSTEPS-1))+1);
+        int newDepth;
+        if(reverse){
+            newDepth=this.farmersMetadata.get(farmerId).depth-numberOfSteps;
+        }else{
+            newDepth=this.farmersMetadata.get(farmerId).depth+numberOfSteps;
+        }
+        if(newDepth>=this.pathLength){
+            path[farmersMetadata.get(farmerId).depth][farmersMetadata.get(farmerId).position]=null;
+            farmersMetadata.get(farmerId).depth=newDepth;
+            return;
+        }
+        int randomPosition=(int)Math.random()*this.pathLength;
+        while(path[newDepth][randomPosition]!=null){
+            randomPosition=(int)Math.random()*this.pathLength;
+        }
+        path[farmersMetadata.get(farmerId).depth][farmersMetadata.get(farmerId).position]=null;
+        path[newDepth][randomPosition]=farmerId;
+        farmersMetadata.get(farmerId).position=randomPosition;
+        farmersMetadata.get(farmerId).depth=newDepth;
     }
 
     @Override
     public void farmerEnter(int farmerId) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        rl.lock();
+        try {
+            farmersInPath++;
+            farmersOrder.add(farmerId);
+            farmersMetadata.put(farmerId, new ConditionAndPathDepth(rl.newCondition(), -1, -1));
+            this.selectSpot(farmerId, false);
+            if(farmersInPath==metadata.NUMBERFARMERS){
+                allInPath.signalAll();
+                currentFarmerToMove=farmersOrder.get(0);
+            }
+            while(farmersInPath<metadata.NUMBERFARMERS){
+                allInPath.await();
+            }
+        } catch (InterruptedException ex) {
+            Logger.getLogger(Granary.class.getName()).log(Level.SEVERE, null, ex);
+        }finally{
+            rl.unlock();
+        }
     }
 
     @Override
     public void farmerGoToGranary(int farmerId) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        rl.lock();
+        try {
+            while(this.farmersMetadata.get(farmerId).depth<this.pathLength){
+                while(this.currentFarmerToMove!=farmerId){
+                    this.farmersMetadata.get(farmerId).condition.await();
+                }
+                this.selectSpot(farmerId, false);
+                this.currentFarmerToMove=(this.farmersOrder.indexOf(farmerId)+1)%this.pathLength;
+                this.farmersMetadata.get(this.currentFarmerToMove).condition.signalAll();
+            }
+            this.farmersInPath--;
+            this.farmersOrder.remove(farmerId);
+            this.farmersMetadata.remove(farmerId);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(Path.class.getName()).log(Level.SEVERE, null, ex);
+        }finally{
+            rl.unlock();
+        }
     }
 
     @Override
     public void farmerReturn(int farmerId) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        rl.lock();
+        try {
+            farmersInPath++;
+            farmersOrder.add(farmerId);
+            farmersMetadata.put(farmerId, new ConditionAndPathDepth(rl.newCondition(), this.pathLength, -1));
+            this.selectSpot(farmerId, true);
+            if(farmersInPath==metadata.NUMBERFARMERS){
+                allInPath.signalAll();
+                currentFarmerToMove=farmersOrder.get(0);
+            }else{
+                while(farmersInPath<metadata.NUMBERFARMERS){
+                    allInPath.await();
+                }
+            }
+        } catch (InterruptedException ex) {
+            Logger.getLogger(Granary.class.getName()).log(Level.SEVERE, null, ex);
+        }finally{
+            rl.unlock();
+        }
     }
 
     @Override
     public void farmerGoToStorehouse(int farmerId) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        rl.lock();
+        try {
+            while(this.farmersMetadata.get(farmerId).depth>0){
+                while(this.currentFarmerToMove!=farmerId){
+                    this.farmersMetadata.get(farmerId).condition.await();
+                }
+                this.selectSpot(farmerId, true);
+                this.currentFarmerToMove=(this.farmersOrder.indexOf(farmerId)+1)%this.pathLength;
+                this.farmersMetadata.get(this.currentFarmerToMove).condition.signalAll();
+            }
+            this.farmersInPath--;
+            this.farmersOrder.remove(farmerId);
+            this.farmersMetadata.remove(farmerId);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(Path.class.getName()).log(Level.SEVERE, null, ex);
+        }finally{
+            rl.unlock();
+        }
     }
 
     @Override
-    public void control() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void control(String action) {
+        switch(action){
+            case "stopHarvest":
+                break;
+            case "endSimulation":
+                break;
+        }
     }
 
     

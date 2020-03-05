@@ -11,28 +11,12 @@ package fi;
  */
 public class MonitorMetadata {
     
-    private int NUMBERFARMERS;
-    private int NUMBERSTEPS;
-    private int TIMEOUT;
+    public int NUMBERFARMERS;
+    public int NUMBERSTEPS;
+    public int TIMEOUT;
 
-    public MonitorMetadata(int numFarmers, int numSteps, int timeout) {
+    public MonitorMetadata(int numFarmers) {
         this.NUMBERFARMERS=numFarmers;
-        this.NUMBERSTEPS=numSteps;
-        this.TIMEOUT=timeout;
     }
-
-    public int getNUMBERFARMERS() {
-        return NUMBERFARMERS;
-    }
-
-    public int getNUMBERSTEPS() {
-        return NUMBERSTEPS;
-    }
-
-    public int getTIMEOUT() {
-        return TIMEOUT;
-    }
-    
-    
     
 }
