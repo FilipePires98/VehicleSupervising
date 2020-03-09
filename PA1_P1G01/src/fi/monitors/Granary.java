@@ -16,6 +16,10 @@ import java.util.logging.Logger;
  */
 public class Granary implements GranaryFarmerInt, GranaryCCInt{
     
+    /*
+        Monitor variables
+    */
+    
     private MonitorMetadata metadata;
     
     private ReentrantLock rl = new ReentrantLock();
@@ -29,10 +33,26 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
     private boolean readyToCollect=false;
     private boolean readyToReturn=false;
     
+    /*
+        Constructors
+    */
+    
+    /**
+     * Granary monitor constructor.
+     * @param metadata 
+     */
     public Granary(MonitorMetadata metadata) {
         this.metadata=metadata;
     }
+    
+    /*
+        Methods executed by farmers
+    */
 
+    /**
+     * 
+     * @param farmerId 
+     */
     @Override
     public void farmerEnter(int farmerId) {
         rl.lock();
@@ -51,6 +71,10 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
         }
     }
 
+    /**
+     * 
+     * @param farmerId 
+     */
     @Override
     public void farmerWaitCollectOrder(int farmerId) {
         rl.lock();
@@ -67,6 +91,10 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
         }
     }
 
+    /**
+     * 
+     * @param farmerId 
+     */
     @Override
     public void farmerCollect(int farmerId) {
         rl.lock();
@@ -86,6 +114,10 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
         }
     }
 
+    /**
+     * 
+     * @param farmerId 
+     */
     @Override
     public void farmerWaitReturnOrder(int farmerId) {
         rl.lock();
@@ -106,7 +138,14 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
             rl.unlock();
         }
     }
+    
+    /*
+        Methods executed by Message Processor
+    */
 
+    /**
+     * 
+     */
     @Override
     public void waitAllFarmersReadyToCollect() {
         rl.lock();
@@ -123,12 +162,18 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
         }
     }
 
+    /**
+     * 
+     */
     @Override
     public void sendCollectOrder() {
         this.readyToCollect=true;
         this.waitCollectOrder.signalAll();
     }
 
+    /**
+     * 
+     */
     @Override
     public void waitAllFarmersCollect() {
         rl.lock();
@@ -145,12 +190,19 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
         }
     }
 
+    /**
+     * 
+     */
     @Override
     public void sendReturnOrder() {
         this.readyToReturn=true;
         this.waitReturnOrder.signalAll();
     }
 
+    /**
+     * 
+     * @param action 
+     */
     @Override
     public void control(String action) {
         switch(action){

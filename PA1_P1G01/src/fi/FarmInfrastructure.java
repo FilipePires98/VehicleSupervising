@@ -4,6 +4,7 @@ import fi.monitors.Standing;
 import fi.monitors.Storehouse;
 import fi.monitors.Path;
 import fi.monitors.Granary;
+import fi.workers.Farmer;
 import fi.workers.CCProxy;
 import common.SocketClient;
 import common.SocketServer;
@@ -687,19 +688,34 @@ public class FarmInfrastructure extends javax.swing.JFrame {
         //</editor-fold>
         //</editor-fold>
 
-        
+        int teamSize = 5;
+        if(args.length>1) {
+            int inputTeamSize = Integer.valueOf(args[1]);
+            if(inputTeamSize > 0 && inputTeamSize <= 5) {
+                teamSize = inputTeamSize;
+            } else {
+                System.err.println("Invalid number of farmers. Set to default (5).");
+            }
+        }
         
         try {
             // https://www.javaworld.com/article/2853780/socket-programming-for-scalable-systems.html
             
             // Init infrastructure
 
-            MonitorMetadata metadata = new MonitorMetadata(5);
+            MonitorMetadata metadata = new MonitorMetadata(teamSize);
             
-            Storehouse storeHouse = new Storehouse(metadata);
+            Storehouse storeHouse = new Storehouse(metadata,teamSize);
             Standing standing = new Standing(metadata);
             Path path = new Path(metadata,10);
             Granary granary = new Granary(metadata);
+            
+            Farmer[] farmerTeam = new Farmer[teamSize];
+            for(int i=0; i<teamSize; i++) {
+                Farmer f = new Farmer(i+1,storeHouse,standing,path,granary);
+                f.start();
+                farmerTeam[i] = f;
+            }
             
             CCProxy messageProcessor = new CCProxy(storeHouse, standing, path, granary);
             // Connect to the server

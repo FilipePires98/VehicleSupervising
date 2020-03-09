@@ -7,6 +7,7 @@ package fi;
 public class MonitorMetadata {
     
     public int NUMBERFARMERS;
+    public int NUMBERCORNCOBS;
     public int NUMBERSTEPS;
     public int TIMEOUT;
 

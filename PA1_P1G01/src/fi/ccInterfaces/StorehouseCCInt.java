@@ -9,7 +9,7 @@ import fi.farmerInterfaces.*;
 public interface StorehouseCCInt {
     
     public void control(String action);
-    public void sendSelectionAndPrepareOrder(int numberOfFarmers);
+    public void sendSelectionAndPrepareOrder(int numberOfFarmers, int numberOfCornCobs, int maxNumberOfSteps, int timeout);
     public void waitAllFarmersReady();
     
 }

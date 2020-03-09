@@ -8,7 +8,7 @@ import fi.farmerInterfaces.*;
  */
 public interface StandingCCInt {
     
-    public void waitForAllFarmers();
+    //public void waitForAllFarmers();
     public void sendStartOrder();
     public void control(String action);
     

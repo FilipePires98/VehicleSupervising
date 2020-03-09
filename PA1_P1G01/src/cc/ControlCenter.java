@@ -25,6 +25,10 @@ public class ControlCenter extends javax.swing.JFrame {
         this.ccServer = new SocketServer(6666, new CCMessageProcessor(this));
         this.ccServer.start();
     }
+    
+    void initFIClient() {
+        this.fiClient=new SocketClient("localhost",7777);
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -197,16 +201,17 @@ public class ControlCenter extends javax.swing.JFrame {
             this.numCornCobs.setValue((Integer)this.numFarmers.getValue()*10);
             System.err.println("[CC]: Not enough 'Number of Corn Cobs' for every farmer! Set to default (" + ((Integer)this.numCornCobs.getValue()).toString() + "0).");
         }
-        if((Integer)this.timeout.getValue()>1000 || (Integer)this.timeout.getValue()<0) {
-            this.timeout.setValue(500);
-            System.err.println("[CC]: Invalid input on 'Timeout'! Set to default (500ms).");
-        }
         if((Integer)this.maxStep.getValue()>2 || (Integer)this.maxStep.getValue()<1) {
             this.maxStep.setValue(1);
             System.err.println("[CC]: Invalid input on 'Max. Step'! Set to default (1).");
         }
+        if((Integer)this.timeout.getValue()>1000 || (Integer)this.timeout.getValue()<0) {
+            this.timeout.setValue(500);
+            System.err.println("[CC]: Invalid input on 'Timeout'! Set to default (500ms).");
+        }
         
         // Send message to FI to place farmer IDs in respective Storehouse positions
+        fiClient.send("prepareOrder;" + this.numFarmers + ";" + this.numCornCobs + ";" + this.maxStep + ";" + this.timeout);
         
         // Send message to FI to update number of Corn Cobs in Granary
         
@@ -310,7 +315,4 @@ public class ControlCenter extends javax.swing.JFrame {
     private javax.swing.JLabel titleLabel;
     // End of variables declaration//GEN-END:variables
 
-    void initFIClient() {
-        this.fiClient=new SocketClient("localhost",7777);
-    }
 }

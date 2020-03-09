@@ -7,7 +7,7 @@ import fi.ccInterfaces.StandingCCInt;
 import fi.ccInterfaces.StorehouseCCInt;
 
 /**
- * 
+ * Message processor for the Farm Infrastructure.
  * @author Filipe Pires (85122) and João Alegria (85048)
  */
 public class CCProxy extends Thread implements MessageProcessor {
@@ -29,8 +29,14 @@ public class CCProxy extends Thread implements MessageProcessor {
     public void process(String message) {
         String[] processedMessage = message.split(";");
         switch(processedMessage[0]){
+            case "simulationready":
+                this.storeHouse.waitAllFarmersReady();
+                break;
             case "prepareOrder":
-                this.storeHouse.sendSelectionAndPrepareOrder(5);
+                if(processedMessage.length<5) {
+                    System.err.println("[FI]: Error when processing 'prepareOrder' message. Unable to start simulation.");
+                }
+                this.storeHouse.sendSelectionAndPrepareOrder(Integer.valueOf(processedMessage[1]),Integer.valueOf(processedMessage[2]),Integer.valueOf(processedMessage[3]),Integer.valueOf(processedMessage[4]));
                 break;
             case "startHarvestOrder":
                 this.standing.sendStartOrder();
@@ -40,12 +46,14 @@ public class CCProxy extends Thread implements MessageProcessor {
                 break;
             case "returnOrder":
                 this.granary.sendReturnOrder();
+                this.storeHouse.waitAllFarmersReady();
                 break;
             case "stopHarvestOrder":
                 this.storeHouse.control("stopHarvest");
                 this.standing.control("stopHarvest");
                 this.path.control("stopHarvest");
                 this.granary.control("stopHarvest");
+                this.storeHouse.waitAllFarmersReady();
                 break;
             case "endSimulationOrder":
                 this.storeHouse.control("endSimulation");

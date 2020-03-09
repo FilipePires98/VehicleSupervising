@@ -19,6 +19,9 @@ import java.util.logging.Logger;
 
 public class Path implements PathFarmerInt, PathCCInt {
     
+    /**
+     * Private inner class for holding useful information for tracking farmers while moving inside the Path. 
+     */
     private class ConditionAndPathDepth{
         public Condition condition;
         public int position;
@@ -30,6 +33,10 @@ public class Path implements PathFarmerInt, PathCCInt {
             this.depth=depth;
         }
     } 
+    
+    /*
+        Monitor variables
+    */
     
     private MonitorMetadata metadata;
     private int pathLength;
@@ -43,7 +50,15 @@ public class Path implements PathFarmerInt, PathCCInt {
     private Integer path[][];
     private Map<Integer, ConditionAndPathDepth> farmersMetadata;
 
+    /*
+        Constructors
+    */
 
+    /**
+     * Path monitor constructor.
+     * @param metadata
+     * @param pathLength 
+     */
     public Path(MonitorMetadata metadata, int pathLength) {
         this.metadata=metadata;
         this.farmersInPath = 0;
@@ -53,29 +68,14 @@ public class Path implements PathFarmerInt, PathCCInt {
         this.farmersMetadata = new HashMap();
     }
     
-    private void selectSpot(int farmerId, boolean reverse){
-        int numberOfSteps=(int)((Math.random()*(metadata.NUMBERSTEPS-1))+1);
-        int newDepth;
-        if(reverse){
-            newDepth=this.farmersMetadata.get(farmerId).depth-numberOfSteps;
-        }else{
-            newDepth=this.farmersMetadata.get(farmerId).depth+numberOfSteps;
-        }
-        if(newDepth>=this.pathLength){
-            path[farmersMetadata.get(farmerId).depth][farmersMetadata.get(farmerId).position]=null;
-            farmersMetadata.get(farmerId).depth=newDepth;
-            return;
-        }
-        int randomPosition=(int)Math.random()*this.pathLength;
-        while(path[newDepth][randomPosition]!=null){
-            randomPosition=(int)Math.random()*this.pathLength;
-        }
-        path[farmersMetadata.get(farmerId).depth][farmersMetadata.get(farmerId).position]=null;
-        path[newDepth][randomPosition]=farmerId;
-        farmersMetadata.get(farmerId).position=randomPosition;
-        farmersMetadata.get(farmerId).depth=newDepth;
-    }
-
+    /*
+        Methods executed by farmers
+    */
+    
+    /**
+     * 
+     * @param farmerId 
+     */
     @Override
     public void farmerEnter(int farmerId) {
         rl.lock();
@@ -92,12 +92,16 @@ public class Path implements PathFarmerInt, PathCCInt {
                 allInPath.await();
             }
         } catch (InterruptedException ex) {
-            Logger.getLogger(Granary.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Path.class.getName()).log(Level.SEVERE, null, ex);
         }finally{
             rl.unlock();
         }
     }
 
+    /**
+     * 
+     * @param farmerId 
+     */
     @Override
     public void farmerGoToGranary(int farmerId) {
         rl.lock();
@@ -119,7 +123,11 @@ public class Path implements PathFarmerInt, PathCCInt {
             rl.unlock();
         }
     }
-
+    
+    /**
+     * 
+     * @param farmerId 
+     */
     @Override
     public void farmerReturn(int farmerId) {
         rl.lock();
@@ -143,6 +151,10 @@ public class Path implements PathFarmerInt, PathCCInt {
         }
     }
 
+    /**
+     * 
+     * @param farmerId 
+     */
     @Override
     public void farmerGoToStorehouse(int farmerId) {
         rl.lock();
@@ -164,7 +176,43 @@ public class Path implements PathFarmerInt, PathCCInt {
             rl.unlock();
         }
     }
+    
+    /**
+     * 
+     * @param farmerId
+     * @param reverse 
+     */
+    private void selectSpot(int farmerId, boolean reverse){
+        int numberOfSteps=(int)((Math.random()*(metadata.NUMBERSTEPS-1))+1);
+        int newDepth;
+        if(reverse){
+            newDepth=this.farmersMetadata.get(farmerId).depth-numberOfSteps;
+        }else{
+            newDepth=this.farmersMetadata.get(farmerId).depth+numberOfSteps;
+        }
+        if(newDepth>=this.pathLength){
+            path[farmersMetadata.get(farmerId).depth][farmersMetadata.get(farmerId).position]=null;
+            farmersMetadata.get(farmerId).depth=newDepth;
+            return;
+        }
+        int randomPosition=(int)Math.random()*this.pathLength;
+        while(path[newDepth][randomPosition]!=null){
+            randomPosition=(int)Math.random()*this.pathLength;
+        }
+        path[farmersMetadata.get(farmerId).depth][farmersMetadata.get(farmerId).position]=null;
+        path[newDepth][randomPosition]=farmerId;
+        farmersMetadata.get(farmerId).position=randomPosition;
+        farmersMetadata.get(farmerId).depth=newDepth;
+    }
 
+    /*
+        Methods executed by Message Processor
+    */
+
+    /**
+     * 
+     * @param action 
+     */
     @Override
     public void control(String action) {
         switch(action){
