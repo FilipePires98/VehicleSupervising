@@ -6,13 +6,14 @@ package fi;
  */
 public class MonitorMetadata {
     
+    public int MAXNUMBERFARMERS;
     public int NUMBERFARMERS;
     public int NUMBERCORNCOBS;
     public int NUMBERSTEPS;
     public int TIMEOUT;
 
     public MonitorMetadata(int numFarmers) {
-        this.NUMBERFARMERS=numFarmers;
+        this.MAXNUMBERFARMERS=numFarmers;
     }
     
 }

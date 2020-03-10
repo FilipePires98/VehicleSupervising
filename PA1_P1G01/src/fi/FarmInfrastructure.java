@@ -121,19 +121,14 @@ public class FarmInfrastructure extends javax.swing.JFrame {
 
         storehouseLabel.setText("Storehouse");
 
-        c1l1.setText("1");
         c1l1.setEnabled(false);
 
-        c1l2.setText("1");
         c1l2.setEnabled(false);
 
-        c1l3.setText("1");
         c1l3.setEnabled(false);
 
-        c1l4.setText("1");
         c1l4.setEnabled(false);
 
-        c1l5.setText("1");
         c1l5.setEnabled(false);
 
         jLabel1.setText("Corn Cobs");
@@ -717,12 +712,14 @@ public class FarmInfrastructure extends javax.swing.JFrame {
                 farmerTeam[i] = f;
             }
             
-            CCProxy messageProcessor = new CCProxy(storeHouse, standing, path, granary);
+            ccClient = new SocketClient("localhost", 6666);
+            CCProxy messageProcessor = new CCProxy(ccClient, storeHouse, standing, path, granary);
             // Connect to the server
             fiServer = new SocketServer(7777, messageProcessor);
             fiServer.start();
-            ccClient = new SocketClient("localhost", 6666);
             ccClient.send("infrastructureServerOnline");
+            
+            
             
             
         } catch (Exception e) {
@@ -735,9 +732,13 @@ public class FarmInfrastructure extends javax.swing.JFrame {
                 }
             });
         }
-        
-        
     }
+    
+    public void sendMessage(String message){
+        this.ccClient.send(message);
+    }
+    
+    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel PathLabel;

@@ -27,12 +27,15 @@ public class CCMessageProcessor extends Thread implements MessageProcessor {
                 this.cc.initFIClient();
                 break;
             case "allFarmersrReadyToStart":
+                this.cc.enableStartBtn();
                 break;
             case "allFarmersrReadyToCollect":
+                this.cc.enableCollectBtn();
                 break;
             case "allFarmersrReadyToReturn":
                 break;
             case "allFarmersrReadyWaiting":
+                this.cc.enablePrepareBtn();
                 break;
         }
     }
