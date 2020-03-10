@@ -1,5 +1,6 @@
 package fi.monitors;
 
+import fi.FarmInfrastructure;
 import fi.MonitorMetadata;
 import fi.ccInterfaces.PathCCInt;
 import fi.farmerInterfaces.PathFarmerInt;
@@ -38,6 +39,7 @@ public class Path implements PathFarmerInt, PathCCInt {
         Monitor variables
     */
     
+    private FarmInfrastructure fi;
     private MonitorMetadata metadata;
     private int pathLength;
     
@@ -57,10 +59,12 @@ public class Path implements PathFarmerInt, PathCCInt {
 
     /**
      * Path monitor constructor.
+     * @param fi
      * @param metadata
      * @param pathLength 
      */
-    public Path(MonitorMetadata metadata, int pathLength) {
+    public Path(FarmInfrastructure fi, MonitorMetadata metadata, int pathLength) {
+        this.fi = fi;
         this.metadata=metadata;
         this.farmersInPath = 0;
         this.farmersOrder=new ArrayList();

@@ -1,16 +1,11 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package cc;
 
 import common.SocketClient;
 import common.SocketServer;
 
 /**
- *
- * @author joaoalegria
+ * 
+ * @author Filipe Pires (85122) and João Alegria (85048)
  */
 public class ControlCenter extends javax.swing.JFrame {
 
@@ -54,6 +49,7 @@ public class ControlCenter extends javax.swing.JFrame {
         collectBtn = new javax.swing.JButton();
         returnBtn = new javax.swing.JButton();
         stopBtn = new javax.swing.JButton();
+        exitBtn = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -114,43 +110,49 @@ public class ControlCenter extends javax.swing.JFrame {
             }
         });
 
+        exitBtn.setText("Exit");
+        exitBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                exitBtnActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(farmersLabel)
                             .addComponent(timeoutLabel))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(timeout, javax.swing.GroupLayout.PREFERRED_SIZE, 68, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(numFarmers))
-                        .addGap(106, 106, 106)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(cobsLabel)
-                            .addComponent(stepLabel))
+                            .addComponent(numFarmers, javax.swing.GroupLayout.PREFERRED_SIZE, 68, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(titleLabel)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(prepareBtn)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(numCornCobs, javax.swing.GroupLayout.DEFAULT_SIZE, 68, Short.MAX_VALUE)
-                            .addComponent(maxStep))
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(prepareBtn)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(startBtn)
-                                .addGap(70, 70, 70)
-                                .addComponent(collectBtn))
-                            .addComponent(titleLabel))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(returnBtn)
+                        .addComponent(startBtn)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(collectBtn)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(returnBtn)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(cobsLabel)
+                    .addComponent(stepLabel)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(92, 92, 92)
                         .addComponent(stopBtn)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(numCornCobs, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(maxStep, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(exitBtn, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 68, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -171,12 +173,14 @@ public class ControlCenter extends javax.swing.JFrame {
                     .addComponent(timeout, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(maxStep, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(prepareBtn)
-                    .addComponent(startBtn)
-                    .addComponent(collectBtn)
-                    .addComponent(returnBtn)
-                    .addComponent(stopBtn))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(exitBtn)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(prepareBtn)
+                        .addComponent(startBtn)
+                        .addComponent(collectBtn)
+                        .addComponent(returnBtn)
+                        .addComponent(stopBtn)))
                 .addContainerGap(14, Short.MAX_VALUE))
         );
 
@@ -184,6 +188,9 @@ public class ControlCenter extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void prepareBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_prepareBtnActionPerformed
+        
+        System.out.println("[CC] Preparation requested.");
+        
         // Update UI
 //        this.startBtn.setEnabled(true); // only if all farmers are in the standing area!
         this.returnBtn.setEnabled(true);
@@ -196,19 +203,19 @@ public class ControlCenter extends javax.swing.JFrame {
         // Validate input
         if((Integer)this.numFarmers.getValue()>5 || (Integer)this.numFarmers.getValue()<2) {
             this.numFarmers.setValue(5);
-            System.err.println("[CC]: Invalid input on 'Number of Farmers'! Set to default (5).");
+            System.err.println("[CC] Invalid input on 'Number of Farmers'! Set to default (5).");
         }
         if((Integer)this.numCornCobs.getValue()<(Integer)this.numFarmers.getValue()*10) {
             this.numCornCobs.setValue((Integer)this.numFarmers.getValue()*10);
-            System.err.println("[CC]: Not enough 'Number of Corn Cobs' for every farmer! Set to default (" + ((Integer)this.numCornCobs.getValue()).toString() + "0).");
+            System.err.println("[CC] Not enough 'Number of Corn Cobs' for every farmer! Set to default (" + ((Integer)this.numCornCobs.getValue()).toString() + "0).");
         }
         if((Integer)this.maxStep.getValue()>2 || (Integer)this.maxStep.getValue()<1) {
             this.maxStep.setValue(1);
-            System.err.println("[CC]: Invalid input on 'Max. Step'! Set to default (1).");
+            System.err.println("[CC] Invalid input on 'Max. Step'! Set to default (1).");
         }
         if((Integer)this.timeout.getValue()>1000 || (Integer)this.timeout.getValue()<0) {
             this.timeout.setValue(500);
-            System.err.println("[CC]: Invalid input on 'Timeout'! Set to default (500ms).");
+            System.err.println("[CC] Invalid input on 'Timeout'! Set to default (500ms).");
         }
         
         // Send message to FI to place farmer IDs in respective Storehouse positions
@@ -233,6 +240,9 @@ public class ControlCenter extends javax.swing.JFrame {
     }
     
     private void startBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startBtnActionPerformed
+        
+        System.out.println("[CC] Start requested.");
+        
         // Update UI
 //        this.collectBtn.setEnabled(true); // only if all farmers are in the granary!
         this.startBtn.setEnabled(false);
@@ -242,6 +252,9 @@ public class ControlCenter extends javax.swing.JFrame {
     }//GEN-LAST:event_startBtnActionPerformed
 
     private void collectBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_collectBtnActionPerformed
+        
+        System.out.println("[CC] Corn collection requested.");
+        
         // Update UI
 //        this.returnBtn.setEnabled(true); // only if all farmers have (tried to) grab corn cobs!
         this.collectBtn.setEnabled(false);
@@ -251,6 +264,9 @@ public class ControlCenter extends javax.swing.JFrame {
     }//GEN-LAST:event_collectBtnActionPerformed
 
     private void returnBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_returnBtnActionPerformed
+        
+        System.out.println("[CC] Return to storehouse requested.");
+        
         // Update UI
 //        this.stopBtn.setEnabled(true);
         this.returnBtn.setEnabled(false);
@@ -261,6 +277,9 @@ public class ControlCenter extends javax.swing.JFrame {
     }//GEN-LAST:event_returnBtnActionPerformed
 
     private void stopBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stopBtnActionPerformed
+        
+        System.out.println("[CC] Work stop requested.");
+        
         // Update UI
         this.startBtn.setEnabled(false);
         this.collectBtn.setEnabled(false);
@@ -275,6 +294,14 @@ public class ControlCenter extends javax.swing.JFrame {
         // Send message to FI for farmers to immediately stop what they are doing and go back to the Storehouse
         
     }//GEN-LAST:event_stopBtnActionPerformed
+
+    private void exitBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitBtnActionPerformed
+        
+        System.out.println("[CC] Simulation shutdown requested.");
+        
+        // Send message to FI for farmers to kill themselves, close the sockets and end the processes and UIs
+        
+    }//GEN-LAST:event_exitBtnActionPerformed
 
     /**
      * @param args the command line arguments
@@ -314,6 +341,7 @@ public class ControlCenter extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel cobsLabel;
     private javax.swing.JButton collectBtn;
+    private javax.swing.JButton exitBtn;
     private javax.swing.JLabel farmersLabel;
     private javax.swing.JSpinner maxStep;
     private javax.swing.JSpinner numCornCobs;

@@ -1,5 +1,6 @@
 package fi.monitors;
 
+import fi.FarmInfrastructure;
 import fi.MonitorMetadata;
 import fi.ccInterfaces.StandingCCInt;
 import fi.farmerInterfaces.StandingFarmerInt;
@@ -20,7 +21,9 @@ public class Standing implements StandingFarmerInt, StandingCCInt {
         Monitor variables
     */
 
+    private FarmInfrastructure fi;
     private MonitorMetadata metadata;
+    
     private int farmersInStanding=0;
     private boolean startOrderGiven=false;
     
@@ -34,9 +37,11 @@ public class Standing implements StandingFarmerInt, StandingCCInt {
     
     /**
      * Standing Area monitor constructor.
+     * @param fi
      * @param metadata 
      */
-    public Standing(MonitorMetadata metadata) {
+    public Standing(FarmInfrastructure fi, MonitorMetadata metadata) {
+        this.fi = fi;
         this.metadata=metadata;
         positions=new HashMap<Integer, Integer>();
         availablePosition=new ArrayList<Integer>();

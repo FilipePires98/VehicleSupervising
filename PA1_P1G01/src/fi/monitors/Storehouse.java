@@ -1,5 +1,6 @@
 package fi.monitors;
 
+import fi.FarmInfrastructure;
 import fi.MonitorMetadata;
 import fi.ccInterfaces.StorehouseCCInt;
 import fi.farmerInterfaces.StorehouseFarmerInt;
@@ -7,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
@@ -22,6 +24,7 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
         Monitor variables
     */
 
+    private FarmInfrastructure fi;
     private MonitorMetadata metadata;
     
     private ReentrantLock rl = new ReentrantLock();
@@ -43,10 +46,12 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
     
     /**
      * Storehouse monitor constructor.
+     * @param fi
      * @param metadata
      * @param totalNumberOfFarmers 
      */
-    public Storehouse(MonitorMetadata metadata, int totalNumberOfFarmers) {
+    public Storehouse(FarmInfrastructure fi, MonitorMetadata metadata, int totalNumberOfFarmers) {
+        this.fi = fi;
         this.metadata=metadata;
         farmersInStorehouse = 0;
         farmersSelected = 0;
@@ -64,12 +69,6 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
         Methods executed by farmers
     */
     
-    private void selectSpot(int farmerId){
-        int randomPosition=(int)Math.random()*(this.availablePosition.size()-1);
-        this.positions.put(farmerId, availablePosition.get(randomPosition));
-        this.availablePosition.remove(randomPosition);
-    }
-    
     /**
      * 
      * @param farmerId 
@@ -80,6 +79,7 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
         try {
             farmersInStorehouse++;
             this.selectSpot(farmerId);
+            System.out.println("[Storehouse] Farmer " + farmerId + " entered.");
             if(farmersInStorehouse==this.metadata.MAXNUMBERFARMERS) {
                 allInStorehouse.signalAll();
             }
@@ -159,6 +159,7 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
             this.metadata.NUMBERSTEPS = maxNumberOfSteps;
             this.metadata.TIMEOUT = timeout;
             this.prepareOrderGiven = true;
+            System.out.println("[Storehouse] Prepare order given.");
             this.prepareOrder.signalAll();
         }
         finally{
@@ -179,6 +180,16 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
             case "endSimulation":
                 break;
         }
+    }
+    
+    /*
+        Aux Methods
+    */
+    
+    private void selectSpot(int farmerId){
+        int randomPosition=(int)Math.random()*(this.availablePosition.size()-1);
+        this.positions.put(farmerId, availablePosition.get(randomPosition));
+        this.availablePosition.remove(randomPosition);
     }
 
 }

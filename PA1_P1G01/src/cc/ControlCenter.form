@@ -25,7 +25,7 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="1" max="-2" attributes="0">
+              <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Component id="farmersLabel" alignment="0" min="-2" max="-2" attributes="0"/>
@@ -34,36 +34,34 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" max="-2" attributes="0">
                           <Component id="timeout" min="-2" pref="68" max="-2" attributes="0"/>
-                          <Component id="numFarmers" max="32767" attributes="0"/>
+                          <Component id="numFarmers" min="-2" pref="68" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace min="-2" pref="106" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="cobsLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                          <Component id="stepLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                          <Component id="numCornCobs" pref="68" max="32767" attributes="0"/>
-                          <Component id="maxStep" max="32767" attributes="0"/>
-                      </Group>
-                      <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                   </Group>
+                  <Component id="titleLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="prepareBtn" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="startBtn" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace min="-2" pref="70" max="-2" attributes="0"/>
-                              <Component id="collectBtn" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Component id="titleLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace max="32767" attributes="0"/>
-                      <Component id="returnBtn" min="-2" max="-2" attributes="0"/>
+                      <Component id="prepareBtn" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
+                      <Component id="startBtn" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="collectBtn" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="returnBtn" min="-2" max="-2" attributes="0"/>
+                  </Group>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                  <Component id="cobsLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                  <Component id="stepLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                  <Group type="102" alignment="0" attributes="0">
+                      <EmptySpace min="92" pref="92" max="-2" attributes="0"/>
                       <Component id="stopBtn" min="-2" max="-2" attributes="0"/>
                   </Group>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                  <Component id="numCornCobs" alignment="1" max="32767" attributes="0"/>
+                  <Component id="maxStep" alignment="1" max="32767" attributes="0"/>
+                  <Component id="exitBtn" alignment="1" min="-2" pref="68" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="32767" attributes="0"/>
           </Group>
@@ -89,12 +87,15 @@
                   <Component id="maxStep" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace type="unrelated" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="prepareBtn" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="startBtn" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="collectBtn" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="returnBtn" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="stopBtn" alignment="3" min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="exitBtn" alignment="0" min="-2" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="prepareBtn" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="startBtn" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="collectBtn" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="returnBtn" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="stopBtn" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
               </Group>
               <EmptySpace pref="14" max="32767" attributes="0"/>
           </Group>
@@ -197,6 +198,14 @@
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="stopBtnActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JButton" name="exitBtn">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Exit"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="exitBtnActionPerformed"/>
       </Events>
     </Component>
   </SubComponents>
