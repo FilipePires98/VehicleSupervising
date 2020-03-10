@@ -50,7 +50,7 @@ public class FarmInfrastructure extends javax.swing.JFrame {
             farmerTeam[i] = f;
         }
         
-        messageProcessor = new CCProxy(storeHouse, standing, path, granary);
+        messageProcessor = new CCProxy(ccClient, storeHouse, standing, path, granary);
         
     }
 
@@ -715,7 +715,6 @@ public class FarmInfrastructure extends javax.swing.JFrame {
         try {
             fiServer = new SocketServer(7777, messageProcessor);
             fiServer.start();
-            ccClient = new SocketClient("localhost", 6666);
             ccClient.send("infrastructureServerOnline");
             
         } catch (Exception e) {
@@ -728,6 +727,10 @@ public class FarmInfrastructure extends javax.swing.JFrame {
                 }
             });
         }
+    }
+    
+    public void sendMessage(String message){
+        this.ccClient.send(message);
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -1071,7 +1074,4 @@ public class FarmInfrastructure extends javax.swing.JFrame {
         return sh5;
     }
 
-    
-    
-    
 }

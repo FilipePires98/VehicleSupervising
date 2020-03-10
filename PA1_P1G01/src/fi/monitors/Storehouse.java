@@ -4,7 +4,9 @@ import fi.FarmInfrastructure;
 import fi.MonitorMetadata;
 import fi.ccInterfaces.StorehouseCCInt;
 import fi.farmerInterfaces.StorehouseFarmerInt;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.locks.Condition;
@@ -34,6 +36,10 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
     //private Map<Integer, Integer> farmersMetadata; // <farmerID,numCornCobs>
     private boolean prepareOrderGiven;
     
+    private Map positions;
+    private List availablePosition;
+
+    
     /*
         Constructors
     */
@@ -51,6 +57,12 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
         farmersSelected = 0;
         //farmersMetadata = new HashMap();
         prepareOrderGiven = false;
+        positions=new HashMap<Integer, Integer>();
+        availablePosition=new ArrayList<Integer>();
+        for(int i=0; i<this.metadata.MAXNUMBERFARMERS;i++){
+            availablePosition.add(i);
+        }
+        
     }
     
     /*
@@ -66,11 +78,12 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
         rl.lock();
         try {
             farmersInStorehouse++;
+            this.selectSpot(farmerId);
             System.out.println("[Storehouse] Farmer " + farmerId + " entered.");
-            if(farmersInStorehouse==this.metadata.NUMBERFARMERS) {
+            if(farmersInStorehouse==this.metadata.MAXNUMBERFARMERS) {
                 allInStorehouse.signalAll();
             }
-            while(farmersInStorehouse<this.metadata.NUMBERFARMERS){
+            while(farmersInStorehouse<this.metadata.MAXNUMBERFARMERS){
                 allInStorehouse.await();
             }
         } catch (InterruptedException ex) {
@@ -94,6 +107,8 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
                     if(farmersSelected<metadata.NUMBERFARMERS) {
                         farmersSelected++;
                         farmersInStorehouse--;
+                        this.availablePosition.add(this.positions.get(farmerId));
+                        this.positions.remove(farmerId);
                     } else {
                         prepareOrderGiven = false;
                         farmersSelected = 0;
@@ -118,7 +133,7 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
     public void waitAllFarmersReady() {
         rl.lock();
         try {
-            while(farmersInStorehouse<metadata.NUMBERFARMERS){
+            while(farmersInStorehouse<metadata.MAXNUMBERFARMERS){
                 allInStorehouse.await();
             }
         } catch (InterruptedException ex) {
@@ -137,13 +152,20 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
      */
     @Override
     public void sendSelectionAndPrepareOrder(int numberOfFarmers, int numberOfCornCobs, int maxNumberOfSteps, int timeout) {
-        metadata.NUMBERFARMERS = numberOfFarmers;
-        metadata.NUMBERCORNCOBS = numberOfCornCobs;
-        metadata.NUMBERSTEPS = maxNumberOfSteps;
-        metadata.TIMEOUT = timeout;
-        prepareOrderGiven = true;
-        prepareOrder.signalAll();
-        System.out.println("[Storehouse] Prepare order given.");
+        rl.lock();
+        try{
+            this.metadata.NUMBERFARMERS = numberOfFarmers;
+            this.metadata.NUMBERCORNCOBS = numberOfCornCobs;
+            this.metadata.NUMBERSTEPS = maxNumberOfSteps;
+            this.metadata.TIMEOUT = timeout;
+            this.prepareOrderGiven = true;
+            System.out.println("[Storehouse] Prepare order given.");
+            this.prepareOrder.signalAll();
+        }
+        finally{
+            rl.unlock();
+        }
+        
     }
     
     /**
@@ -164,12 +186,10 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
         Aux Methods
     */
     
-    private static int getRandInt(int min, int max) {
-        if (min >= max) {
-            throw new IllegalArgumentException("max must be greater than min");
-        }
-        Random r = new Random();
-        return r.nextInt((max - min) + 1) + min;
+    private void selectSpot(int farmerId){
+        int randomPosition=(int)Math.random()*(this.availablePosition.size()-1);
+        this.positions.put(farmerId, availablePosition.get(randomPosition));
+        this.availablePosition.remove(randomPosition);
     }
 
 }

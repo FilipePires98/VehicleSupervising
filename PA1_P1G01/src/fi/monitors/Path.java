@@ -68,7 +68,7 @@ public class Path implements PathFarmerInt, PathCCInt {
         this.farmersInPath = 0;
         this.farmersOrder=new ArrayList();
         this.pathLength=pathLength;
-        this.path=new Integer[pathLength][metadata.NUMBERFARMERS];
+        this.path=new Integer[pathLength][metadata.MAXNUMBERFARMERS];
         this.farmersMetadata = new HashMap();
     }
     
@@ -88,6 +88,8 @@ public class Path implements PathFarmerInt, PathCCInt {
             farmersOrder.add(farmerId);
             farmersMetadata.put(farmerId, new ConditionAndPathDepth(rl.newCondition(), -1, -1));
             this.selectSpot(farmerId, false);
+            System.out.println(metadata.NUMBERFARMERS);
+
             if(farmersInPath==metadata.NUMBERFARMERS){
                 allInPath.signalAll();
                 currentFarmerToMove=farmersOrder.get(0);
@@ -199,9 +201,9 @@ public class Path implements PathFarmerInt, PathCCInt {
             farmersMetadata.get(farmerId).depth=newDepth;
             return;
         }
-        int randomPosition=(int)Math.random()*this.pathLength;
+        int randomPosition=(int)Math.random()*(this.metadata.NUMBERFARMERS-1);
         while(path[newDepth][randomPosition]!=null){
-            randomPosition=(int)Math.random()*this.pathLength;
+            randomPosition=(int)Math.random()*(this.metadata.NUMBERFARMERS-1);
         }
         path[farmersMetadata.get(farmerId).depth][farmersMetadata.get(farmerId).position]=null;
         path[newDepth][randomPosition]=farmerId;

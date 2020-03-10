@@ -1,6 +1,8 @@
 package fi.workers;
 
 import common.MessageProcessor;
+import common.SocketClient;
+import fi.FarmInfrastructure;
 import fi.ccInterfaces.GranaryCCInt;
 import fi.ccInterfaces.PathCCInt;
 import fi.ccInterfaces.StandingCCInt;
@@ -16,12 +18,15 @@ public class CCProxy extends Thread implements MessageProcessor {
     private StandingCCInt standing;
     private PathCCInt path;
     private GranaryCCInt granary;
+    private SocketClient ccClient;
 
-    public CCProxy(StorehouseCCInt storeHouse,StandingCCInt standing,PathCCInt path,GranaryCCInt granary) {
+    public CCProxy(SocketClient ccClient, StorehouseCCInt storeHouse,StandingCCInt standing,PathCCInt path,GranaryCCInt granary) {
         this.storeHouse=storeHouse;
         this.standing=standing;
         this.path=path;
         this.granary=granary;
+        this.ccClient=ccClient;
+
     }
 
     
@@ -29,14 +34,19 @@ public class CCProxy extends Thread implements MessageProcessor {
     public void process(String message) {
         String[] processedMessage = message.split(";");
         switch(processedMessage[0]){
-            case "simulationready":
+            case "waitSimulationReady":
                 this.storeHouse.waitAllFarmersReady();
+                this.ccClient.send("allFarmersrReadyWaiting");
                 break;
             case "prepareOrder":
                 this.storeHouse.sendSelectionAndPrepareOrder(Integer.valueOf(processedMessage[1]),Integer.valueOf(processedMessage[2]),Integer.valueOf(processedMessage[3]),Integer.valueOf(processedMessage[4]));
+                this.standing.waitForAllFarmers();
+                this.ccClient.send("allFarmersrReadyToStart");
                 break;
             case "startHarvestOrder":
                 this.standing.sendStartOrder();
+                this.granary.waitAllFarmersReadyToCollect();
+                this.ccClient.send("allFarmersrReadyToCollect");
                 break;
             case "collectOrder":
                 this.granary.sendCollectOrder();

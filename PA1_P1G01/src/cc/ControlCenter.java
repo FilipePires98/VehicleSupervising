@@ -23,6 +23,7 @@ public class ControlCenter extends javax.swing.JFrame {
     
     void initFIClient() {
         this.fiClient=new SocketClient("localhost",7777);
+        this.fiClient.send("waitSimulationReady");
     }
 
     /**
@@ -71,6 +72,7 @@ public class ControlCenter extends javax.swing.JFrame {
         maxStep.setModel(new javax.swing.SpinnerNumberModel(1, 1, 2, 1));
 
         prepareBtn.setText("Prepare");
+        prepareBtn.setEnabled(false);
         prepareBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 prepareBtnActionPerformed(evt);
@@ -102,7 +104,6 @@ public class ControlCenter extends javax.swing.JFrame {
         });
 
         stopBtn.setText("Stop");
-        stopBtn.setEnabled(false);
         stopBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 stopBtnActionPerformed(evt);
@@ -191,8 +192,8 @@ public class ControlCenter extends javax.swing.JFrame {
         System.out.println("[CC] Preparation requested.");
         
         // Update UI
-        this.startBtn.setEnabled(true); // only if all farmers are in the standing area!
-        this.stopBtn.setEnabled(true);
+//        this.startBtn.setEnabled(true); // only if all farmers are in the standing area!
+        this.returnBtn.setEnabled(true);
         this.prepareBtn.setEnabled(false);
         this.numFarmers.setEnabled(false);
         this.numCornCobs.setEnabled(false);
@@ -226,16 +227,28 @@ public class ControlCenter extends javax.swing.JFrame {
         
     }//GEN-LAST:event_prepareBtnActionPerformed
 
+    public void enablePrepareBtn(){
+        this.prepareBtn.setEnabled(true);
+    }
+    
+    public void enableStartBtn(){
+        this.startBtn.setEnabled(true);
+    }
+    
+    public void enableCollectBtn(){
+        this.collectBtn.setEnabled(true);
+    }
+    
     private void startBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startBtnActionPerformed
         
         System.out.println("[CC] Start requested.");
         
         // Update UI
-        this.collectBtn.setEnabled(true); // only if all farmers are in the granary!
+//        this.collectBtn.setEnabled(true); // only if all farmers are in the granary!
         this.startBtn.setEnabled(false);
         
         // Send message to FI to update farmer positions (move to Path and then Granary)
-        
+        fiClient.send("startHarvestOrder");
     }//GEN-LAST:event_startBtnActionPerformed
 
     private void collectBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_collectBtnActionPerformed
@@ -243,7 +256,7 @@ public class ControlCenter extends javax.swing.JFrame {
         System.out.println("[CC] Corn collection requested.");
         
         // Update UI
-        this.returnBtn.setEnabled(true); // only if all farmers have (tried to) grab corn cobs!
+//        this.returnBtn.setEnabled(true); // only if all farmers have (tried to) grab corn cobs!
         this.collectBtn.setEnabled(false);
         
         // Send message to FI for farmers to grab corn cobs
@@ -255,9 +268,9 @@ public class ControlCenter extends javax.swing.JFrame {
         System.out.println("[CC] Return to storehouse requested.");
         
         // Update UI
-        this.stopBtn.setEnabled(true);
+//        this.stopBtn.setEnabled(true);
         this.returnBtn.setEnabled(false);
-        this.prepareBtn.setEnabled(true); // only if all farmers have returned and delivered the corn cobs!
+//        this.prepareBtn.setEnabled(true); // only if all farmers have returned and delivered the corn cobs!
         
         // Send message to FI to update farmer positions (move to Storehouse and then deliver corn cobs)
         
@@ -270,7 +283,7 @@ public class ControlCenter extends javax.swing.JFrame {
         // Update UI
         this.startBtn.setEnabled(false);
         this.collectBtn.setEnabled(false);
-        this.returnBtn.setEnabled(false);
+//        this.returnBtn.setEnabled(false);
         this.stopBtn.setEnabled(false);
         this.prepareBtn.setEnabled(true); // only if all farmers are in the storehouse!
         this.numFarmers.setEnabled(true); // same condition for the input fields...

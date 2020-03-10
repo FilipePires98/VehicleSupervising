@@ -4,6 +4,10 @@ import fi.FarmInfrastructure;
 import fi.MonitorMetadata;
 import fi.ccInterfaces.StandingCCInt;
 import fi.farmerInterfaces.StandingFarmerInt;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -23,6 +27,10 @@ public class Standing implements StandingFarmerInt, StandingCCInt {
     private int farmersInStanding=0;
     private boolean startOrderGiven=false;
     
+    private Map positions;
+    private List availablePosition;
+
+    
     /*
         Constructors
     */
@@ -35,11 +43,23 @@ public class Standing implements StandingFarmerInt, StandingCCInt {
     public Standing(FarmInfrastructure fi, MonitorMetadata metadata) {
         this.fi = fi;
         this.metadata=metadata;
+        positions=new HashMap<Integer, Integer>();
+        availablePosition=new ArrayList<Integer>();
+        for(int i=0; i<this.metadata.MAXNUMBERFARMERS;i++){
+            availablePosition.add(i);
+        }
     }
     
     /*
         Methods executed by farmers
     */
+    
+    
+    private void selectSpot(int farmerId){
+        int randomPosition=(int)Math.random()*(this.availablePosition.size()-1);
+        this.positions.put(farmerId, availablePosition.get(randomPosition));
+        this.availablePosition.remove(randomPosition);
+    }
 
     /**
      * 
@@ -48,7 +68,9 @@ public class Standing implements StandingFarmerInt, StandingCCInt {
     @Override
     public synchronized void farmerEnter(int farmerId) {
         try {
+
             farmersInStanding++;
+            this.selectSpot(farmerId);
             if(farmersInStanding==this.metadata.NUMBERFARMERS) {
                 notifyAll();
             }
@@ -71,6 +93,8 @@ public class Standing implements StandingFarmerInt, StandingCCInt {
                 wait();
             }
             farmersInStanding--;
+            this.availablePosition.add(this.positions.get(farmerId));
+            this.positions.remove(farmerId);
             if(farmersInStanding==0){
                 startOrderGiven=false;
             }
@@ -92,12 +116,18 @@ public class Standing implements StandingFarmerInt, StandingCCInt {
         notifyAll();
     }
 
-    /*
+    
     @Override
     public synchronized void waitForAllFarmers() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            while(farmersInStanding<this.metadata.NUMBERFARMERS){
+                wait();
+            }
+        } catch (InterruptedException ex) {
+            Logger.getLogger(Standing.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
-    */
+    
 
     /**
      * 

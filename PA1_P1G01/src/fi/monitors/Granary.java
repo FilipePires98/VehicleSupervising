@@ -5,7 +5,9 @@ import fi.MonitorMetadata;
 import fi.ccInterfaces.GranaryCCInt;
 import fi.farmerInterfaces.GranaryFarmerInt;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
@@ -35,6 +37,9 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
     private boolean readyToCollect=false;
     private boolean readyToReturn=false;
     
+    
+    private Map positions;
+    private List availablePosition;
     /*
         Constructors
     */
@@ -47,12 +52,23 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
     public Granary(FarmInfrastructure fi, MonitorMetadata metadata) {
         this.fi = fi;
         this.metadata=metadata;
+        positions=new HashMap<Integer, Integer>();
+        availablePosition=new ArrayList<Integer>();
+        for(int i=0; i<this.metadata.NUMBERFARMERS;i++){
+            availablePosition.add(i);
+        }
     }
     
     /*
         Methods executed by farmers
     */
 
+    private void selectSpot(int farmerId){
+        int randomPosition=(int)Math.random()*(this.availablePosition.size()-1);
+        this.positions.put(farmerId, availablePosition.get(randomPosition));
+        this.availablePosition.remove(randomPosition);
+    }
+    
     /**
      * 
      * @param farmerId 
@@ -62,6 +78,7 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
         rl.lock();
         try {
             farmersInGranary++;
+            this.selectSpot(farmerId);
             if(farmersInGranary==metadata.NUMBERFARMERS){
                 allInGranary.signalAll();
             }
@@ -130,6 +147,8 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
             while(!this.readyToReturn){
                 this.waitReturnOrder.await();
             }
+            this.availablePosition.add(this.positions.get(farmerId));
+            this.positions.remove(farmerId);
             this.farmersInGranary--;
             if(this.farmersInGranary==0){
                 this.readyToReturn=false;
