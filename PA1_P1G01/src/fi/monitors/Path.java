@@ -49,6 +49,7 @@ public class Path implements PathFarmerInt, PathCCInt {
     private Integer currentFarmerToMove=null;
     private Integer path[][];
     private Map<Integer, ConditionAndPathDepth> farmersMetadata;
+    private List<List<Integer>> availablePositions;
 
     /*
         Constructors
@@ -66,6 +67,15 @@ public class Path implements PathFarmerInt, PathCCInt {
         this.pathLength=pathLength;
         this.path=new Integer[pathLength][metadata.MAXNUMBERFARMERS];
         this.farmersMetadata = new HashMap();
+        this.availablePositions = new ArrayList();
+        
+        for(int i=0; i< pathLength; i++){
+            this.availablePositions.add(new ArrayList());
+            for(int j=0; j<metadata.MAXNUMBERFARMERS; j++){
+                this.availablePositions.get(i).add(j);
+            }
+        }
+        
     }
     
     /*
@@ -197,9 +207,9 @@ public class Path implements PathFarmerInt, PathCCInt {
             farmersMetadata.get(farmerId).depth=newDepth;
             return;
         }
-        int randomPosition=(int)Math.random()*(this.metadata.NUMBERFARMERS-1);
+        int randomPosition=(int)Math.random()*(this.metadata.MAXNUMBERFARMERS-1);
         while(path[newDepth][randomPosition]!=null){
-            randomPosition=(int)Math.random()*(this.metadata.NUMBERFARMERS-1);
+            randomPosition=(int)Math.random()*(this.metadata.MAXNUMBERFARMERS-1);
         }
         path[farmersMetadata.get(farmerId).depth][farmersMetadata.get(farmerId).position]=null;
         path[newDepth][randomPosition]=farmerId;
