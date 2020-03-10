@@ -79,7 +79,6 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
         try {
             farmersInStorehouse++;
             this.selectSpot(farmerId);
-            System.out.println("[Storehouse] Farmer " + farmerId + " entered.");
             if(farmersInStorehouse==this.metadata.MAXNUMBERFARMERS) {
                 allInStorehouse.signalAll();
             }
@@ -159,7 +158,6 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
             this.metadata.NUMBERSTEPS = maxNumberOfSteps;
             this.metadata.TIMEOUT = timeout;
             this.prepareOrderGiven = true;
-            System.out.println("[Storehouse] Prepare order given.");
             this.prepareOrder.signalAll();
         }
         finally{

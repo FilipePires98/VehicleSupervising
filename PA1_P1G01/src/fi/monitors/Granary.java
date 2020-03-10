@@ -54,7 +54,7 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
         this.metadata=metadata;
         positions=new HashMap<Integer, Integer>();
         availablePosition=new ArrayList<Integer>();
-        for(int i=0; i<this.metadata.NUMBERFARMERS;i++){
+        for(int i=0; i<this.metadata.MAXNUMBERFARMERS;i++){
             availablePosition.add(i);
         }
     }
@@ -78,6 +78,7 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
         rl.lock();
         try {
             farmersInGranary++;
+            System.out.println(farmerId);
             this.selectSpot(farmerId);
             if(farmersInGranary==metadata.NUMBERFARMERS){
                 allInGranary.signalAll();
@@ -174,7 +175,7 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
         rl.lock();
         try{
             while(this.farmersInGranary<metadata.NUMBERFARMERS){
-                this.allCollected.await();
+                this.allInGranary.await();
             }
         }
         catch (InterruptedException ex) {
