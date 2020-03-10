@@ -36,8 +36,8 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
     //private Map<Integer, Integer> farmersMetadata; // <farmerID,numCornCobs>
     private boolean prepareOrderGiven;
     
-    private Map positions;
-    private List availablePosition;
+    private Map<Integer, Integer> positions;
+    private List<Integer> availablePosition;
 
     
     /*
@@ -190,6 +190,23 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
         int randomPosition=(int)Math.random()*(this.availablePosition.size()-1);
         this.positions.put(farmerId, availablePosition.get(randomPosition));
         this.availablePosition.remove(randomPosition);
+        switch(positions.get(farmerId)) {
+            case 0:
+                fi.getSh1().setText(""+farmerId);
+                break;
+            case 1:
+                fi.getSh2().setText(""+farmerId);
+                break;
+            case 2:
+                fi.getSh3().setText(""+farmerId);
+                break;
+            case 3:
+                fi.getSh4().setText(""+farmerId);
+                break;
+            case 4:
+                fi.getSh5().setText(""+farmerId);
+                break;
+        }
     }
 
 }
