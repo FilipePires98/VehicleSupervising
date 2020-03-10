@@ -50,6 +50,25 @@ public class Farmer extends Thread {
             this.path.farmerGoToStorehouse(id);
         }
     }
+    
+    /*
+    private boolean nextStep(int step) {
+        if() {
+            
+        }
+        switch(step) {
+            case 1:
+                this.state=FarmerState.INITIAL;
+                this.storeHouse.farmerEnter(id);
+                break;
+            case 2:
+                this.storeHouse.farmerWaitPrepareOrder(id);
+                break;
+            // ...
+        }
+        return false;
+    }
+    */
 
     public int getID() {
         return id;

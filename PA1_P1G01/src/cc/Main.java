@@ -24,7 +24,7 @@ public class Main {
     public static void main(String[] args) {
  
         /*Launch Control Center UI*/
-        System.out.println("[CC]: Initializing Control Center... ");
+        System.out.println("[CC] Initializing Control Center... ");
         ControlCenter mainFrame = new ControlCenter();
         mainFrame.setVisible(true);
         
@@ -41,8 +41,8 @@ public class Main {
 
     private static void runProcess(String command) throws Exception {
         Process proc = Runtime.getRuntime().exec(command);
-        printLines("[FI]:", proc.getInputStream());
-        printLines("[FI]:", proc.getErrorStream());
+        printLines("[FI] ", proc.getInputStream());
+        printLines("[FI] ", proc.getErrorStream());
         proc.waitFor();
         System.out.println(command + " exitValue() " + proc.exitValue());
     }

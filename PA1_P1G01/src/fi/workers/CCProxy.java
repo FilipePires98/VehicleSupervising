@@ -33,9 +33,6 @@ public class CCProxy extends Thread implements MessageProcessor {
                 this.storeHouse.waitAllFarmersReady();
                 break;
             case "prepareOrder":
-                if(processedMessage.length<5) {
-                    System.err.println("[FI]: Error when processing 'prepareOrder' message. Unable to start simulation.");
-                }
                 this.storeHouse.sendSelectionAndPrepareOrder(Integer.valueOf(processedMessage[1]),Integer.valueOf(processedMessage[2]),Integer.valueOf(processedMessage[3]),Integer.valueOf(processedMessage[4]));
                 break;
             case "startHarvestOrder":

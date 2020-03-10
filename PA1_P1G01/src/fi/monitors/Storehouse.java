@@ -1,10 +1,12 @@
 package fi.monitors;
 
+import fi.FarmInfrastructure;
 import fi.MonitorMetadata;
 import fi.ccInterfaces.StorehouseCCInt;
 import fi.farmerInterfaces.StorehouseFarmerInt;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
@@ -20,6 +22,7 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
         Monitor variables
     */
 
+    private FarmInfrastructure fi;
     private MonitorMetadata metadata;
     
     private ReentrantLock rl = new ReentrantLock();
@@ -37,10 +40,12 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
     
     /**
      * Storehouse monitor constructor.
+     * @param fi
      * @param metadata
      * @param totalNumberOfFarmers 
      */
-    public Storehouse(MonitorMetadata metadata, int totalNumberOfFarmers) {
+    public Storehouse(FarmInfrastructure fi, MonitorMetadata metadata, int totalNumberOfFarmers) {
+        this.fi = fi;
         this.metadata=metadata;
         farmersInStorehouse = 0;
         farmersSelected = 0;
@@ -61,6 +66,7 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
         rl.lock();
         try {
             farmersInStorehouse++;
+            System.out.println("[Storehouse] Farmer " + farmerId + " entered.");
             if(farmersInStorehouse==this.metadata.NUMBERFARMERS) {
                 allInStorehouse.signalAll();
             }
@@ -137,6 +143,7 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
         metadata.TIMEOUT = timeout;
         prepareOrderGiven = true;
         prepareOrder.signalAll();
+        System.out.println("[Storehouse] Prepare order given.");
     }
     
     /**
@@ -151,6 +158,18 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
             case "endSimulation":
                 break;
         }
+    }
+    
+    /*
+        Aux Methods
+    */
+    
+    private static int getRandInt(int min, int max) {
+        if (min >= max) {
+            throw new IllegalArgumentException("max must be greater than min");
+        }
+        Random r = new Random();
+        return r.nextInt((max - min) + 1) + min;
     }
 
 }

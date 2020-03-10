@@ -1,5 +1,6 @@
 package fi.monitors;
 
+import fi.FarmInfrastructure;
 import fi.MonitorMetadata;
 import fi.ccInterfaces.GranaryCCInt;
 import fi.farmerInterfaces.GranaryFarmerInt;
@@ -20,6 +21,7 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
         Monitor variables
     */
     
+    private FarmInfrastructure fi;
     private MonitorMetadata metadata;
     
     private ReentrantLock rl = new ReentrantLock();
@@ -39,9 +41,11 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
     
     /**
      * Granary monitor constructor.
+     * @param fi
      * @param metadata 
      */
-    public Granary(MonitorMetadata metadata) {
+    public Granary(FarmInfrastructure fi, MonitorMetadata metadata) {
+        this.fi = fi;
         this.metadata=metadata;
     }
     

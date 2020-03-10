@@ -8,6 +8,7 @@ import fi.workers.Farmer;
 import fi.workers.CCProxy;
 import common.SocketClient;
 import common.SocketServer;
+import javax.swing.JTextField;
 
 /**
  * Class for the Farm Infrastructure for the agricultural harvest.
@@ -17,12 +18,40 @@ public class FarmInfrastructure extends javax.swing.JFrame {
     
     private static SocketServer fiServer;
     private static SocketClient ccClient;
+    
+    private static MonitorMetadata metadata;
+    private static final int teamSize = 5;
+    private static final int pathSize = 10;
+    
+    private static Storehouse storeHouse;
+    private static Standing standing;
+    private static Path path;
+    private static Granary granary;
+    private static Farmer[] farmerTeam;
+    private static CCProxy messageProcessor;
 
     /**
      * Creates new form NewJFrame
      */
     public FarmInfrastructure() {
         initComponents();
+        
+        metadata = new MonitorMetadata(teamSize);
+        
+        storeHouse = new Storehouse(this, metadata, teamSize);
+        standing = new Standing(this, metadata);
+        path = new Path(this, metadata, pathSize);
+        granary = new Granary(this, metadata);
+        
+        farmerTeam = new Farmer[teamSize];
+        for(int i=0; i<teamSize; i++) {
+            Farmer f = new Farmer(i+1,storeHouse,standing,path,granary);
+            f.start();
+            farmerTeam[i] = f;
+        }
+        
+        messageProcessor = new CCProxy(storeHouse, standing, path, granary);
+        
     }
 
     /**
@@ -37,79 +66,79 @@ public class FarmInfrastructure extends javax.swing.JFrame {
         titleLabel = new javax.swing.JLabel();
         storehousePanel = new javax.swing.JPanel();
         storehouseLabel = new javax.swing.JLabel();
-        c1l1 = new javax.swing.JTextField();
-        c1l2 = new javax.swing.JTextField();
-        c1l3 = new javax.swing.JTextField();
-        c1l4 = new javax.swing.JTextField();
-        c1l5 = new javax.swing.JTextField();
+        sh1 = new javax.swing.JTextField();
+        sh3 = new javax.swing.JTextField();
+        sh2 = new javax.swing.JTextField();
+        sh5 = new javax.swing.JTextField();
+        sh4 = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
         jTextField1 = new javax.swing.JTextField();
         standingAreaPanel = new javax.swing.JPanel();
         standingAreaLabel = new javax.swing.JLabel();
-        c2l1 = new javax.swing.JTextField();
-        c2l2 = new javax.swing.JTextField();
-        c2l3 = new javax.swing.JTextField();
-        c2l4 = new javax.swing.JTextField();
-        c2l5 = new javax.swing.JTextField();
+        sa1 = new javax.swing.JTextField();
+        sa2 = new javax.swing.JTextField();
+        sa3 = new javax.swing.JTextField();
+        sa4 = new javax.swing.JTextField();
+        sa5 = new javax.swing.JTextField();
         pathPanel = new javax.swing.JPanel();
         PathLabel = new javax.swing.JLabel();
-        c3l1 = new javax.swing.JTextField();
-        c3l2 = new javax.swing.JTextField();
-        c3l3 = new javax.swing.JTextField();
-        c3l4 = new javax.swing.JTextField();
-        c3l5 = new javax.swing.JTextField();
-        c4l1 = new javax.swing.JTextField();
-        c4l2 = new javax.swing.JTextField();
-        c4l3 = new javax.swing.JTextField();
-        c4l4 = new javax.swing.JTextField();
-        c4l5 = new javax.swing.JTextField();
-        c5l1 = new javax.swing.JTextField();
-        c5l2 = new javax.swing.JTextField();
-        c5l3 = new javax.swing.JTextField();
-        c5l4 = new javax.swing.JTextField();
-        c5l5 = new javax.swing.JTextField();
-        c6l1 = new javax.swing.JTextField();
-        c6l2 = new javax.swing.JTextField();
-        c6l3 = new javax.swing.JTextField();
-        c6l4 = new javax.swing.JTextField();
-        c6l5 = new javax.swing.JTextField();
-        c7l1 = new javax.swing.JTextField();
-        c7l2 = new javax.swing.JTextField();
-        c7l3 = new javax.swing.JTextField();
-        c7l4 = new javax.swing.JTextField();
-        c7l5 = new javax.swing.JTextField();
-        c8l1 = new javax.swing.JTextField();
-        c8l2 = new javax.swing.JTextField();
-        c8l3 = new javax.swing.JTextField();
-        c8l4 = new javax.swing.JTextField();
-        c8l5 = new javax.swing.JTextField();
-        c9l1 = new javax.swing.JTextField();
-        c9l2 = new javax.swing.JTextField();
-        c9l3 = new javax.swing.JTextField();
-        c9l4 = new javax.swing.JTextField();
-        c9l5 = new javax.swing.JTextField();
-        c10l1 = new javax.swing.JTextField();
-        c10l2 = new javax.swing.JTextField();
-        c10l3 = new javax.swing.JTextField();
-        c10l4 = new javax.swing.JTextField();
-        c10l5 = new javax.swing.JTextField();
-        c11l1 = new javax.swing.JTextField();
-        c11l2 = new javax.swing.JTextField();
-        c11l3 = new javax.swing.JTextField();
-        c11l4 = new javax.swing.JTextField();
-        c11l5 = new javax.swing.JTextField();
-        c12l1 = new javax.swing.JTextField();
-        c12l2 = new javax.swing.JTextField();
-        c12l3 = new javax.swing.JTextField();
-        c12l4 = new javax.swing.JTextField();
-        c12l5 = new javax.swing.JTextField();
+        p01_1 = new javax.swing.JTextField();
+        p01_2 = new javax.swing.JTextField();
+        p01_3 = new javax.swing.JTextField();
+        p01_4 = new javax.swing.JTextField();
+        p01_5 = new javax.swing.JTextField();
+        p02_1 = new javax.swing.JTextField();
+        p02_2 = new javax.swing.JTextField();
+        p02_3 = new javax.swing.JTextField();
+        p02_4 = new javax.swing.JTextField();
+        p02_5 = new javax.swing.JTextField();
+        p03_1 = new javax.swing.JTextField();
+        p03_2 = new javax.swing.JTextField();
+        p03_3 = new javax.swing.JTextField();
+        p03_4 = new javax.swing.JTextField();
+        p03_5 = new javax.swing.JTextField();
+        p04_1 = new javax.swing.JTextField();
+        p04_2 = new javax.swing.JTextField();
+        p04_3 = new javax.swing.JTextField();
+        p04_4 = new javax.swing.JTextField();
+        p04_5 = new javax.swing.JTextField();
+        p05_1 = new javax.swing.JTextField();
+        p05_2 = new javax.swing.JTextField();
+        p05_3 = new javax.swing.JTextField();
+        p05_4 = new javax.swing.JTextField();
+        p05_5 = new javax.swing.JTextField();
+        p06_1 = new javax.swing.JTextField();
+        p06_2 = new javax.swing.JTextField();
+        p06_3 = new javax.swing.JTextField();
+        p06_4 = new javax.swing.JTextField();
+        p06_5 = new javax.swing.JTextField();
+        p07_1 = new javax.swing.JTextField();
+        p07_2 = new javax.swing.JTextField();
+        p07_3 = new javax.swing.JTextField();
+        p07_4 = new javax.swing.JTextField();
+        p07_5 = new javax.swing.JTextField();
+        p08_1 = new javax.swing.JTextField();
+        p08_2 = new javax.swing.JTextField();
+        p08_3 = new javax.swing.JTextField();
+        p08_4 = new javax.swing.JTextField();
+        p08_5 = new javax.swing.JTextField();
+        p09_1 = new javax.swing.JTextField();
+        p09_2 = new javax.swing.JTextField();
+        p09_3 = new javax.swing.JTextField();
+        p09_4 = new javax.swing.JTextField();
+        p09_5 = new javax.swing.JTextField();
+        p10_1 = new javax.swing.JTextField();
+        p10_2 = new javax.swing.JTextField();
+        p10_3 = new javax.swing.JTextField();
+        p10_4 = new javax.swing.JTextField();
+        p10_5 = new javax.swing.JTextField();
         granaryPanel = new javax.swing.JPanel();
         granaryLabel = new javax.swing.JLabel();
-        c13l4 = new javax.swing.JTextField();
-        c13l5 = new javax.swing.JTextField();
-        c13l1 = new javax.swing.JTextField();
-        c13l2 = new javax.swing.JTextField();
-        c13l3 = new javax.swing.JTextField();
+        g4 = new javax.swing.JTextField();
+        g5 = new javax.swing.JTextField();
+        g1 = new javax.swing.JTextField();
+        g2 = new javax.swing.JTextField();
+        g3 = new javax.swing.JTextField();
         jTextField2 = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
 
@@ -121,20 +150,15 @@ public class FarmInfrastructure extends javax.swing.JFrame {
 
         storehouseLabel.setText("Storehouse");
 
-        c1l1.setText("1");
-        c1l1.setEnabled(false);
+        sh1.setEnabled(false);
 
-        c1l2.setText("1");
-        c1l2.setEnabled(false);
+        sh3.setEnabled(false);
 
-        c1l3.setText("1");
-        c1l3.setEnabled(false);
+        sh2.setEnabled(false);
 
-        c1l4.setText("1");
-        c1l4.setEnabled(false);
+        sh5.setEnabled(false);
 
-        c1l5.setText("1");
-        c1l5.setEnabled(false);
+        sh4.setEnabled(false);
 
         jLabel1.setText("Corn Cobs");
 
@@ -153,11 +177,11 @@ public class FarmInfrastructure extends javax.swing.JFrame {
                     .addGroup(storehousePanelLayout.createSequentialGroup()
                         .addGap(43, 43, 43)
                         .addGroup(storehousePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(c1l5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(c1l4, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(c1l3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(c1l2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(c1l1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(sh4, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(sh5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(sh2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(sh3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(sh1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(storehousePanelLayout.createSequentialGroup()
                         .addContainerGap()
@@ -180,15 +204,15 @@ public class FarmInfrastructure extends javax.swing.JFrame {
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(23, 23, 23)))
-                .addComponent(c1l1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(sh1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(c1l3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(sh2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(c1l2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(sh3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(c1l5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(sh4, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(c1l4, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(sh5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
 
@@ -196,15 +220,15 @@ public class FarmInfrastructure extends javax.swing.JFrame {
 
         standingAreaLabel.setText("Standing Area");
 
-        c2l1.setEnabled(false);
+        sa1.setEnabled(false);
 
-        c2l2.setEnabled(false);
+        sa2.setEnabled(false);
 
-        c2l3.setEnabled(false);
+        sa3.setEnabled(false);
 
-        c2l4.setEnabled(false);
+        sa4.setEnabled(false);
 
-        c2l5.setEnabled(false);
+        sa5.setEnabled(false);
 
         javax.swing.GroupLayout standingAreaPanelLayout = new javax.swing.GroupLayout(standingAreaPanel);
         standingAreaPanel.setLayout(standingAreaPanelLayout);
@@ -215,11 +239,11 @@ public class FarmInfrastructure extends javax.swing.JFrame {
                     .addGroup(standingAreaPanelLayout.createSequentialGroup()
                         .addGap(36, 36, 36)
                         .addGroup(standingAreaPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(c2l4, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(c2l5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(c2l2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(c2l3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(c2l1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(sa4, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(sa5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(sa2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(sa3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(sa1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(standingAreaPanelLayout.createSequentialGroup()
                         .addContainerGap()
                         .addComponent(standingAreaLabel)))
@@ -231,15 +255,15 @@ public class FarmInfrastructure extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(standingAreaLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 12, Short.MAX_VALUE)
-                .addComponent(c2l1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(sa1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(c2l2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(sa2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(c2l3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(sa3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(c2l4, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(sa4, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(c2l5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(sa5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
 
@@ -247,105 +271,105 @@ public class FarmInfrastructure extends javax.swing.JFrame {
 
         PathLabel.setText("Path");
 
-        c3l1.setEnabled(false);
+        p01_1.setEnabled(false);
 
-        c3l2.setEnabled(false);
+        p01_2.setEnabled(false);
 
-        c3l3.setEnabled(false);
+        p01_3.setEnabled(false);
 
-        c3l4.setEnabled(false);
+        p01_4.setEnabled(false);
 
-        c3l5.setEnabled(false);
+        p01_5.setEnabled(false);
 
-        c4l1.setEnabled(false);
+        p02_1.setEnabled(false);
 
-        c4l2.setEnabled(false);
+        p02_2.setEnabled(false);
 
-        c4l3.setEnabled(false);
+        p02_3.setEnabled(false);
 
-        c4l4.setEnabled(false);
+        p02_4.setEnabled(false);
 
-        c4l5.setEnabled(false);
+        p02_5.setEnabled(false);
 
-        c5l1.setEnabled(false);
+        p03_1.setEnabled(false);
 
-        c5l2.setEnabled(false);
+        p03_2.setEnabled(false);
 
-        c5l3.setEnabled(false);
+        p03_3.setEnabled(false);
 
-        c5l4.setEnabled(false);
+        p03_4.setEnabled(false);
 
-        c5l5.setEnabled(false);
+        p03_5.setEnabled(false);
 
-        c6l1.setEnabled(false);
+        p04_1.setEnabled(false);
 
-        c6l2.setEnabled(false);
+        p04_2.setEnabled(false);
 
-        c6l3.setEnabled(false);
+        p04_3.setEnabled(false);
 
-        c6l4.setEnabled(false);
+        p04_4.setEnabled(false);
 
-        c6l5.setEnabled(false);
+        p04_5.setEnabled(false);
 
-        c7l1.setEnabled(false);
+        p05_1.setEnabled(false);
 
-        c7l2.setEnabled(false);
+        p05_2.setEnabled(false);
 
-        c7l3.setEnabled(false);
+        p05_3.setEnabled(false);
 
-        c7l4.setEnabled(false);
+        p05_4.setEnabled(false);
 
-        c7l5.setEnabled(false);
+        p05_5.setEnabled(false);
 
-        c8l1.setEnabled(false);
+        p06_1.setEnabled(false);
 
-        c8l2.setEnabled(false);
+        p06_2.setEnabled(false);
 
-        c8l3.setEnabled(false);
+        p06_3.setEnabled(false);
 
-        c8l4.setEnabled(false);
+        p06_4.setEnabled(false);
 
-        c8l5.setEnabled(false);
+        p06_5.setEnabled(false);
 
-        c9l1.setEnabled(false);
+        p07_1.setEnabled(false);
 
-        c9l2.setEnabled(false);
+        p07_2.setEnabled(false);
 
-        c9l3.setEnabled(false);
+        p07_3.setEnabled(false);
 
-        c9l4.setEnabled(false);
+        p07_4.setEnabled(false);
 
-        c9l5.setEnabled(false);
+        p07_5.setEnabled(false);
 
-        c10l1.setEnabled(false);
+        p08_1.setEnabled(false);
 
-        c10l2.setEnabled(false);
+        p08_2.setEnabled(false);
 
-        c10l3.setEnabled(false);
+        p08_3.setEnabled(false);
 
-        c10l4.setEnabled(false);
+        p08_4.setEnabled(false);
 
-        c10l5.setEnabled(false);
+        p08_5.setEnabled(false);
 
-        c11l1.setEnabled(false);
+        p09_1.setEnabled(false);
 
-        c11l2.setEnabled(false);
+        p09_2.setEnabled(false);
 
-        c11l3.setEnabled(false);
+        p09_3.setEnabled(false);
 
-        c11l4.setEnabled(false);
+        p09_4.setEnabled(false);
 
-        c11l5.setEnabled(false);
+        p09_5.setEnabled(false);
 
-        c12l1.setEnabled(false);
+        p10_1.setEnabled(false);
 
-        c12l2.setEnabled(false);
+        p10_2.setEnabled(false);
 
-        c12l3.setEnabled(false);
+        p10_3.setEnabled(false);
 
-        c12l4.setEnabled(false);
+        p10_4.setEnabled(false);
 
-        c12l5.setEnabled(false);
+        p10_5.setEnabled(false);
 
         javax.swing.GroupLayout pathPanelLayout = new javax.swing.GroupLayout(pathPanel);
         pathPanel.setLayout(pathPanelLayout);
@@ -356,74 +380,74 @@ public class FarmInfrastructure extends javax.swing.JFrame {
                     .addGroup(pathPanelLayout.createSequentialGroup()
                         .addGap(29, 29, 29)
                         .addGroup(pathPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(c3l4, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(c3l5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(c3l2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(c3l3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(c3l1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(p01_4, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p01_5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p01_2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p01_3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p01_1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(pathPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(c4l4, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(c4l5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(c4l2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(c4l3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(c4l1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(p02_4, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p02_5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p02_2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p02_3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p02_1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(pathPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(c5l4, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(c5l5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(c5l2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(c5l3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(c5l1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(p03_4, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p03_5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p03_2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p03_3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p03_1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(pathPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(c6l4, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(c6l5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(c6l2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(c6l3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(c6l1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(p04_4, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p04_5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p04_2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p04_3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p04_1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(pathPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(c7l4, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(c7l5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(c7l2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(c7l3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(c7l1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(p05_4, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p05_5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p05_2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p05_3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p05_1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(pathPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(c8l4, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(c8l5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(c8l2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(c8l3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(c8l1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(p06_4, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p06_5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p06_2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p06_3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p06_1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(pathPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(c9l4, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(c9l5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(c9l2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(c9l3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(c9l1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(p07_4, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p07_5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p07_2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p07_3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p07_1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(pathPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(c10l4, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(c10l5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(c10l2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(c10l3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(c10l1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(p08_4, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p08_5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p08_2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p08_3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p08_1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(pathPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(c11l4, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(c11l5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(c11l2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(c11l3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(c11l1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(p09_4, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p09_5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p09_2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p09_3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p09_1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(pathPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(c12l4, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(c12l5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(c12l2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(c12l3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(c12l1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(p10_4, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p10_5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p10_2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p10_3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p10_1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(pathPanelLayout.createSequentialGroup()
                         .addContainerGap()
                         .addComponent(PathLabel)))
@@ -438,109 +462,109 @@ public class FarmInfrastructure extends javax.swing.JFrame {
                 .addGroup(pathPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(pathPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                         .addGroup(pathPanelLayout.createSequentialGroup()
-                            .addComponent(c12l1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p10_1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(c12l2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p10_2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(c12l3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p10_3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(c12l4, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p10_4, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(c12l5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(p10_5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGroup(pathPanelLayout.createSequentialGroup()
-                            .addComponent(c11l1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p09_1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(c11l2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p09_2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(c11l3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p09_3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(c11l4, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p09_4, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(c11l5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(p09_5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(pathPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                         .addGroup(pathPanelLayout.createSequentialGroup()
-                            .addComponent(c10l1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p08_1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(c10l2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p08_2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(c10l3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p08_3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(c10l4, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p08_4, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(c10l5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(p08_5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGroup(pathPanelLayout.createSequentialGroup()
-                            .addComponent(c9l1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p07_1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(c9l2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p07_2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(c9l3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p07_3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(c9l4, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p07_4, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(c9l5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(p07_5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(pathPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                         .addGroup(pathPanelLayout.createSequentialGroup()
-                            .addComponent(c8l1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p06_1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(c8l2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p06_2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(c8l3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p06_3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(c8l4, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p06_4, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(c8l5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(p06_5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGroup(pathPanelLayout.createSequentialGroup()
-                            .addComponent(c7l1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p05_1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(c7l2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p05_2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(c7l3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p05_3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(c7l4, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p05_4, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(c7l5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(p05_5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(pathPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                         .addGroup(pathPanelLayout.createSequentialGroup()
-                            .addComponent(c6l1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p04_1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(c6l2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p04_2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(c6l3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p04_3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(c6l4, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p04_4, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(c6l5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(p04_5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGroup(pathPanelLayout.createSequentialGroup()
-                            .addComponent(c5l1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p03_1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(c5l2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p03_2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(c5l3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p03_3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(c5l4, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p03_4, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(c5l5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(p03_5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(pathPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                         .addGroup(pathPanelLayout.createSequentialGroup()
-                            .addComponent(c4l1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p02_1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(c4l2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p02_2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(c4l3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p02_3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(c4l4, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p02_4, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(c4l5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(p02_5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGroup(pathPanelLayout.createSequentialGroup()
-                            .addComponent(c3l1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p01_1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(c3l2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p01_2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(c3l3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p01_3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(c3l4, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(p01_4, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(c3l5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addComponent(p01_5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap())
         );
 
@@ -548,15 +572,15 @@ public class FarmInfrastructure extends javax.swing.JFrame {
 
         granaryLabel.setText("Granary");
 
-        c13l4.setEnabled(false);
+        g4.setEnabled(false);
 
-        c13l5.setEnabled(false);
+        g5.setEnabled(false);
 
-        c13l1.setEnabled(false);
+        g1.setEnabled(false);
 
-        c13l2.setEnabled(false);
+        g2.setEnabled(false);
 
-        c13l3.setEnabled(false);
+        g3.setEnabled(false);
 
         jTextField2.setText("0");
         jTextField2.setEnabled(false);
@@ -574,11 +598,11 @@ public class FarmInfrastructure extends javax.swing.JFrame {
                             .addGroup(granaryPanelLayout.createSequentialGroup()
                                 .addGap(43, 43, 43)
                                 .addGroup(granaryPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(c13l4, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(c13l5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(c13l2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(c13l3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(c13l1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                    .addComponent(g4, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(g5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(g2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(g3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(g1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)))
                             .addGroup(granaryPanelLayout.createSequentialGroup()
                                 .addContainerGap()
                                 .addComponent(granaryLabel)))
@@ -603,15 +627,15 @@ public class FarmInfrastructure extends javax.swing.JFrame {
                         .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(17, 17, 17)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(c13l1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(g1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(c13l2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(g2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(c13l3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(g3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(c13l4, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(g4, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(c13l5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(g5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
 
@@ -687,43 +711,12 @@ public class FarmInfrastructure extends javax.swing.JFrame {
         }
         //</editor-fold>
         //</editor-fold>
-
-        int teamSize = 5;
-        if(args.length>1) {
-            int inputTeamSize = Integer.valueOf(args[1]);
-            if(inputTeamSize > 0 && inputTeamSize <= 5) {
-                teamSize = inputTeamSize;
-            } else {
-                System.err.println("Invalid number of farmers. Set to default (5).");
-            }
-        }
         
         try {
-            // https://www.javaworld.com/article/2853780/socket-programming-for-scalable-systems.html
-            
-            // Init infrastructure
-
-            MonitorMetadata metadata = new MonitorMetadata(teamSize);
-            
-            Storehouse storeHouse = new Storehouse(metadata,teamSize);
-            Standing standing = new Standing(metadata);
-            Path path = new Path(metadata,10);
-            Granary granary = new Granary(metadata);
-            
-            Farmer[] farmerTeam = new Farmer[teamSize];
-            for(int i=0; i<teamSize; i++) {
-                Farmer f = new Farmer(i+1,storeHouse,standing,path,granary);
-                f.start();
-                farmerTeam[i] = f;
-            }
-            
-            CCProxy messageProcessor = new CCProxy(storeHouse, standing, path, granary);
-            // Connect to the server
             fiServer = new SocketServer(7777, messageProcessor);
             fiServer.start();
             ccClient = new SocketClient("localhost", 6666);
             ccClient.send("infrastructureServerOnline");
-            
             
         } catch (Exception e) {
             e.printStackTrace();
@@ -735,88 +728,350 @@ public class FarmInfrastructure extends javax.swing.JFrame {
                 }
             });
         }
-        
-        
     }
-
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel PathLabel;
-    private javax.swing.JTextField c10l1;
-    private javax.swing.JTextField c10l2;
-    private javax.swing.JTextField c10l3;
-    private javax.swing.JTextField c10l4;
-    private javax.swing.JTextField c10l5;
-    private javax.swing.JTextField c11l1;
-    private javax.swing.JTextField c11l2;
-    private javax.swing.JTextField c11l3;
-    private javax.swing.JTextField c11l4;
-    private javax.swing.JTextField c11l5;
-    private javax.swing.JTextField c12l1;
-    private javax.swing.JTextField c12l2;
-    private javax.swing.JTextField c12l3;
-    private javax.swing.JTextField c12l4;
-    private javax.swing.JTextField c12l5;
-    private javax.swing.JTextField c13l1;
-    private javax.swing.JTextField c13l2;
-    private javax.swing.JTextField c13l3;
-    private javax.swing.JTextField c13l4;
-    private javax.swing.JTextField c13l5;
-    private javax.swing.JTextField c1l1;
-    private javax.swing.JTextField c1l2;
-    private javax.swing.JTextField c1l3;
-    private javax.swing.JTextField c1l4;
-    private javax.swing.JTextField c1l5;
-    private javax.swing.JTextField c2l1;
-    private javax.swing.JTextField c2l2;
-    private javax.swing.JTextField c2l3;
-    private javax.swing.JTextField c2l4;
-    private javax.swing.JTextField c2l5;
-    private javax.swing.JTextField c3l1;
-    private javax.swing.JTextField c3l2;
-    private javax.swing.JTextField c3l3;
-    private javax.swing.JTextField c3l4;
-    private javax.swing.JTextField c3l5;
-    private javax.swing.JTextField c4l1;
-    private javax.swing.JTextField c4l2;
-    private javax.swing.JTextField c4l3;
-    private javax.swing.JTextField c4l4;
-    private javax.swing.JTextField c4l5;
-    private javax.swing.JTextField c5l1;
-    private javax.swing.JTextField c5l2;
-    private javax.swing.JTextField c5l3;
-    private javax.swing.JTextField c5l4;
-    private javax.swing.JTextField c5l5;
-    private javax.swing.JTextField c6l1;
-    private javax.swing.JTextField c6l2;
-    private javax.swing.JTextField c6l3;
-    private javax.swing.JTextField c6l4;
-    private javax.swing.JTextField c6l5;
-    private javax.swing.JTextField c7l1;
-    private javax.swing.JTextField c7l2;
-    private javax.swing.JTextField c7l3;
-    private javax.swing.JTextField c7l4;
-    private javax.swing.JTextField c7l5;
-    private javax.swing.JTextField c8l1;
-    private javax.swing.JTextField c8l2;
-    private javax.swing.JTextField c8l3;
-    private javax.swing.JTextField c8l4;
-    private javax.swing.JTextField c8l5;
-    private javax.swing.JTextField c9l1;
-    private javax.swing.JTextField c9l2;
-    private javax.swing.JTextField c9l3;
-    private javax.swing.JTextField c9l4;
-    private javax.swing.JTextField c9l5;
+    private javax.swing.JTextField g1;
+    private javax.swing.JTextField g2;
+    private javax.swing.JTextField g3;
+    private javax.swing.JTextField g4;
+    private javax.swing.JTextField g5;
     private javax.swing.JLabel granaryLabel;
     private javax.swing.JPanel granaryPanel;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextField2;
+    private javax.swing.JTextField p01_1;
+    private javax.swing.JTextField p01_2;
+    private javax.swing.JTextField p01_3;
+    private javax.swing.JTextField p01_4;
+    private javax.swing.JTextField p01_5;
+    private javax.swing.JTextField p02_1;
+    private javax.swing.JTextField p02_2;
+    private javax.swing.JTextField p02_3;
+    private javax.swing.JTextField p02_4;
+    private javax.swing.JTextField p02_5;
+    private javax.swing.JTextField p03_1;
+    private javax.swing.JTextField p03_2;
+    private javax.swing.JTextField p03_3;
+    private javax.swing.JTextField p03_4;
+    private javax.swing.JTextField p03_5;
+    private javax.swing.JTextField p04_1;
+    private javax.swing.JTextField p04_2;
+    private javax.swing.JTextField p04_3;
+    private javax.swing.JTextField p04_4;
+    private javax.swing.JTextField p04_5;
+    private javax.swing.JTextField p05_1;
+    private javax.swing.JTextField p05_2;
+    private javax.swing.JTextField p05_3;
+    private javax.swing.JTextField p05_4;
+    private javax.swing.JTextField p05_5;
+    private javax.swing.JTextField p06_1;
+    private javax.swing.JTextField p06_2;
+    private javax.swing.JTextField p06_3;
+    private javax.swing.JTextField p06_4;
+    private javax.swing.JTextField p06_5;
+    private javax.swing.JTextField p07_1;
+    private javax.swing.JTextField p07_2;
+    private javax.swing.JTextField p07_3;
+    private javax.swing.JTextField p07_4;
+    private javax.swing.JTextField p07_5;
+    private javax.swing.JTextField p08_1;
+    private javax.swing.JTextField p08_2;
+    private javax.swing.JTextField p08_3;
+    private javax.swing.JTextField p08_4;
+    private javax.swing.JTextField p08_5;
+    private javax.swing.JTextField p09_1;
+    private javax.swing.JTextField p09_2;
+    private javax.swing.JTextField p09_3;
+    private javax.swing.JTextField p09_4;
+    private javax.swing.JTextField p09_5;
+    private javax.swing.JTextField p10_1;
+    private javax.swing.JTextField p10_2;
+    private javax.swing.JTextField p10_3;
+    private javax.swing.JTextField p10_4;
+    private javax.swing.JTextField p10_5;
     private javax.swing.JPanel pathPanel;
+    private javax.swing.JTextField sa1;
+    private javax.swing.JTextField sa2;
+    private javax.swing.JTextField sa3;
+    private javax.swing.JTextField sa4;
+    private javax.swing.JTextField sa5;
+    private javax.swing.JTextField sh1;
+    private javax.swing.JTextField sh2;
+    private javax.swing.JTextField sh3;
+    private javax.swing.JTextField sh4;
+    private javax.swing.JTextField sh5;
     private javax.swing.JLabel standingAreaLabel;
     private javax.swing.JPanel standingAreaPanel;
     private javax.swing.JLabel storehouseLabel;
     private javax.swing.JPanel storehousePanel;
     private javax.swing.JLabel titleLabel;
     // End of variables declaration//GEN-END:variables
+
+    public JTextField getG1() {
+        return g1;
+    }
+
+    public JTextField getG2() {
+        return g2;
+    }
+
+    public JTextField getG3() {
+        return g3;
+    }
+
+    public JTextField getG4() {
+        return g4;
+    }
+
+    public JTextField getG5() {
+        return g5;
+    }
+
+    public JTextField getP01_1() {
+        return p01_1;
+    }
+
+    public JTextField getP01_2() {
+        return p01_2;
+    }
+
+    public JTextField getP01_3() {
+        return p01_3;
+    }
+
+    public JTextField getP01_4() {
+        return p01_4;
+    }
+
+    public JTextField getP01_5() {
+        return p01_5;
+    }
+
+    public JTextField getP02_1() {
+        return p02_1;
+    }
+
+    public JTextField getP02_2() {
+        return p02_2;
+    }
+
+    public JTextField getP02_3() {
+        return p02_3;
+    }
+
+    public JTextField getP02_4() {
+        return p02_4;
+    }
+
+    public JTextField getP02_5() {
+        return p02_5;
+    }
+
+    public JTextField getP03_1() {
+        return p03_1;
+    }
+
+    public JTextField getP03_2() {
+        return p03_2;
+    }
+
+    public JTextField getP03_3() {
+        return p03_3;
+    }
+
+    public JTextField getP03_4() {
+        return p03_4;
+    }
+
+    public JTextField getP03_5() {
+        return p03_5;
+    }
+
+    public JTextField getP04_1() {
+        return p04_1;
+    }
+
+    public JTextField getP04_2() {
+        return p04_2;
+    }
+
+    public JTextField getP04_3() {
+        return p04_3;
+    }
+
+    public JTextField getP04_4() {
+        return p04_4;
+    }
+
+    public JTextField getP04_5() {
+        return p04_5;
+    }
+
+    public JTextField getP05_1() {
+        return p05_1;
+    }
+
+    public JTextField getP05_2() {
+        return p05_2;
+    }
+
+    public JTextField getP05_3() {
+        return p05_3;
+    }
+
+    public JTextField getP05_4() {
+        return p05_4;
+    }
+
+    public JTextField getP05_5() {
+        return p05_5;
+    }
+
+    public JTextField getP06_1() {
+        return p06_1;
+    }
+
+    public JTextField getP06_2() {
+        return p06_2;
+    }
+
+    public JTextField getP06_3() {
+        return p06_3;
+    }
+
+    public JTextField getP06_4() {
+        return p06_4;
+    }
+
+    public JTextField getP06_5() {
+        return p06_5;
+    }
+
+    public JTextField getP07_1() {
+        return p07_1;
+    }
+
+    public JTextField getP07_2() {
+        return p07_2;
+    }
+
+    public JTextField getP07_3() {
+        return p07_3;
+    }
+
+    public JTextField getP07_4() {
+        return p07_4;
+    }
+
+    public JTextField getP07_5() {
+        return p07_5;
+    }
+
+    public JTextField getP08_1() {
+        return p08_1;
+    }
+
+    public JTextField getP08_2() {
+        return p08_2;
+    }
+
+    public JTextField getP08_3() {
+        return p08_3;
+    }
+
+    public JTextField getP08_4() {
+        return p08_4;
+    }
+
+    public JTextField getP08_5() {
+        return p08_5;
+    }
+
+    public JTextField getP09_1() {
+        return p09_1;
+    }
+
+    public JTextField getP09_2() {
+        return p09_2;
+    }
+
+    public JTextField getP09_3() {
+        return p09_3;
+    }
+
+    public JTextField getP09_4() {
+        return p09_4;
+    }
+
+    public JTextField getP09_5() {
+        return p09_5;
+    }
+
+    public JTextField getP10_1() {
+        return p10_1;
+    }
+
+    public JTextField getP10_2() {
+        return p10_2;
+    }
+
+    public JTextField getP10_3() {
+        return p10_3;
+    }
+
+    public JTextField getP10_4() {
+        return p10_4;
+    }
+
+    public JTextField getP10_5() {
+        return p10_5;
+    }
+
+    public JTextField getSa1() {
+        return sa1;
+    }
+
+    public JTextField getSa2() {
+        return sa2;
+    }
+
+    public JTextField getSa3() {
+        return sa3;
+    }
+
+    public JTextField getSa4() {
+        return sa4;
+    }
+
+    public JTextField getSa5() {
+        return sa5;
+    }
+
+    public JTextField getSh1() {
+        return sh1;
+    }
+
+    public JTextField getSh2() {
+        return sh2;
+    }
+
+    public JTextField getSh3() {
+        return sh3;
+    }
+
+    public JTextField getSh4() {
+        return sh4;
+    }
+
+    public JTextField getSh5() {
+        return sh5;
+    }
+
+    
+    
+    
 }
