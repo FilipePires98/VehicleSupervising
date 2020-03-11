@@ -22,16 +22,16 @@ public class CCProxy implements MessageProcessor {
     private StandingCCInt standing;
     private PathCCInt path;
     private GranaryCCInt granary;
-    private SocketClient ccClient;
+    private FarmInfrastructure fi;
     
     private String message;
 
-    public CCProxy(SocketClient ccClient, StorehouseCCInt storeHouse,StandingCCInt standing,PathCCInt path,GranaryCCInt granary) {
+    public CCProxy(FarmInfrastructure fi, StorehouseCCInt storeHouse,StandingCCInt standing,PathCCInt path,GranaryCCInt granary) {
         this.storeHouse=storeHouse;
         this.standing=standing;
         this.path=path;
         this.granary=granary;
-        this.ccClient=ccClient;
+        this.fi=fi;
 
     }
 
@@ -47,27 +47,27 @@ public class CCProxy implements MessageProcessor {
             switch(processedMessage[0]){
                 case "waitSimulationReady":
                     this.storeHouse.waitAllFarmersReady();
-                    this.ccClient.send("allFarmersrReadyWaiting");
+                    this.fi.sendMessage("allFarmersrReadyWaiting");
                     break;
                 case "prepareOrder":
                     this.storeHouse.sendSelectionAndPrepareOrder(Integer.valueOf(processedMessage[1]),Integer.valueOf(processedMessage[2]),Integer.valueOf(processedMessage[3]),Integer.valueOf(processedMessage[4]));
                     this.standing.waitForAllFarmers();
-                    this.ccClient.send("allFarmersrReadyToStart");
+                    this.fi.sendMessage("allFarmersrReadyToStart");
                     break;
                 case "startHarvestOrder":
                     this.standing.sendStartOrder();
                     this.granary.waitAllFarmersReadyToCollect();
-                    this.ccClient.send("allFarmersrReadyToCollect");
+                    this.fi.sendMessage("allFarmersrReadyToCollect");
                     break;
                 case "collectOrder":
                     this.granary.sendCollectOrder();
                     this.granary.waitAllFarmersCollect();
-                    this.ccClient.send("allFarmersrReadyToReturn");
+                    this.fi.sendMessage("allFarmersrReadyToReturn");
                     break;
                 case "returnOrder":
                     this.granary.sendReturnOrder();
                     this.storeHouse.waitAllFarmersReady();
-                    this.ccClient.send("allFarmersrReadyWaiting");
+                    this.fi.sendMessage("allFarmersrReadyWaiting");
                     break;
                 case "stopHarvestOrder":
                     this.storeHouse.control("stopHarvest");
@@ -75,13 +75,17 @@ public class CCProxy implements MessageProcessor {
                     this.path.control("stopHarvest");
                     this.granary.control("stopHarvest");
                     this.storeHouse.waitAllFarmersReady();
-                    this.ccClient.send("allFarmersrReadyWaiting");
+                    this.fi.sendMessage("allFarmersrReadyWaiting");
                     break;
                 case "endSimulationOrder":
                     this.storeHouse.control("endSimulation");
                     this.standing.control("endSimulation");
                     this.path.control("endSimulation");
                     this.granary.control("endSimulation");
+                    this.fi.closeSocketClient();
+                    break;
+                case "endSimulation":
+                    this.fi.close();
                     break;
             }
         } catch (StopHarvestException ex) {

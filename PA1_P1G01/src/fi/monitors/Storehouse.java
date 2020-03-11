@@ -124,7 +124,6 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
             this.waitRandomDelay();
             while(!prepareOrderGiven){
                 prepareOrder.await();
-                
                 if(this.stopHarvest){
                     farmersInStorehouse--;
                     this.availablePosition.add(this.positions.get(farmerId));

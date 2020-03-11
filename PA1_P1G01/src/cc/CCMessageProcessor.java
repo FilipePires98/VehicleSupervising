@@ -45,6 +45,10 @@ public class CCMessageProcessor implements MessageProcessor {
             case "allFarmersrReadyWaiting":
                 this.cc.enablePrepareBtn();
                 break;
+            case "endSimulation":
+                this.cc.closeSocketClient();
+                this.cc.close();
+                break;
         }
     }
     

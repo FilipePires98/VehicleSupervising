@@ -234,6 +234,18 @@ public class ControlCenter extends javax.swing.JFrame {
         
     }//GEN-LAST:event_prepareBtnActionPerformed
 
+    
+    public void closeSocketClient(){
+        this.fiClient.send("endSimulation");
+        this.fiClient.close();
+    }
+    
+    public void close(){
+        this.setVisible(false);
+        this.dispose();
+    }
+    
+    
     public void enablePrepareBtn(){
         this.prepareBtn.setEnabled(true);
         this.numFarmers.setEnabled(true);
@@ -283,7 +295,7 @@ public class ControlCenter extends javax.swing.JFrame {
         System.out.println("[CC] Return to storehouse requested.");
         
         // Update UI
-//        this.stopBtn.setEnabled(true);
+        this.stopBtn.setEnabled(false);
         this.returnBtn.setEnabled(false);
 //        this.prepareBtn.setEnabled(true); // only if all farmers have returned and delivered the corn cobs!
         
@@ -313,7 +325,7 @@ public class ControlCenter extends javax.swing.JFrame {
         System.out.println("[CC] Simulation shutdown requested.");
         
         // Send message to FI for farmers to kill themselves, close the sockets and end the processes and UIs
-        
+        fiClient.send("endSimulationOrder");
     }//GEN-LAST:event_exitBtnActionPerformed
 
     /**

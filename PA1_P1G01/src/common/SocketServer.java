@@ -28,7 +28,7 @@ public class SocketServer implements Runnable{
             Socket inSocket = socket.accept();
             DataInputStream socketInputStream = new DataInputStream(inSocket.getInputStream());
             String receivedMessage="a";
-            while(!receivedMessage.equals("")){
+            while(!receivedMessage.equals("endSimulation")){
                 receivedMessage=socketInputStream.readUTF();
                 System.out.println(receivedMessage);
                 this.messageProcessor.defineMessage(receivedMessage);

@@ -54,7 +54,7 @@ public class FarmInfrastructure extends javax.swing.JFrame {
             
         ccClient = new SocketClient("localhost",6666);
         
-        messageProcessor = new CCProxy(ccClient, storeHouse, standing, path, granary);
+        messageProcessor = new CCProxy(this, storeHouse, standing, path, granary);
         fiServer = new SocketServer(7777, messageProcessor);
         serverThread=new Thread(fiServer);
         serverThread.start();
@@ -729,6 +729,16 @@ public class FarmInfrastructure extends javax.swing.JFrame {
     
     public void sendMessage(String message){
         this.ccClient.send(message);
+    }
+    
+    public void closeSocketClient(){
+        this.ccClient.send("endSimulation");
+        this.ccClient.close();
+    }
+    
+    public void close(){
+        this.setVisible(false);
+        this.dispose();
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
