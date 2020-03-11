@@ -1,5 +1,7 @@
 package fi.ccInterfaces;
 
+import fi.EndSimulationException;
+import fi.StopHarvestException;
 import fi.farmerInterfaces.*;
 
 /**
@@ -10,7 +12,7 @@ public interface StandingCCInt {
     
     //public void waitForAllFarmers();
     public void sendStartOrder();
-    public void waitForAllFarmers();
+    public void waitForAllFarmers() throws StopHarvestException, EndSimulationException;
     public void control(String action);
     
 }

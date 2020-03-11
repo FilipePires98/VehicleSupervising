@@ -43,6 +43,8 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
 
     private boolean stopHarvest=false;
     private boolean endSimulation=false;
+    
+    private boolean proxyInMonitor=false;
 
     
     /*
@@ -77,16 +79,6 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
     /**
      * 
      * @param farmerId 
-     */
-    private void selectSpot(int farmerId){
-        int randomPosition=(int)(Math.random()*(this.availablePosition.size()-1));
-        this.positions.put(farmerId, availablePosition.get(randomPosition));
-        this.availablePosition.remove(randomPosition);
-    }
-    
-    /**
-     * 
-     * @param farmerId 
      * @throws fi.StopHarvestException 
      * @throws fi.EndSimulationException 
      */
@@ -94,6 +86,7 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
     public void farmerEnter(int farmerId) throws StopHarvestException, EndSimulationException{
         rl.lock();
         try {
+            this.waitRandomDelay();
             farmersInStorehouse++;
             this.selectSpot(farmerId);
             this.fi.presentFarmerInStorehouse(farmerId,positions.get(farmerId));
@@ -102,6 +95,12 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
                 allInStorehouse.await();
                 
                 if(this.stopHarvest){
+                    farmersInStorehouse--;
+                    this.availablePosition.add(this.positions.get(farmerId));
+                    this.positions.remove(farmerId);
+                    if(farmersInStorehouse==0){
+                        this.stopHarvest=false;
+                    }
                     throw new StopHarvestException();
                 }
                 if(this.endSimulation){
@@ -109,7 +108,6 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
                 }
             }
             allInStorehouse.signalAll();
-
         } catch (InterruptedException ex) {
             Logger.getLogger(Storehouse.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
@@ -125,10 +123,17 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
     public void farmerWaitPrepareOrder(int farmerId) throws StopHarvestException, EndSimulationException {
         rl.lock();
         try {
+            this.waitRandomDelay();
             while(!prepareOrderGiven){
                 prepareOrder.await();
-                
                 if(this.stopHarvest){
+                    farmersInStorehouse--;
+                    this.availablePosition.add(this.positions.get(farmerId));
+                    this.positions.remove(farmerId);
+                    if(farmersInStorehouse==0){
+                        prepareOrderGiven=false;
+                        stopHarvest=false;
+                    }
                     throw new StopHarvestException();
                 }
                 if(this.endSimulation){
@@ -160,12 +165,24 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
      * 
      */
     @Override
-    public void waitAllFarmersReady() {
+    public void waitAllFarmersReady() throws StopHarvestException, EndSimulationException{
         rl.lock();
         try {
+            this.waitRandomDelay();
+            this.proxyInMonitor=true;
             while(farmersInStorehouse<metadata.MAXNUMBERFARMERS){
                 allInStorehouse.await();
+                
+                if(this.stopHarvest){
+                    this.proxyInMonitor=false;
+                    this.stopHarvest=false;
+                    throw new StopHarvestException();
+                }
+                if(this.endSimulation){
+                    throw new EndSimulationException();
+                }
             }
+            this.proxyInMonitor=false;
         } catch (InterruptedException ex) {
             Logger.getLogger(Storehouse.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
@@ -184,6 +201,7 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
     public void sendSelectionAndPrepareOrder(int numberOfFarmers, int numberOfCornCobs, int maxNumberOfSteps, int timeout) {
         rl.lock();
         try{
+            this.waitRandomDelay();
             this.metadata.NUMBERFARMERS = numberOfFarmers;
             this.metadata.NUMBERCORNCOBS = numberOfCornCobs;
             this.metadata.NUMBERSTEPS = maxNumberOfSteps;
@@ -205,9 +223,12 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
     public void control(String action) {
         rl.lock();
         try{
+            this.waitRandomDelay();
             switch(action){
                 case "stopHarvest":
-                    this.stopHarvest=true;
+                    if(this.farmersInStorehouse!=0 || proxyInMonitor){
+                        this.stopHarvest=true;
+                    }
                     break;
                 case "endSimulation":
                     this.endSimulation=true;
@@ -221,4 +242,24 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
             rl.unlock();
         }
     }
+    
+    /*
+        Aux Methods
+    */
+    
+    private void selectSpot(int farmerId){
+        int randomPosition=(int)(Math.random()*(this.availablePosition.size()-1));
+        this.positions.put(farmerId, availablePosition.get(randomPosition));
+        this.availablePosition.remove(randomPosition);
+    }
+    
+    private void waitRandomDelay(){
+        try {
+            int randomDelay=(int)(Math.random()*(this.metadata.MAXDELAY));
+            Thread.sleep(randomDelay);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(Storehouse.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
 }

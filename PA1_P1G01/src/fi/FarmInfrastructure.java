@@ -19,10 +19,12 @@ import javax.swing.JTextField;
 public class FarmInfrastructure extends javax.swing.JFrame {
     
     private static SocketServer fiServer;
+    private static Thread serverThread;
     private static SocketClient ccClient;
     
     private static MonitorMetadata metadata;
     private static final int teamSize = 5;
+    private static final int maxDelay = 100;
     private static final int pathSize = 10;
     
     private static Storehouse storeHouse;
@@ -44,7 +46,7 @@ public class FarmInfrastructure extends javax.swing.JFrame {
         initComponents();     
         groupTextFields();
         
-        metadata = new MonitorMetadata(teamSize);
+        metadata = new MonitorMetadata(teamSize, maxDelay);
         
         storeHouse = new Storehouse(this,metadata, teamSize);
         standing = new Standing(this, metadata);
@@ -59,9 +61,11 @@ public class FarmInfrastructure extends javax.swing.JFrame {
         }
             
         ccClient = new SocketClient("localhost",6666);
-        messageProcessor = new CCProxy(ccClient, storeHouse, standing, path, granary);
+        
+        messageProcessor = new CCProxy(this, storeHouse, standing, path, granary);
         fiServer = new SocketServer(7777, messageProcessor);
-        fiServer.start();
+        serverThread=new Thread(fiServer);
+        serverThread.start();
         ccClient.send("infrastructureServerOnline");
     }
 
@@ -733,6 +737,16 @@ public class FarmInfrastructure extends javax.swing.JFrame {
     
     public void sendMessage(String message){
         this.ccClient.send(message);
+    }
+    
+    public void closeSocketClient(){
+        this.ccClient.send("endSimulation");
+        this.ccClient.close();
+    }
+    
+    public void close(){
+        this.setVisible(false);
+        this.dispose();
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
