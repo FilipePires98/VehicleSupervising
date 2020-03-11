@@ -166,7 +166,6 @@ public class Path implements PathFarmerInt, PathCCInt {
                     }
                 }
                 this.selectSpot(farmerId, false);
-                this.fi.presentFarmerInPath(farmerId,farmersMetadata.get(farmerId).position, farmersMetadata.get(farmerId).depth);
                 this.waitTimeout();
                 
                 if(this.farmersInPath>1){
@@ -345,6 +344,8 @@ public class Path implements PathFarmerInt, PathCCInt {
         path[newDepth][randomPosition]=farmerId;
         farmersMetadata.get(farmerId).position=randomPosition;
         farmersMetadata.get(farmerId).depth=newDepth;
+
+        this.fi.presentFarmerInPath(farmerId,farmersMetadata.get(farmerId).position, farmersMetadata.get(farmerId).depth);
 
     }
     

@@ -84,7 +84,6 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
             this.waitRandomDelay();
             farmersInStorehouse++;
             this.selectSpot(farmerId);
-            this.fi.presentFarmerInStorehouse(farmerId,positions.get(farmerId));
             System.out.println("[Storehouse] Farmer " + farmerId + " entered.");
             while(farmersInStorehouse<this.metadata.MAXNUMBERFARMERS){
                 allInStorehouse.await();
@@ -246,6 +245,7 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
         int randomPosition=(int)(Math.random()*(this.availablePosition.size()-1));
         this.positions.put(farmerId, availablePosition.get(randomPosition));
         this.availablePosition.remove(randomPosition);
+        this.fi.presentFarmerInStorehouse(farmerId,positions.get(farmerId));
     }
     
     private void waitRandomDelay(){

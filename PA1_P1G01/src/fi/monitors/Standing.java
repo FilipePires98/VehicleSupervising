@@ -69,7 +69,6 @@ public class Standing implements StandingFarmerInt, StandingCCInt {
             this.waitRandomDelay();
             farmersInStanding++;
             this.selectSpot(farmerId);
-            this.fi.presentFarmerInStandingArea(farmerId,positions.get(farmerId));
             System.out.println("[Standing Area] Farmer " + farmerId + " entered.");
             while(farmersInStanding<this.metadata.NUMBERFARMERS){
                 wait();
@@ -201,6 +200,7 @@ public class Standing implements StandingFarmerInt, StandingCCInt {
         int randomPosition=(int)(Math.random()*(this.availablePosition.size()-1));
         this.positions.put(farmerId, availablePosition.get(randomPosition));
         this.availablePosition.remove(randomPosition);
+        this.fi.presentFarmerInStandingArea(farmerId,positions.get(farmerId));
     }
     
     private void waitRandomDelay(){

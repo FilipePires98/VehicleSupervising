@@ -79,7 +79,6 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
             this.waitRandomDelay();
             farmersInGranary++;
             this.selectSpot(farmerId);
-            this.fi.presentFarmerInStandingArea(farmerId,positions.get(farmerId));
             System.out.println("[Granary] Farmer " + farmerId + " entered.");
             while(farmersInGranary<metadata.NUMBERFARMERS){
                 allInGranary.await();
@@ -360,6 +359,7 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
         int randomPosition=(int)(Math.random()*(this.availablePosition.size()-1));
         this.positions.put(farmerId, availablePosition.get(randomPosition));
         this.availablePosition.remove(randomPosition);
+        this.fi.presentFarmerInStandingArea(farmerId,positions.get(farmerId));
     }
     
     private void waitRandomDelay(){
