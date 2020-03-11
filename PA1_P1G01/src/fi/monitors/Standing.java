@@ -26,15 +26,13 @@ public class Standing implements StandingFarmerInt, StandingCCInt {
     private FarmInfrastructure fi;
     private MonitorMetadata metadata;
     
-    private int farmersInStanding=0;
-    private boolean startOrderGiven=false;
-    
     private Map<Integer, Integer> positions;
     private List<Integer> availablePosition;
-
+    
+    private int farmersInStanding=0;
+    private boolean startOrderGiven=false;
     private boolean stopHarvest=false;
     private boolean endSimulation=false;
-
     private boolean proxyInMonitor=false;
     
     /*

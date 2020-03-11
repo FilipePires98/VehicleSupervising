@@ -34,20 +34,15 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
     private Condition waitCollectOrder = rl.newCondition();
     private Condition waitReturnOrder = rl.newCondition();
     
+    private Map<Integer, Integer> positions;
+    private List<Integer> availablePosition;
+    
     private int farmersInGranary=0;
     private int farmersCollected=0;
     private boolean readyToCollect=false;
     private boolean readyToReturn=false;
-    
-    
-    private Map positions;
-    private List availablePosition;
-    
-    
-    
     private boolean stopHarvest=false;
     private boolean endSimulation=false;
-    
     private boolean proxyInMonitor=false;
 
     /*
@@ -84,6 +79,8 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
             this.waitRandomDelay();
             farmersInGranary++;
             this.selectSpot(farmerId);
+            this.fi.presentFarmerInStandingArea(farmerId,positions.get(farmerId));
+            System.out.println("[Granary] Farmer " + farmerId + " entered.");
             while(farmersInGranary<metadata.NUMBERFARMERS){
                 allInGranary.await();
                 

@@ -33,19 +33,15 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
     private Condition allInStorehouse = rl.newCondition();
     private Condition prepareOrder = rl.newCondition();
     
-    private int farmersInStorehouse;
-    private int farmersSelected;
-    //private Map<Integer, Integer> farmersMetadata; // <farmerID,numCornCobs>
-    private boolean prepareOrderGiven;
-    
     private Map<Integer, Integer> positions;
     private List<Integer> availablePosition;
-
+    
+    private int farmersInStorehouse;
+    private int farmersSelected;
+    private boolean prepareOrderGiven;
     private boolean stopHarvest=false;
     private boolean endSimulation=false;
-    
     private boolean proxyInMonitor=false;
-
     
     /*
         Constructors
@@ -55,9 +51,8 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
      * Storehouse monitor constructor.
      * @param fi
      * @param metadata
-     * @param totalNumberOfFarmers 
      */
-    public Storehouse(FarmInfrastructure fi, MonitorMetadata metadata, int totalNumberOfFarmers) {
+    public Storehouse(FarmInfrastructure fi, MonitorMetadata metadata) {
         this.fi = fi;
         this.metadata=metadata;
         farmersInStorehouse = 0;

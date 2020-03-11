@@ -44,18 +44,17 @@ public class Path implements PathFarmerInt, PathCCInt {
     
     private FarmInfrastructure fi;
     private MonitorMetadata metadata;
-    private int pathLength;
     
     private ReentrantLock rl = new ReentrantLock();
     private Condition allInPath = rl.newCondition();
     
-    private int farmersInPath;
     private List<Integer> farmersOrder;
     private Integer currentFarmerToMove=null;
     private Integer path[][];
     private Map<Integer, ConditionAndPathDepth> farmersMetadata;
     private List<List<Integer>> availablePositions;
     
+    private int farmersInPath;
     private boolean stopHarvest=false;
     private boolean endSimulation=false;
 
@@ -67,19 +66,17 @@ public class Path implements PathFarmerInt, PathCCInt {
      * Path monitor constructor.
      * @param fi
      * @param metadata
-     * @param pathLength 
      */
-    public Path(FarmInfrastructure fi, MonitorMetadata metadata, int pathLength) {
+    public Path(FarmInfrastructure fi, MonitorMetadata metadata) {
         this.fi = fi;
         this.metadata=metadata;
         this.farmersInPath = 0;
         this.farmersOrder=new ArrayList();
-        this.pathLength=pathLength;
-        this.path=new Integer[pathLength][metadata.MAXNUMBERFARMERS];
+        this.path=new Integer[fi.pathSize][metadata.MAXNUMBERFARMERS];
         this.farmersMetadata = new HashMap();
         this.availablePositions = new ArrayList();
         
-        for(int i=0; i< pathLength; i++){
+        for(int i=0; i< fi.pathSize; i++){
             this.availablePositions.add(new ArrayList());
             for(int j=0; j<metadata.MAXNUMBERFARMERS; j++){
                 this.availablePositions.get(i).add(j);
@@ -92,35 +89,6 @@ public class Path implements PathFarmerInt, PathCCInt {
         Methods executed by farmers
     */
     
-    /**
-     * 
-     * @param farmerId
-     * @param reverse 
-     */
-    private void selectSpot(int farmerId, boolean reverse){
-        int numberOfSteps=(int)((Math.random()*(metadata.NUMBERSTEPS-1))+1);
-        int newDepth;
-        if(reverse){
-            newDepth=this.farmersMetadata.get(farmerId).depth-numberOfSteps;
-        }else{
-            newDepth=this.farmersMetadata.get(farmerId).depth+numberOfSteps;
-        }
-        if(newDepth>=this.pathLength){
-            path[farmersMetadata.get(farmerId).depth][farmersMetadata.get(farmerId).position]=null;
-            farmersMetadata.get(farmerId).depth=newDepth;
-            return;
-        }
-        int randomIndex=(int)(Math.random()*(this.availablePositions.get(newDepth).size()-1));
-        int randomPosition=this.availablePositions.get(newDepth).get(randomIndex);
-        if((this.farmersMetadata.get(farmerId).depth!=-1 && !reverse) || (this.farmersMetadata.get(farmerId).depth!=10 && reverse)){
-            path[farmersMetadata.get(farmerId).depth][farmersMetadata.get(farmerId).position]=null;
-        }
-        this.availablePositions.get(newDepth).remove(randomIndex);
-        path[newDepth][randomPosition]=farmerId;
-        farmersMetadata.get(farmerId).position=randomPosition;
-        farmersMetadata.get(farmerId).depth=newDepth;
-        this.availablePositions.get(this.farmersMetadata.get(farmerId).depth).add(farmersMetadata.get(farmerId).position);
-    }
     
     /**
      * 
@@ -136,7 +104,7 @@ public class Path implements PathFarmerInt, PathCCInt {
             farmersMetadata.put(farmerId, new ConditionAndPathDepth(rl.newCondition(), -1, -1));
             this.selectSpot(farmerId, false);
             this.fi.presentFarmerInPath(farmerId,farmersMetadata.get(farmerId).position, farmersMetadata.get(farmerId).depth);
-            System.out.println("[Standing Area] Farmer " + farmerId + " entered.");
+            System.out.println("[Path] Farmer " + farmerId + " entered.");
             this.waitTimeout();
             if(farmersInPath==metadata.NUMBERFARMERS){
                 currentFarmerToMove=farmersOrder.get(0);
@@ -176,7 +144,7 @@ public class Path implements PathFarmerInt, PathCCInt {
         rl.lock();
         try {
             this.waitRandomDelay();
-            while(this.farmersMetadata.get(farmerId).depth<this.pathLength){
+            while(this.farmersMetadata.get(farmerId).depth<fi.pathSize){
 
                 while(this.currentFarmerToMove!=farmerId){
 
@@ -230,7 +198,7 @@ public class Path implements PathFarmerInt, PathCCInt {
             this.waitRandomDelay();
             farmersInPath++;
             farmersOrder.add(farmerId);
-            farmersMetadata.put(farmerId, new ConditionAndPathDepth(rl.newCondition(), this.pathLength, -1));
+            farmersMetadata.put(farmerId, new ConditionAndPathDepth(rl.newCondition(), fi.pathSize, -1));
             this.selectSpot(farmerId, true);
             this.waitTimeout();
             if(farmersInPath==metadata.NUMBERFARMERS){
@@ -361,7 +329,7 @@ public class Path implements PathFarmerInt, PathCCInt {
         }else{
             newDepth=this.farmersMetadata.get(farmerId).depth+numberOfSteps;
         }
-        if(newDepth>=this.pathLength || newDepth<0){
+        if(newDepth>=fi.pathSize || newDepth<0){
             path[farmersMetadata.get(farmerId).depth][farmersMetadata.get(farmerId).position]=null;
             this.availablePositions.get(this.farmersMetadata.get(farmerId).depth).add(farmersMetadata.get(farmerId).position);
             farmersMetadata.get(farmerId).depth=newDepth;
