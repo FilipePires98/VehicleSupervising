@@ -50,7 +50,11 @@ public class FarmInfrastructure extends javax.swing.JFrame {
             farmerTeam[i] = f;
         }
         
+        ccClient = new SocketClient("localhost",6666);
         messageProcessor = new CCProxy(ccClient, storeHouse, standing, path, granary);
+        fiServer = new SocketServer(7777, messageProcessor);
+        fiServer.start();
+        ccClient.send("infrastructureServerOnline");
         
     }
 
@@ -713,9 +717,6 @@ public class FarmInfrastructure extends javax.swing.JFrame {
         //</editor-fold>
         
         try {
-            fiServer = new SocketServer(7777, messageProcessor);
-            fiServer.start();
-            ccClient.send("infrastructureServerOnline");
             
         } catch (Exception e) {
             e.printStackTrace();
@@ -814,6 +815,27 @@ public class FarmInfrastructure extends javax.swing.JFrame {
     private javax.swing.JLabel titleLabel;
     // End of variables declaration//GEN-END:variables
 
+    
+    public void presentFarmerInStorehouse(int farmerId, int position) {
+        switch(position) {
+            case 0:
+                sh1.setText(""+farmerId);
+                break;
+            case 1:
+                sh2.setText(""+farmerId);
+                break;
+            case 2:
+                sh3.setText(""+farmerId);
+                break;
+            case 3:
+                sh4.setText(""+farmerId);
+                break;
+            case 4:
+                sh5.setText(""+farmerId);
+                break;
+        }
+    }
+    
     public JTextField getG1() {
         return g1;
     }

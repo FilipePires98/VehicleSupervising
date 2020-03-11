@@ -79,6 +79,7 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
         try {
             farmersInStorehouse++;
             this.selectSpot(farmerId);
+            this.fi.presentFarmerInStorehouse(farmerId,positions.get(farmerId));
             System.out.println("[Storehouse] Farmer " + farmerId + " entered.");
             if(farmersInStorehouse==this.metadata.MAXNUMBERFARMERS) {
                 allInStorehouse.signalAll();
@@ -190,23 +191,6 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
         int randomPosition=(int)Math.random()*(this.availablePosition.size()-1);
         this.positions.put(farmerId, availablePosition.get(randomPosition));
         this.availablePosition.remove(randomPosition);
-        switch(positions.get(farmerId)) {
-            case 0:
-                fi.getSh1().setText(""+farmerId);
-                break;
-            case 1:
-                fi.getSh2().setText(""+farmerId);
-                break;
-            case 2:
-                fi.getSh3().setText(""+farmerId);
-                break;
-            case 3:
-                fi.getSh4().setText(""+farmerId);
-                break;
-            case 4:
-                fi.getSh5().setText(""+farmerId);
-                break;
-        }
     }
 
 }

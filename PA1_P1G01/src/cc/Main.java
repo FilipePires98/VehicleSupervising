@@ -41,8 +41,8 @@ public class Main {
 
     private static void runProcess(String command) throws Exception {
         Process proc = Runtime.getRuntime().exec(command);
-        printLines("[FI] ", proc.getInputStream());
-        printLines("[FI] ", proc.getErrorStream());
+        printLines("[FI]", proc.getInputStream());
+        printLines("[FI]", proc.getErrorStream());
         proc.waitFor();
         System.out.println(command + " exitValue() " + proc.exitValue());
     }
