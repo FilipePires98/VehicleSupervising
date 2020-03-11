@@ -50,10 +50,13 @@ public class CCProxy extends Thread implements MessageProcessor {
                 break;
             case "collectOrder":
                 this.granary.sendCollectOrder();
+                this.granary.waitAllFarmersCollect();
+                this.ccClient.send("allFarmersrReadyToReturn");
                 break;
             case "returnOrder":
                 this.granary.sendReturnOrder();
                 this.storeHouse.waitAllFarmersReady();
+                this.ccClient.send("allFarmersrReadyWaiting");
                 break;
             case "stopHarvestOrder":
                 this.storeHouse.control("stopHarvest");

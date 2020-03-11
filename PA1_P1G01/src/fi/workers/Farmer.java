@@ -1,9 +1,13 @@
 package fi.workers;
 
+import fi.EndSimulationException;
+import fi.StopHarvestException;
 import fi.farmerInterfaces.GranaryFarmerInt;
 import fi.farmerInterfaces.PathFarmerInt;
 import fi.farmerInterfaces.StandingFarmerInt;
 import fi.farmerInterfaces.StorehouseFarmerInt;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Class for the Farmer Thread for the agricultural harvest.
@@ -29,51 +33,33 @@ public class Farmer extends Thread {
     @Override
     public void run() {
         while(true){
-            this.state=FarmerState.INITIAL;
-            this.storeHouse.farmerEnter(id);
-            this.storeHouse.farmerWaitPrepareOrder(id);
-            this.state=FarmerState.PREPARE;
-            this.standing.farmerEnter(id);
-            this.standing.farmerWaitStartOrder(id);
-            this.state=FarmerState.WALK;
-            this.path.farmerEnter(id);
-            this.path.farmerGoToGranary(id);
-            this.granary.farmerEnter(id);
-            this.state=FarmerState.WAITTOCOLLECT;
-            this.granary.farmerWaitCollectOrder(id);
-            this.state=FarmerState.COLLECT;
-            this.granary.farmerCollect(id);
-            this.state=FarmerState.WAITTORETURN;
-            this.granary.farmerWaitReturnOrder(id);
-            this.state=FarmerState.RETURN;
-            this.path.farmerReturn(id);
-            this.path.farmerGoToStorehouse(id);
-        }
-    }
-    
-    /*
-    private boolean nextStep(int step) {
-        if() {
-            
-        }
-        switch(step) {
-            case 1:
+            try {
                 this.state=FarmerState.INITIAL;
                 this.storeHouse.farmerEnter(id);
-                break;
-            case 2:
                 this.storeHouse.farmerWaitPrepareOrder(id);
-                break;
-            // ...
+                this.state=FarmerState.PREPARE;
+                this.standing.farmerEnter(id);
+                this.standing.farmerWaitStartOrder(id);
+                this.state=FarmerState.WALK;
+                this.path.farmerEnter(id);
+                this.path.farmerGoToGranary(id);
+                this.granary.farmerEnter(id);
+                this.state=FarmerState.WAITTOCOLLECT;
+                this.granary.farmerWaitCollectOrder(id);
+                this.state=FarmerState.COLLECT;
+                this.granary.farmerCollect(id);
+                this.state=FarmerState.WAITTORETURN;
+                this.granary.farmerWaitReturnOrder(id);
+                this.state=FarmerState.RETURN;
+                this.path.farmerReturn(id);
+                this.path.farmerGoToStorehouse(id);
+            } catch (StopHarvestException ex) {
+                
+            } catch (EndSimulationException ex) {
+                return;
+            }
         }
-        return false;
     }
-    */
-
-    public int getID() {
-        return id;
-    }
-    
     
     
 }

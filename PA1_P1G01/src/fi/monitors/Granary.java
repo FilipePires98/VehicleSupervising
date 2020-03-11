@@ -1,7 +1,9 @@
 package fi.monitors;
 
+import fi.EndSimulationException;
 import fi.FarmInfrastructure;
 import fi.MonitorMetadata;
+import fi.StopHarvestException;
 import fi.ccInterfaces.GranaryCCInt;
 import fi.farmerInterfaces.GranaryFarmerInt;
 import java.util.ArrayList;
@@ -40,6 +42,12 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
     
     private Map positions;
     private List availablePosition;
+    
+    
+    
+    private boolean stopHarvest=false;
+    private boolean endSimulation=false;
+
     /*
         Constructors
     */
@@ -64,7 +72,7 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
     */
 
     private void selectSpot(int farmerId){
-        int randomPosition=(int)Math.random()*(this.availablePosition.size()-1);
+        int randomPosition=(int)(Math.random()*(this.availablePosition.size()-1));
         this.positions.put(farmerId, availablePosition.get(randomPosition));
         this.availablePosition.remove(randomPosition);
     }
@@ -74,18 +82,22 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
      * @param farmerId 
      */
     @Override
-    public void farmerEnter(int farmerId) {
+    public void farmerEnter(int farmerId) throws StopHarvestException, EndSimulationException{
         rl.lock();
         try {
             farmersInGranary++;
-            System.out.println(farmerId);
             this.selectSpot(farmerId);
-            if(farmersInGranary==metadata.NUMBERFARMERS){
-                allInGranary.signalAll();
-            }
             while(farmersInGranary<metadata.NUMBERFARMERS){
                 allInGranary.await();
+                
+                if(this.stopHarvest){
+                    throw new StopHarvestException();
+                }
+                if(this.endSimulation){
+                    throw new EndSimulationException();
+                }
             }
+            allInGranary.signalAll();
         } catch (InterruptedException ex) {
             Logger.getLogger(Granary.class.getName()).log(Level.SEVERE, null, ex);
         }finally{
@@ -98,11 +110,18 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
      * @param farmerId 
      */
     @Override
-    public void farmerWaitCollectOrder(int farmerId) {
+    public void farmerWaitCollectOrder(int farmerId) throws StopHarvestException, EndSimulationException{
         rl.lock();
         try{
             while(!this.readyToCollect){
                 this.waitCollectOrder.await();
+                
+                if(this.stopHarvest){
+                    throw new StopHarvestException();
+                }
+                if(this.endSimulation){
+                    throw new EndSimulationException();
+                }
             }
         }
         catch (InterruptedException ex) {
@@ -118,12 +137,19 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
      * @param farmerId 
      */
     @Override
-    public void farmerCollect(int farmerId) {
+    public void farmerCollect(int farmerId) throws StopHarvestException, EndSimulationException{
         rl.lock();
         try{
             this.farmersCollected++;
             while(this.farmersCollected<metadata.NUMBERFARMERS){
                 this.allCollected.await();
+                
+                if(this.stopHarvest){
+                    throw new StopHarvestException();
+                }
+                if(this.endSimulation){
+                    throw new EndSimulationException();
+                }
             }
             this.allCollected.signalAll();
             this.readyToCollect=false;
@@ -141,15 +167,22 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
      * @param farmerId 
      */
     @Override
-    public void farmerWaitReturnOrder(int farmerId) {
+    public void farmerWaitReturnOrder(int farmerId) throws StopHarvestException, EndSimulationException{
         rl.lock();
         try{
-            this.farmersCollected--;
             while(!this.readyToReturn){
                 this.waitReturnOrder.await();
+                
+                if(this.stopHarvest){
+                    throw new StopHarvestException();
+                }
+                if(this.endSimulation){
+                    throw new EndSimulationException();
+                }
             }
             this.availablePosition.add(this.positions.get(farmerId));
             this.positions.remove(farmerId);
+            this.farmersCollected--;
             this.farmersInGranary--;
             if(this.farmersInGranary==0){
                 this.readyToReturn=false;
@@ -191,8 +224,14 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
      */
     @Override
     public void sendCollectOrder() {
-        this.readyToCollect=true;
-        this.waitCollectOrder.signalAll();
+        rl.lock();
+        try{
+            this.readyToCollect=true;
+            this.waitCollectOrder.signalAll();
+        }
+        finally{
+            rl.unlock();
+        }
     }
 
     /**
@@ -219,8 +258,14 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
      */
     @Override
     public void sendReturnOrder() {
-        this.readyToReturn=true;
-        this.waitReturnOrder.signalAll();
+        rl.lock();
+        try{
+            this.readyToReturn=true;
+            this.waitReturnOrder.signalAll();
+        }
+        finally{
+            rl.unlock();
+        }
     }
 
     /**
@@ -229,11 +274,24 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
      */
     @Override
     public void control(String action) {
-        switch(action){
-            case "stopHarvest":
-                break;
-            case "endSimulation":
-                break;
+        rl.lock();
+        try{
+            switch(action){
+                case "stopHarvest":
+                    this.stopHarvest=true;
+                    break;
+                case "endSimulation":
+                    this.endSimulation=true;
+                    break;
+            }
+
+            this.allCollected.signalAll();
+            this.allInGranary.signalAll();
+            this.waitCollectOrder.signalAll();
+            this.waitReturnOrder.signalAll();
+        }
+        finally{
+            rl.unlock();
         }
     }
 }
