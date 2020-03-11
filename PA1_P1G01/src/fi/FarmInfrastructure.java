@@ -1,22 +1,19 @@
 package fi;
 
-import fi.monitors.Standing;
-import fi.monitors.Storehouse;
-import fi.monitors.Path;
-import fi.monitors.Granary;
+import fi.monitors.*;
 import fi.workers.Farmer;
 import fi.workers.CCProxy;
 import common.SocketClient;
 import common.SocketServer;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.JTextField;
+import javax.swing.*;
 
 /**
  * Class for the Farm Infrastructure for the agricultural harvest.
  * @author Filipe Pires (85122) and João Alegria (85048)
  */
-public class FarmInfrastructure extends javax.swing.JFrame {
+public class FarmInfrastructure extends JFrame {
     
     private static SocketServer fiServer;
     private static Thread serverThread;
@@ -34,10 +31,10 @@ public class FarmInfrastructure extends javax.swing.JFrame {
     private static Farmer[] farmerTeam;
     private static CCProxy messageProcessor;
     
-    private javax.swing.JTextField[] storehouseTextFields;
-    private javax.swing.JTextField[] standingAreaTextFields;
-    private javax.swing.JTextField[][] pathTextFields;
-    private javax.swing.JTextField[] granaryTextFields;
+    private JTextField[] storehouseTextFields;
+    private JTextField[] standingAreaTextFields;
+    private JTextField[][] pathTextFields;
+    private JTextField[] granaryTextFields;
 
     /**
      * Creates new form NewJFrame
@@ -709,9 +706,9 @@ public class FarmInfrastructure extends javax.swing.JFrame {
          * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
          */
         try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+            for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    UIManager.setLookAndFeel(info.getClassName());
                     break;
                 }
             }
@@ -721,7 +718,7 @@ public class FarmInfrastructure extends javax.swing.JFrame {
             java.util.logging.Logger.getLogger(FarmInfrastructure.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
             java.util.logging.Logger.getLogger(FarmInfrastructure.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+        } catch (UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(FarmInfrastructure.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
@@ -831,13 +828,13 @@ public class FarmInfrastructure extends javax.swing.JFrame {
     // End of variables declaration//GEN-END:variables
     
     private void groupTextFields() {
-        storehouseTextFields = new javax.swing.JTextField[teamSize];
+        storehouseTextFields = new JTextField[teamSize];
         storehouseTextFields[0] = sh1; storehouseTextFields[1] = sh2; storehouseTextFields[2] = sh3; storehouseTextFields[3] = sh4; storehouseTextFields[4] = sh5;
         
-        standingAreaTextFields = new javax.swing.JTextField[teamSize];
+        standingAreaTextFields = new JTextField[teamSize];
         standingAreaTextFields[0] = sa1; standingAreaTextFields[1] = sa2; standingAreaTextFields[2] = sa3; standingAreaTextFields[3] = sa4; standingAreaTextFields[4] = sa5;
         
-        pathTextFields = new javax.swing.JTextField[pathSize][teamSize];
+        pathTextFields = new JTextField[pathSize][teamSize];
         pathTextFields[0][0] = p01_1; pathTextFields[0][1] = p01_2; pathTextFields[0][2] = p01_3; pathTextFields[0][3] = p01_4; pathTextFields[0][4] = p01_5; 
         pathTextFields[1][0] = p02_1; pathTextFields[1][1] = p02_2; pathTextFields[1][2] = p02_3; pathTextFields[1][3] = p02_4; pathTextFields[1][4] = p02_5;
         pathTextFields[2][0] = p03_1; pathTextFields[2][1] = p03_2; pathTextFields[2][2] = p03_3; pathTextFields[2][3] = p03_4; pathTextFields[2][4] = p03_5;
@@ -849,12 +846,13 @@ public class FarmInfrastructure extends javax.swing.JFrame {
         pathTextFields[8][0] = p09_1; pathTextFields[8][1] = p09_2; pathTextFields[8][2] = p09_3; pathTextFields[8][3] = p09_4; pathTextFields[8][4] = p09_5;
         pathTextFields[9][0] = p10_1; pathTextFields[9][1] = p10_2; pathTextFields[9][2] = p10_3; pathTextFields[9][3] = p10_4; pathTextFields[9][4] = p10_5;
         
-        granaryTextFields = new javax.swing.JTextField[teamSize];
+        granaryTextFields = new JTextField[teamSize];
         granaryTextFields[0] = g1; granaryTextFields[1] = g2; granaryTextFields[2] = g3; granaryTextFields[3] = g4; granaryTextFields[4] = g5;
     }
     
     public void presentFarmerInStorehouse(int farmerId, int position) {
         clearStandingArea(farmerId);
+        clearPathNeighbors(farmerId,0);
         storehouseTextFields[position].setText(""+farmerId);
     }
     
@@ -897,8 +895,8 @@ public class FarmInfrastructure extends javax.swing.JFrame {
                         pathTextFields[column+1][i].setText("");
                         return;
                     }
-                    if(!(pathTextFields[column+2][i].getText()).equals("") && Integer.valueOf(pathTextFields[column+2][i].getText()) == farmerId) {
-                        pathTextFields[column+2][i].setText("");
+                    if(!(pathTextFields[column][i].getText()).equals("") && Integer.valueOf(pathTextFields[column][i].getText()) == farmerId) {
+                        pathTextFields[column][i].setText("");
                         return;
                     }
                 }
@@ -920,7 +918,7 @@ public class FarmInfrastructure extends javax.swing.JFrame {
                     }
                 }
                 break;
-            case 9:
+            case pathSize-1:
                 for(int i=0; i<teamSize; i++) {
                     if(!(pathTextFields[column-2][i].getText()).equals("") && Integer.valueOf(pathTextFields[column-2][i].getText()) == farmerId) {
                         pathTextFields[column-2][i].setText("");
@@ -937,14 +935,14 @@ public class FarmInfrastructure extends javax.swing.JFrame {
                     clearGranary(farmerId);
                 }
                 break;
-            case 10:
+            case pathSize:
                 for(int i=0; i<teamSize; i++) {
-                    if(!(pathTextFields[column-2][i].getText()).equals("") && Integer.valueOf(pathTextFields[column-2][i].getText()) == farmerId) {
-                        pathTextFields[column-2][i].setText("");
-                        return;
-                    }
                     if(!(pathTextFields[column-1][i].getText()).equals("") && Integer.valueOf(pathTextFields[column-1][i].getText()) == farmerId) {
                         pathTextFields[column-1][i].setText("");
+                        return;
+                    }
+                    if(!(pathTextFields[column][i].getText()).equals("") && Integer.valueOf(pathTextFields[column][i].getText()) == farmerId) {
+                        pathTextFields[column][i].setText("");
                         return;
                     }
                     clearGranary(farmerId);

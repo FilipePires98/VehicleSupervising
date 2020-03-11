@@ -359,7 +359,7 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
         int randomPosition=(int)(Math.random()*(this.availablePosition.size()-1));
         this.positions.put(farmerId, availablePosition.get(randomPosition));
         this.availablePosition.remove(randomPosition);
-        this.fi.presentFarmerInStandingArea(farmerId,positions.get(farmerId));
+        this.fi.presentFarmerInGranary(farmerId,positions.get(farmerId));
     }
     
     private void waitRandomDelay(){
