@@ -83,6 +83,7 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
             System.out.println("[Storehouse] Farmer " + farmerId + " entered.");
             if(farmersInStorehouse==this.metadata.MAXNUMBERFARMERS) {
                 allInStorehouse.signalAll();
+                System.out.println("I am the last farmer");
             }
             while(farmersInStorehouse<this.metadata.MAXNUMBERFARMERS){
                 allInStorehouse.await();
@@ -136,6 +137,7 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
         try {
             while(farmersInStorehouse<metadata.MAXNUMBERFARMERS){
                 allInStorehouse.await();
+                System.out.println("I am waiting for the last farmer");
             }
         } catch (InterruptedException ex) {
             Logger.getLogger(Storehouse.class.getName()).log(Level.SEVERE, null, ex);
