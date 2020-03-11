@@ -56,11 +56,8 @@ public class Path implements PathFarmerInt, PathCCInt {
     private Map<Integer, ConditionAndPathDepth> farmersMetadata;
     private List<List<Integer>> availablePositions;
     
-    
-    
     private boolean stopHarvest=false;
     private boolean endSimulation=false;
-
 
     /*
         Constructors
@@ -97,6 +94,36 @@ public class Path implements PathFarmerInt, PathCCInt {
     
     /**
      * 
+     * @param farmerId
+     * @param reverse 
+     */
+    private void selectSpot(int farmerId, boolean reverse){
+        int numberOfSteps=(int)((Math.random()*(metadata.NUMBERSTEPS-1))+1);
+        int newDepth;
+        if(reverse){
+            newDepth=this.farmersMetadata.get(farmerId).depth-numberOfSteps;
+        }else{
+            newDepth=this.farmersMetadata.get(farmerId).depth+numberOfSteps;
+        }
+        if(newDepth>=this.pathLength){
+            path[farmersMetadata.get(farmerId).depth][farmersMetadata.get(farmerId).position]=null;
+            farmersMetadata.get(farmerId).depth=newDepth;
+            return;
+        }
+        int randomIndex=(int)(Math.random()*(this.availablePositions.get(newDepth).size()-1));
+        int randomPosition=this.availablePositions.get(newDepth).get(randomIndex);
+        if((this.farmersMetadata.get(farmerId).depth!=-1 && !reverse) || (this.farmersMetadata.get(farmerId).depth!=10 && reverse)){
+            path[farmersMetadata.get(farmerId).depth][farmersMetadata.get(farmerId).position]=null;
+        }
+        this.availablePositions.get(newDepth).remove(randomIndex);
+        path[newDepth][randomPosition]=farmerId;
+        farmersMetadata.get(farmerId).position=randomPosition;
+        farmersMetadata.get(farmerId).depth=newDepth;
+        this.availablePositions.get(this.farmersMetadata.get(farmerId).depth).add(farmersMetadata.get(farmerId).position);
+    }
+    
+    /**
+     * 
      * @param farmerId 
      */
     @Override
@@ -107,6 +134,8 @@ public class Path implements PathFarmerInt, PathCCInt {
             farmersOrder.add(farmerId);
             farmersMetadata.put(farmerId, new ConditionAndPathDepth(rl.newCondition(), -1, -1));
             this.selectSpot(farmerId, false);
+            this.fi.presentFarmerInPath(farmerId,farmersMetadata.get(farmerId).position, farmersMetadata.get(farmerId).depth);
+            System.out.println("[Standing Area] Farmer " + farmerId + " entered.");
             if(farmersInPath==metadata.NUMBERFARMERS){
                 currentFarmerToMove=farmersOrder.get(0);
             }
@@ -150,6 +179,8 @@ public class Path implements PathFarmerInt, PathCCInt {
                     }
                 }
                 this.selectSpot(farmerId, false);
+                this.fi.presentFarmerInPath(farmerId,farmersMetadata.get(farmerId).position, farmersMetadata.get(farmerId).depth);
+                Thread.sleep(1000);
                 
                 if(this.farmersInPath>1){
                     this.currentFarmerToMove=this.farmersOrder.get((this.farmersOrder.indexOf(farmerId)+1)%this.metadata.NUMBERFARMERS);
@@ -237,36 +268,6 @@ public class Path implements PathFarmerInt, PathCCInt {
         }finally{
             rl.unlock();
         }
-    }
-    
-    /**
-     * 
-     * @param farmerId
-     * @param reverse 
-     */
-    private void selectSpot(int farmerId, boolean reverse){
-        int numberOfSteps=(int)((Math.random()*(metadata.NUMBERSTEPS-1))+1);
-        int newDepth;
-        if(reverse){
-            newDepth=this.farmersMetadata.get(farmerId).depth-numberOfSteps;
-        }else{
-            newDepth=this.farmersMetadata.get(farmerId).depth+numberOfSteps;
-        }
-        if(newDepth>=this.pathLength){
-            path[farmersMetadata.get(farmerId).depth][farmersMetadata.get(farmerId).position]=null;
-            farmersMetadata.get(farmerId).depth=newDepth;
-            return;
-        }
-        int randomIndex=(int)(Math.random()*(this.availablePositions.get(newDepth).size()-1));
-        int randomPosition=this.availablePositions.get(newDepth).get(randomIndex);
-        if((this.farmersMetadata.get(farmerId).depth!=-1 && !reverse) || (this.farmersMetadata.get(farmerId).depth!=10 && reverse)){
-            path[farmersMetadata.get(farmerId).depth][farmersMetadata.get(farmerId).position]=null;
-        }
-        this.availablePositions.get(newDepth).remove(randomIndex);
-        path[newDepth][randomPosition]=farmerId;
-        farmersMetadata.get(farmerId).position=randomPosition;
-        farmersMetadata.get(farmerId).depth=newDepth;
-        this.availablePositions.get(this.farmersMetadata.get(farmerId).depth).add(farmersMetadata.get(farmerId).position);
     }
 
     /*

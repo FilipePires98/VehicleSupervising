@@ -8,6 +8,8 @@ import fi.workers.Farmer;
 import fi.workers.CCProxy;
 import common.SocketClient;
 import common.SocketServer;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.JTextField;
 
 /**
@@ -29,12 +31,18 @@ public class FarmInfrastructure extends javax.swing.JFrame {
     private static Granary granary;
     private static Farmer[] farmerTeam;
     private static CCProxy messageProcessor;
+    
+    private javax.swing.JTextField[] storehouseTextFields;
+    private javax.swing.JTextField[] standingAreaTextFields;
+    private javax.swing.JTextField[][] pathTextFields;
+    private javax.swing.JTextField[] granaryTextFields;
 
     /**
      * Creates new form NewJFrame
      */
     public FarmInfrastructure() {
         initComponents();     
+        groupTextFields();
         
         metadata = new MonitorMetadata(teamSize);
         
@@ -50,8 +58,6 @@ public class FarmInfrastructure extends javax.swing.JFrame {
             farmerTeam[i] = f;
         }
             
-        ccClient = new SocketClient("localhost",6666);
-        
         ccClient = new SocketClient("localhost",6666);
         messageProcessor = new CCProxy(ccClient, storeHouse, standing, path, granary);
         fiServer = new SocketServer(7777, messageProcessor);
@@ -77,7 +83,7 @@ public class FarmInfrastructure extends javax.swing.JFrame {
         sh5 = new javax.swing.JTextField();
         sh4 = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
+        swCornCobs = new javax.swing.JTextField();
         standingAreaPanel = new javax.swing.JPanel();
         standingAreaLabel = new javax.swing.JLabel();
         sa1 = new javax.swing.JTextField();
@@ -144,7 +150,7 @@ public class FarmInfrastructure extends javax.swing.JFrame {
         g1 = new javax.swing.JTextField();
         g2 = new javax.swing.JTextField();
         g3 = new javax.swing.JTextField();
-        jTextField2 = new javax.swing.JTextField();
+        gCornCobs = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -167,8 +173,8 @@ public class FarmInfrastructure extends javax.swing.JFrame {
 
         jLabel1.setText("Corn Cobs");
 
-        jTextField1.setText("0");
-        jTextField1.setEnabled(false);
+        swCornCobs.setText("0");
+        swCornCobs.setEnabled(false);
 
         javax.swing.GroupLayout storehousePanelLayout = new javax.swing.GroupLayout(storehousePanel);
         storehousePanel.setLayout(storehousePanelLayout);
@@ -192,7 +198,7 @@ public class FarmInfrastructure extends javax.swing.JFrame {
                         .addContainerGap()
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTextField1, javax.swing.GroupLayout.DEFAULT_SIZE, 37, Short.MAX_VALUE)))
+                        .addComponent(swCornCobs, javax.swing.GroupLayout.DEFAULT_SIZE, 37, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         storehousePanelLayout.setVerticalGroup(
@@ -207,7 +213,7 @@ public class FarmInfrastructure extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, storehousePanelLayout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(swCornCobs, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(23, 23, 23)))
                 .addComponent(sh1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -587,8 +593,8 @@ public class FarmInfrastructure extends javax.swing.JFrame {
 
         g3.setEnabled(false);
 
-        jTextField2.setText("0");
-        jTextField2.setEnabled(false);
+        gCornCobs.setText("0");
+        gCornCobs.setEnabled(false);
 
         jLabel2.setText("Corn Cobs");
 
@@ -616,7 +622,7 @@ public class FarmInfrastructure extends javax.swing.JFrame {
                         .addContainerGap()
                         .addComponent(jLabel2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTextField2, javax.swing.GroupLayout.DEFAULT_SIZE, 38, Short.MAX_VALUE)))
+                        .addComponent(gCornCobs, javax.swing.GroupLayout.DEFAULT_SIZE, 38, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         granaryPanelLayout.setVerticalGroup(
@@ -629,7 +635,7 @@ public class FarmInfrastructure extends javax.swing.JFrame {
                     .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, granaryPanelLayout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(gCornCobs, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(17, 17, 17)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(g1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -736,12 +742,11 @@ public class FarmInfrastructure extends javax.swing.JFrame {
     private javax.swing.JTextField g3;
     private javax.swing.JTextField g4;
     private javax.swing.JTextField g5;
+    private javax.swing.JTextField gCornCobs;
     private javax.swing.JLabel granaryLabel;
     private javax.swing.JPanel granaryPanel;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField2;
     private javax.swing.JTextField p01_1;
     private javax.swing.JTextField p01_2;
     private javax.swing.JTextField p01_3;
@@ -807,288 +812,79 @@ public class FarmInfrastructure extends javax.swing.JFrame {
     private javax.swing.JPanel standingAreaPanel;
     private javax.swing.JLabel storehouseLabel;
     private javax.swing.JPanel storehousePanel;
+    private javax.swing.JTextField swCornCobs;
     private javax.swing.JLabel titleLabel;
     // End of variables declaration//GEN-END:variables
-
+    
+    private void groupTextFields() {
+        storehouseTextFields = new javax.swing.JTextField[teamSize];
+        storehouseTextFields[0] = sh1; storehouseTextFields[1] = sh2; storehouseTextFields[2] = sh3; storehouseTextFields[3] = sh4; storehouseTextFields[4] = sh5;
+        
+        standingAreaTextFields = new javax.swing.JTextField[teamSize];
+        standingAreaTextFields[0] = sa1; standingAreaTextFields[1] = sa2; standingAreaTextFields[2] = sa3; standingAreaTextFields[3] = sa4; standingAreaTextFields[4] = sa5;
+        
+        pathTextFields = new javax.swing.JTextField[pathSize][teamSize];
+        pathTextFields[0][0] = p01_1; pathTextFields[0][1] = p01_2; pathTextFields[0][2] = p01_3; pathTextFields[0][3] = p01_4; pathTextFields[0][4] = p01_5; 
+        pathTextFields[1][0] = p02_1; pathTextFields[1][1] = p02_2; pathTextFields[1][2] = p02_3; pathTextFields[1][3] = p02_4; pathTextFields[1][4] = p02_5;
+        pathTextFields[2][0] = p03_1; pathTextFields[2][1] = p03_2; pathTextFields[2][2] = p03_3; pathTextFields[2][3] = p03_4; pathTextFields[2][4] = p03_5;
+        pathTextFields[3][0] = p04_1; pathTextFields[3][1] = p04_2; pathTextFields[3][2] = p04_3; pathTextFields[3][3] = p04_4; pathTextFields[3][4] = p04_5;
+        pathTextFields[4][0] = p05_1; pathTextFields[4][1] = p05_2; pathTextFields[4][2] = p05_3; pathTextFields[4][3] = p05_4; pathTextFields[4][4] = p05_5;
+        pathTextFields[5][0] = p06_1; pathTextFields[5][1] = p06_2; pathTextFields[5][2] = p06_3; pathTextFields[5][3] = p06_4; pathTextFields[5][4] = p06_5;
+        pathTextFields[6][0] = p07_1; pathTextFields[6][1] = p07_2; pathTextFields[6][2] = p07_3; pathTextFields[6][3] = p07_4; pathTextFields[6][4] = p07_5;
+        pathTextFields[7][0] = p08_1; pathTextFields[7][1] = p08_2; pathTextFields[7][2] = p08_3; pathTextFields[7][3] = p08_4; pathTextFields[7][4] = p08_5;
+        pathTextFields[8][0] = p09_1; pathTextFields[8][1] = p09_2; pathTextFields[8][2] = p09_3; pathTextFields[8][3] = p09_4; pathTextFields[8][4] = p09_5;
+        pathTextFields[9][0] = p10_1; pathTextFields[9][1] = p10_2; pathTextFields[9][2] = p10_3; pathTextFields[9][3] = p10_4; pathTextFields[9][4] = p10_5;
+        
+        granaryTextFields = new javax.swing.JTextField[teamSize];
+        granaryTextFields[0] = g1; granaryTextFields[1] = g2; granaryTextFields[2] = g3; granaryTextFields[3] = g4; granaryTextFields[4] = g5;
+    }
     
     public void presentFarmerInStorehouse(int farmerId, int position) {
-        switch(position) {
-            case 0:
-                sh1.setText(""+farmerId);
-                break;
-            case 1:
-                sh2.setText(""+farmerId);
-                break;
-            case 2:
-                sh3.setText(""+farmerId);
-                break;
-            case 3:
-                sh4.setText(""+farmerId);
-                break;
-            case 4:
-                sh5.setText(""+farmerId);
-                break;
+        storehouseTextFields[position].setText(""+farmerId);
+    }
+    
+    private void clearStorehouse(int position) {
+        storehouseTextFields[position].setText("");
+    }
+    
+    public void presentFarmerInStandingArea(int farmerId, int position) {
+        clearStorehouse(position);
+        clearPathNeighbors(position,0);
+        standingAreaTextFields[position].setText(""+farmerId);
+    }
+    
+    private void clearStandingArea(int position) {
+        standingAreaTextFields[position].setText("");
+    }
+    
+    public void presentFarmerInPath(int farmerId, int position, int column) {
+        clearStandingArea(position);
+        pathTextFields[column][position].setText(""+farmerId);
+    }
+    
+    private void clearPathNeighbors(int position, int column) {
+        if(column==11) {
+            
+        } else if(column==10) {
+            
+        } else if(column==9) {
+            
+        } else if(column==2) {
+            
+        } else if(column==1) {
+            
+        } else if(column==0) {
+            pathTextFields[column+1][position].setText("");
+        } else {
+            
         }
     }
     
-    public JTextField getG1() {
-        return g1;
+    public void presentFarmerInGranary(int farmerId, int position) {
+        
     }
-
-    public JTextField getG2() {
-        return g2;
+    
+    private void clearGranary(int position) {
+        granaryTextFields[position].setText("");
     }
-
-    public JTextField getG3() {
-        return g3;
-    }
-
-    public JTextField getG4() {
-        return g4;
-    }
-
-    public JTextField getG5() {
-        return g5;
-    }
-
-    public JTextField getP01_1() {
-        return p01_1;
-    }
-
-    public JTextField getP01_2() {
-        return p01_2;
-    }
-
-    public JTextField getP01_3() {
-        return p01_3;
-    }
-
-    public JTextField getP01_4() {
-        return p01_4;
-    }
-
-    public JTextField getP01_5() {
-        return p01_5;
-    }
-
-    public JTextField getP02_1() {
-        return p02_1;
-    }
-
-    public JTextField getP02_2() {
-        return p02_2;
-    }
-
-    public JTextField getP02_3() {
-        return p02_3;
-    }
-
-    public JTextField getP02_4() {
-        return p02_4;
-    }
-
-    public JTextField getP02_5() {
-        return p02_5;
-    }
-
-    public JTextField getP03_1() {
-        return p03_1;
-    }
-
-    public JTextField getP03_2() {
-        return p03_2;
-    }
-
-    public JTextField getP03_3() {
-        return p03_3;
-    }
-
-    public JTextField getP03_4() {
-        return p03_4;
-    }
-
-    public JTextField getP03_5() {
-        return p03_5;
-    }
-
-    public JTextField getP04_1() {
-        return p04_1;
-    }
-
-    public JTextField getP04_2() {
-        return p04_2;
-    }
-
-    public JTextField getP04_3() {
-        return p04_3;
-    }
-
-    public JTextField getP04_4() {
-        return p04_4;
-    }
-
-    public JTextField getP04_5() {
-        return p04_5;
-    }
-
-    public JTextField getP05_1() {
-        return p05_1;
-    }
-
-    public JTextField getP05_2() {
-        return p05_2;
-    }
-
-    public JTextField getP05_3() {
-        return p05_3;
-    }
-
-    public JTextField getP05_4() {
-        return p05_4;
-    }
-
-    public JTextField getP05_5() {
-        return p05_5;
-    }
-
-    public JTextField getP06_1() {
-        return p06_1;
-    }
-
-    public JTextField getP06_2() {
-        return p06_2;
-    }
-
-    public JTextField getP06_3() {
-        return p06_3;
-    }
-
-    public JTextField getP06_4() {
-        return p06_4;
-    }
-
-    public JTextField getP06_5() {
-        return p06_5;
-    }
-
-    public JTextField getP07_1() {
-        return p07_1;
-    }
-
-    public JTextField getP07_2() {
-        return p07_2;
-    }
-
-    public JTextField getP07_3() {
-        return p07_3;
-    }
-
-    public JTextField getP07_4() {
-        return p07_4;
-    }
-
-    public JTextField getP07_5() {
-        return p07_5;
-    }
-
-    public JTextField getP08_1() {
-        return p08_1;
-    }
-
-    public JTextField getP08_2() {
-        return p08_2;
-    }
-
-    public JTextField getP08_3() {
-        return p08_3;
-    }
-
-    public JTextField getP08_4() {
-        return p08_4;
-    }
-
-    public JTextField getP08_5() {
-        return p08_5;
-    }
-
-    public JTextField getP09_1() {
-        return p09_1;
-    }
-
-    public JTextField getP09_2() {
-        return p09_2;
-    }
-
-    public JTextField getP09_3() {
-        return p09_3;
-    }
-
-    public JTextField getP09_4() {
-        return p09_4;
-    }
-
-    public JTextField getP09_5() {
-        return p09_5;
-    }
-
-    public JTextField getP10_1() {
-        return p10_1;
-    }
-
-    public JTextField getP10_2() {
-        return p10_2;
-    }
-
-    public JTextField getP10_3() {
-        return p10_3;
-    }
-
-    public JTextField getP10_4() {
-        return p10_4;
-    }
-
-    public JTextField getP10_5() {
-        return p10_5;
-    }
-
-    public JTextField getSa1() {
-        return sa1;
-    }
-
-    public JTextField getSa2() {
-        return sa2;
-    }
-
-    public JTextField getSa3() {
-        return sa3;
-    }
-
-    public JTextField getSa4() {
-        return sa4;
-    }
-
-    public JTextField getSa5() {
-        return sa5;
-    }
-
-    public JTextField getSh1() {
-        return sh1;
-    }
-
-    public JTextField getSh2() {
-        return sh2;
-    }
-
-    public JTextField getSh3() {
-        return sh3;
-    }
-
-    public JTextField getSh4() {
-        return sh4;
-    }
-
-    public JTextField getSh5() {
-        return sh5;
-    }
-
 }

@@ -77,6 +77,16 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
     /**
      * 
      * @param farmerId 
+     */
+    private void selectSpot(int farmerId){
+        int randomPosition=(int)(Math.random()*(this.availablePosition.size()-1));
+        this.positions.put(farmerId, availablePosition.get(randomPosition));
+        this.availablePosition.remove(randomPosition);
+    }
+    
+    /**
+     * 
+     * @param farmerId 
      * @throws fi.StopHarvestException 
      * @throws fi.EndSimulationException 
      */
@@ -84,8 +94,6 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
     public void farmerEnter(int farmerId) throws StopHarvestException, EndSimulationException{
         rl.lock();
         try {
-            System.out.println(farmersInStorehouse);
-
             farmersInStorehouse++;
             this.selectSpot(farmerId);
             this.fi.presentFarmerInStorehouse(farmerId,positions.get(farmerId));
@@ -157,7 +165,6 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
         try {
             while(farmersInStorehouse<metadata.MAXNUMBERFARMERS){
                 allInStorehouse.await();
-                System.out.println("I am waiting for the last farmer");
             }
         } catch (InterruptedException ex) {
             Logger.getLogger(Storehouse.class.getName()).log(Level.SEVERE, null, ex);
@@ -214,15 +221,4 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
             rl.unlock();
         }
     }
-    
-    /*
-        Aux Methods
-    */
-    
-    private void selectSpot(int farmerId){
-        int randomPosition=(int)(Math.random()*(this.availablePosition.size()-1));
-        this.positions.put(farmerId, availablePosition.get(randomPosition));
-        this.availablePosition.remove(randomPosition);
-    }
-
 }

@@ -57,6 +57,16 @@ public class Standing implements StandingFarmerInt, StandingCCInt {
     /*
         Methods executed by farmers
     */
+    
+    /**
+     * 
+     * @param farmerId 
+     */
+    private void selectSpot(int farmerId){
+        int randomPosition=(int)Math.random()*(this.availablePosition.size()-1);
+        this.positions.put(farmerId, availablePosition.get(randomPosition));
+        this.availablePosition.remove(randomPosition);        
+    }
 
     /**
      * 
@@ -68,6 +78,8 @@ public class Standing implements StandingFarmerInt, StandingCCInt {
 
             farmersInStanding++;
             this.selectSpot(farmerId);
+            this.fi.presentFarmerInStandingArea(farmerId,positions.get(farmerId));
+            System.out.println("[Standing Area] Farmer " + farmerId + " entered.");
             while(farmersInStanding<this.metadata.NUMBERFARMERS){
                 wait();
                 
@@ -157,35 +169,4 @@ public class Standing implements StandingFarmerInt, StandingCCInt {
         notifyAll();
 
     }
-    
-    /*
-        Aux Methods
-    */
-    
-    private void selectSpot(int farmerId){
-        int randomPosition=(int)Math.random()*(this.availablePosition.size()-1);
-        this.positions.put(farmerId, availablePosition.get(randomPosition));
-        this.availablePosition.remove(randomPosition);
-        switch(positions.get(farmerId)) {
-            case 0:
-                fi.getSa1().setText(""+farmerId);
-                break;
-            case 1:
-                fi.getSa2().setText(""+farmerId);
-                break;
-            case 2:
-                fi.getSa3().setText(""+farmerId);
-                break;
-            case 3:
-                fi.getSa4().setText(""+farmerId);
-                break;
-            case 4:
-                fi.getSa5().setText(""+farmerId);
-                break;
-        }
-        fi.getSa1().setText(""+farmerId);
-        
-    }
-    
-    
 }
