@@ -7,13 +7,15 @@ package fi;
 public class MonitorMetadata {
     
     public int MAXNUMBERFARMERS;
+    public int MAXDELAY;
     public int NUMBERFARMERS;
     public int NUMBERCORNCOBS;
     public int NUMBERSTEPS;
     public int TIMEOUT;
 
-    public MonitorMetadata(int numFarmers) {
+    public MonitorMetadata(int numFarmers, int delay) {
         this.MAXNUMBERFARMERS=numFarmers;
+        this.MAXDELAY=delay;
     }
     
 }

@@ -36,7 +36,7 @@ public class Standing implements StandingFarmerInt, StandingCCInt {
     private boolean stopHarvest=false;
     private boolean endSimulation=false;
 
-
+    private boolean proxyInMonitor=false;
     
     /*
         Constructors
@@ -61,12 +61,6 @@ public class Standing implements StandingFarmerInt, StandingCCInt {
         Methods executed by farmers
     */
     
-    
-    private void selectSpot(int farmerId){
-        int randomPosition=(int)(Math.random()*(this.availablePosition.size()-1));
-        this.positions.put(farmerId, availablePosition.get(randomPosition));
-        this.availablePosition.remove(randomPosition);
-    }
 
     /**
      * 
@@ -75,13 +69,19 @@ public class Standing implements StandingFarmerInt, StandingCCInt {
     @Override
     public synchronized void farmerEnter(int farmerId) throws StopHarvestException, EndSimulationException{
         try {
-
+            this.waitRandomDelay();
             farmersInStanding++;
             this.selectSpot(farmerId);
             while(farmersInStanding<this.metadata.NUMBERFARMERS){
                 wait();
                 
                 if(this.stopHarvest){
+                    farmersInStanding--;
+                    this.availablePosition.add(this.positions.get(farmerId));
+                    this.positions.remove(farmerId);
+                    if(farmersInStanding==0){
+                        this.stopHarvest=false;
+                    }
                     throw new StopHarvestException();
                 }
                 if(this.endSimulation){
@@ -102,10 +102,18 @@ public class Standing implements StandingFarmerInt, StandingCCInt {
     @Override
     public synchronized void farmerWaitStartOrder(int farmerId) throws StopHarvestException, EndSimulationException{
         try{
+            this.waitRandomDelay();
             while(!startOrderGiven){
                 wait();
                 
                 if(this.stopHarvest){
+                    farmersInStanding--;
+                    this.availablePosition.add(this.positions.get(farmerId));
+                    this.positions.remove(farmerId);
+                    if(farmersInStanding==0){
+                        startOrderGiven=false;
+                        this.stopHarvest=false;
+                    }
                     throw new StopHarvestException();
                 }
                 if(this.endSimulation){
@@ -132,17 +140,30 @@ public class Standing implements StandingFarmerInt, StandingCCInt {
      */
     @Override
     public synchronized void sendStartOrder() {
+        this.waitRandomDelay();
         startOrderGiven = true;
         notifyAll();
     }
 
     
     @Override
-    public synchronized void waitForAllFarmers() {
+    public synchronized void waitForAllFarmers() throws StopHarvestException, EndSimulationException{
         try {
+            this.waitRandomDelay();
+            this.proxyInMonitor=true;
             while(farmersInStanding<this.metadata.NUMBERFARMERS){
                 wait();
+                
+                if(this.stopHarvest){
+                    this.proxyInMonitor=false;
+                    this.stopHarvest=false;
+                    throw new StopHarvestException();
+                }
+                if(this.endSimulation){
+                    throw new EndSimulationException();
+                }
             }
+            this.proxyInMonitor=false;
         } catch (InterruptedException ex) {
             Logger.getLogger(Standing.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -155,9 +176,12 @@ public class Standing implements StandingFarmerInt, StandingCCInt {
      */
     @Override
     public synchronized void control(String action) {
+        this.waitRandomDelay();
         switch(action){
             case "stopHarvest":
-                this.stopHarvest=true;
+                if(this.farmersInStanding!=0 || proxyInMonitor){
+                    this.stopHarvest=true;
+                }
                 break;
             case "endSimulation":
                 this.endSimulation=true;
@@ -170,6 +194,23 @@ public class Standing implements StandingFarmerInt, StandingCCInt {
     
     
     
+    /*
+        Aux Methods
+    */
     
+    private void selectSpot(int farmerId){
+        int randomPosition=(int)(Math.random()*(this.availablePosition.size()-1));
+        this.positions.put(farmerId, availablePosition.get(randomPosition));
+        this.availablePosition.remove(randomPosition);
+    }
+    
+    private void waitRandomDelay(){
+        try {
+            int randomDelay=(int)(Math.random()*(this.metadata.MAXDELAY));
+            Thread.sleep(randomDelay);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(Storehouse.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
     
 }

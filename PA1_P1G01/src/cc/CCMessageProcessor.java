@@ -11,9 +11,11 @@ import common.MessageProcessor;
  *
  * @author joaoalegria
  */
-public class CCMessageProcessor extends Thread implements MessageProcessor {
+public class CCMessageProcessor implements MessageProcessor {
     
     private ControlCenter cc;
+    
+    private String message;
 
     public CCMessageProcessor(ControlCenter cc) {
         this.cc=cc;
@@ -21,7 +23,12 @@ public class CCMessageProcessor extends Thread implements MessageProcessor {
     
 
     @Override
-    public void process(String message) {
+    public void defineMessage(String message) {
+        this.message=message;
+    }
+
+    @Override
+    public void run() {
         switch(message){
             case "infrastructureServerOnline":
                 this.cc.initFIClient();

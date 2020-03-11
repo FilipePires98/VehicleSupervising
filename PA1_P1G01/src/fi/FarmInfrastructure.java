@@ -17,10 +17,12 @@ import javax.swing.JTextField;
 public class FarmInfrastructure extends javax.swing.JFrame {
     
     private static SocketServer fiServer;
+    private static Thread serverThread;
     private static SocketClient ccClient;
     
     private static MonitorMetadata metadata;
     private static final int teamSize = 5;
+    private static final int maxDelay = 100;
     private static final int pathSize = 10;
     
     private static Storehouse storeHouse;
@@ -36,7 +38,7 @@ public class FarmInfrastructure extends javax.swing.JFrame {
     public FarmInfrastructure() {
         initComponents();     
         
-        metadata = new MonitorMetadata(teamSize);
+        metadata = new MonitorMetadata(teamSize, maxDelay);
         
         storeHouse = new Storehouse(this,metadata, teamSize);
         standing = new Standing(this, metadata);
@@ -54,7 +56,8 @@ public class FarmInfrastructure extends javax.swing.JFrame {
         
         messageProcessor = new CCProxy(ccClient, storeHouse, standing, path, granary);
         fiServer = new SocketServer(7777, messageProcessor);
-        fiServer.start();
+        serverThread=new Thread(fiServer);
+        serverThread.start();
         ccClient.send("infrastructureServerOnline");
     }
 

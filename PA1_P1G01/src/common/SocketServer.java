@@ -11,7 +11,7 @@ import java.util.logging.Logger;
  * 
  * @author Filipe Pires (85122) and João Alegria (85048)
  */
-public class SocketServer extends Thread{
+public class SocketServer implements Runnable{
     
     private int port;
     private MessageProcessor messageProcessor;
@@ -31,7 +31,8 @@ public class SocketServer extends Thread{
             while(!receivedMessage.equals("")){
                 receivedMessage=socketInputStream.readUTF();
                 System.out.println(receivedMessage);
-                this.messageProcessor.process(receivedMessage);
+                this.messageProcessor.defineMessage(receivedMessage);
+                new Thread(messageProcessor).start();
             }
             socket.close();
         } catch (IOException ex) {

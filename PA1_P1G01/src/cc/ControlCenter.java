@@ -11,6 +11,7 @@ public class ControlCenter extends javax.swing.JFrame {
 
     private SocketClient fiClient;
     private SocketServer ccServer;
+    private Thread serverThread;
     
     /**
      * Creates new form ControlCenter
@@ -18,7 +19,8 @@ public class ControlCenter extends javax.swing.JFrame {
     public ControlCenter() {
         initComponents();
         this.ccServer = new SocketServer(6666, new CCMessageProcessor(this));
-        this.ccServer.start();
+        this.serverThread=new Thread(ccServer);
+        this.serverThread.start();
     }
     
     void initFIClient() {

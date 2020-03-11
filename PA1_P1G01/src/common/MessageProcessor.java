@@ -4,8 +4,8 @@ package common;
  * 
  * @author Filipe Pires (85122) and João Alegria (85048)
  */
-public interface MessageProcessor{
+public interface MessageProcessor extends Runnable {
 
-    void process(String message);
+    void defineMessage(String message);
     
 }
