@@ -58,18 +58,22 @@ public class ControlCenter extends javax.swing.JFrame {
         cobsLabel.setText("Number of Corn Cobs:");
 
         numCornCobs.setModel(new javax.swing.SpinnerNumberModel(50, 50, null, 10));
+        numCornCobs.setEnabled(false);
 
         farmersLabel.setText("Number of Farmers:");
 
         numFarmers.setModel(new javax.swing.SpinnerNumberModel(5, 2, 5, 1));
+        numFarmers.setEnabled(false);
 
         timeoutLabel.setText("Timeout (ms):");
 
         timeout.setModel(new javax.swing.SpinnerNumberModel(500, 0, 1000, 50));
+        timeout.setEnabled(false);
 
         stepLabel.setText("Max. Step:");
 
         maxStep.setModel(new javax.swing.SpinnerNumberModel(1, 1, 2, 1));
+        maxStep.setEnabled(false);
 
         prepareBtn.setText("Prepare");
         prepareBtn.setEnabled(false);
@@ -104,6 +108,7 @@ public class ControlCenter extends javax.swing.JFrame {
         });
 
         stopBtn.setText("Stop");
+        stopBtn.setEnabled(false);
         stopBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 stopBtnActionPerformed(evt);
@@ -193,7 +198,7 @@ public class ControlCenter extends javax.swing.JFrame {
         
         // Update UI
 //        this.startBtn.setEnabled(true); // only if all farmers are in the standing area!
-        this.returnBtn.setEnabled(true);
+        this.stopBtn.setEnabled(true);
         this.prepareBtn.setEnabled(false);
         this.numFarmers.setEnabled(false);
         this.numCornCobs.setEnabled(false);
@@ -229,6 +234,10 @@ public class ControlCenter extends javax.swing.JFrame {
 
     public void enablePrepareBtn(){
         this.prepareBtn.setEnabled(true);
+        this.numFarmers.setEnabled(true);
+        this.numCornCobs.setEnabled(true);
+        this.timeout.setEnabled(true);
+        this.maxStep.setEnabled(true);
     }
     
     public void enableStartBtn(){
@@ -237,6 +246,10 @@ public class ControlCenter extends javax.swing.JFrame {
     
     public void enableCollectBtn(){
         this.collectBtn.setEnabled(true);
+    }
+    
+    public void enableReturnBtn(){
+        this.returnBtn.setEnabled(true);
     }
     
     private void startBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startBtnActionPerformed
@@ -260,7 +273,7 @@ public class ControlCenter extends javax.swing.JFrame {
         this.collectBtn.setEnabled(false);
         
         // Send message to FI for farmers to grab corn cobs
-        
+        fiClient.send("collectOrder");
     }//GEN-LAST:event_collectBtnActionPerformed
 
     private void returnBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_returnBtnActionPerformed
@@ -273,7 +286,8 @@ public class ControlCenter extends javax.swing.JFrame {
 //        this.prepareBtn.setEnabled(true); // only if all farmers have returned and delivered the corn cobs!
         
         // Send message to FI to update farmer positions (move to Storehouse and then deliver corn cobs)
-        
+        fiClient.send("returnOrder");
+
     }//GEN-LAST:event_returnBtnActionPerformed
 
     private void stopBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stopBtnActionPerformed
@@ -281,18 +295,15 @@ public class ControlCenter extends javax.swing.JFrame {
         System.out.println("[CC] Work stop requested.");
         
         // Update UI
+        this.stopBtn.setEnabled(false);
+        this.prepareBtn.setEnabled(false);
         this.startBtn.setEnabled(false);
         this.collectBtn.setEnabled(false);
-//        this.returnBtn.setEnabled(false);
-        this.stopBtn.setEnabled(false);
-        this.prepareBtn.setEnabled(true); // only if all farmers are in the storehouse!
-        this.numFarmers.setEnabled(true); // same condition for the input fields...
-        this.numCornCobs.setEnabled(true);
-        this.timeout.setEnabled(true);
-        this.maxStep.setEnabled(true);
+        this.returnBtn.setEnabled(false);
+
         
         // Send message to FI for farmers to immediately stop what they are doing and go back to the Storehouse
-        
+        fiClient.send("stopHarvestOrder");
     }//GEN-LAST:event_stopBtnActionPerformed
 
     private void exitBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitBtnActionPerformed

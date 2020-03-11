@@ -1,7 +1,9 @@
 package fi.monitors;
 
+import fi.EndSimulationException;
 import fi.FarmInfrastructure;
 import fi.MonitorMetadata;
+import fi.StopHarvestException;
 import fi.ccInterfaces.PathCCInt;
 import fi.farmerInterfaces.PathFarmerInt;
 import java.util.ArrayList;
@@ -29,7 +31,7 @@ public class Path implements PathFarmerInt, PathCCInt {
         public int position;
         public int depth;
         
-        public ConditionAndPathDepth(Condition condition, int position, int depth){
+        public ConditionAndPathDepth(Condition condition, int depth, int position){
             this.condition=condition;
             this.position=position;
             this.depth=depth;
@@ -53,6 +55,12 @@ public class Path implements PathFarmerInt, PathCCInt {
     private Integer path[][];
     private Map<Integer, ConditionAndPathDepth> farmersMetadata;
     private List<List<Integer>> availablePositions;
+    
+    
+    
+    private boolean stopHarvest=false;
+    private boolean endSimulation=false;
+
 
     /*
         Constructors
@@ -92,21 +100,27 @@ public class Path implements PathFarmerInt, PathCCInt {
      * @param farmerId 
      */
     @Override
-    public void farmerEnter(int farmerId) {
+    public void farmerEnter(int farmerId) throws StopHarvestException, EndSimulationException{
         rl.lock();
         try {
             farmersInPath++;
             farmersOrder.add(farmerId);
             farmersMetadata.put(farmerId, new ConditionAndPathDepth(rl.newCondition(), -1, -1));
             this.selectSpot(farmerId, false);
-
             if(farmersInPath==metadata.NUMBERFARMERS){
-                allInPath.signalAll();
                 currentFarmerToMove=farmersOrder.get(0);
             }
             while(farmersInPath<metadata.NUMBERFARMERS){
                 allInPath.await();
+                
+                if(this.stopHarvest){
+                    throw new StopHarvestException();
+                }
+                if(this.endSimulation){
+                    throw new EndSimulationException();
+                }
             }
+            allInPath.signalAll();
         } catch (InterruptedException ex) {
             Logger.getLogger(Path.class.getName()).log(Level.SEVERE, null, ex);
         }finally{
@@ -119,12 +133,21 @@ public class Path implements PathFarmerInt, PathCCInt {
      * @param farmerId 
      */
     @Override
-    public void farmerGoToGranary(int farmerId) {
+    public void farmerGoToGranary(int farmerId) throws StopHarvestException, EndSimulationException{
         rl.lock();
         try {
             while(this.farmersMetadata.get(farmerId).depth<this.pathLength){
+
                 while(this.currentFarmerToMove!=farmerId){
+
                     this.farmersMetadata.get(farmerId).condition.await();
+                    
+                    if(this.stopHarvest){
+                        throw new StopHarvestException();
+                    }
+                    if(this.endSimulation){
+                        throw new EndSimulationException();
+                    }
                 }
                 this.selectSpot(farmerId, false);
                 
@@ -132,6 +155,7 @@ public class Path implements PathFarmerInt, PathCCInt {
                     this.currentFarmerToMove=this.farmersOrder.get((this.farmersOrder.indexOf(farmerId)+1)%this.metadata.NUMBERFARMERS);
                     this.farmersMetadata.get(this.currentFarmerToMove).condition.signalAll();
                 }
+
                 
             }
             this.farmersInPath--;
@@ -150,21 +174,29 @@ public class Path implements PathFarmerInt, PathCCInt {
      * @param farmerId 
      */
     @Override
-    public void farmerReturn(int farmerId) {
+    public void farmerReturn(int farmerId) throws StopHarvestException, EndSimulationException{
         rl.lock();
         try {
             farmersInPath++;
             farmersOrder.add(farmerId);
             farmersMetadata.put(farmerId, new ConditionAndPathDepth(rl.newCondition(), this.pathLength, -1));
             this.selectSpot(farmerId, true);
+            
             if(farmersInPath==metadata.NUMBERFARMERS){
-                allInPath.signalAll();
                 currentFarmerToMove=farmersOrder.get(0);
-            }else{
-                while(farmersInPath<metadata.NUMBERFARMERS){
-                    allInPath.await();
+            }
+            
+            while(farmersInPath<metadata.NUMBERFARMERS){
+                allInPath.await();
+                
+                if(this.stopHarvest){
+                    throw new StopHarvestException();
+                }
+                if(this.endSimulation){
+                    throw new EndSimulationException();
                 }
             }
+            allInPath.signalAll();
         } catch (InterruptedException ex) {
             Logger.getLogger(Granary.class.getName()).log(Level.SEVERE, null, ex);
         }finally{
@@ -177,12 +209,19 @@ public class Path implements PathFarmerInt, PathCCInt {
      * @param farmerId 
      */
     @Override
-    public void farmerGoToStorehouse(int farmerId) {
+    public void farmerGoToStorehouse(int farmerId) throws StopHarvestException, EndSimulationException{
         rl.lock();
         try {
             while(this.farmersMetadata.get(farmerId).depth>0){
                 while(this.currentFarmerToMove!=farmerId){
                     this.farmersMetadata.get(farmerId).condition.await();
+                    
+                    if(this.stopHarvest){
+                        throw new StopHarvestException();
+                    }
+                    if(this.endSimulation){
+                        throw new EndSimulationException();
+                    }
                 }
                 this.selectSpot(farmerId, true);
                 if(this.farmersInPath>1){
@@ -191,7 +230,7 @@ public class Path implements PathFarmerInt, PathCCInt {
                 }
             }
             this.farmersInPath--;
-            this.farmersOrder.remove(farmerId);
+            this.farmersOrder.remove((Integer)farmerId);
             this.farmersMetadata.remove(farmerId);
         } catch (InterruptedException ex) {
             Logger.getLogger(Path.class.getName()).log(Level.SEVERE, null, ex);
@@ -218,9 +257,9 @@ public class Path implements PathFarmerInt, PathCCInt {
             farmersMetadata.get(farmerId).depth=newDepth;
             return;
         }
-        int randomIndex=(int)Math.random()*(this.availablePositions.get(newDepth).size()-1);
+        int randomIndex=(int)(Math.random()*(this.availablePositions.get(newDepth).size()-1));
         int randomPosition=this.availablePositions.get(newDepth).get(randomIndex);
-        if(this.farmersMetadata.get(farmerId).depth!=-1){
+        if((this.farmersMetadata.get(farmerId).depth!=-1 && !reverse) || (this.farmersMetadata.get(farmerId).depth!=10 && reverse)){
             path[farmersMetadata.get(farmerId).depth][farmersMetadata.get(farmerId).position]=null;
         }
         this.availablePositions.get(newDepth).remove(randomIndex);
@@ -228,7 +267,6 @@ public class Path implements PathFarmerInt, PathCCInt {
         farmersMetadata.get(farmerId).position=randomPosition;
         farmersMetadata.get(farmerId).depth=newDepth;
         this.availablePositions.get(this.farmersMetadata.get(farmerId).depth).add(farmersMetadata.get(farmerId).position);
-
     }
 
     /*
@@ -241,43 +279,26 @@ public class Path implements PathFarmerInt, PathCCInt {
      */
     @Override
     public void control(String action) {
-        switch(action){
-            case "stopHarvest":
-                break;
-            case "endSimulation":
-                break;
+        rl.lock();
+        try{
+            switch(action){
+                case "stopHarvest":
+                    this.stopHarvest=true;
+                    break;
+                case "endSimulation":
+                    this.endSimulation=true;
+                    break;
+            }
+
+            this.allInPath.signalAll();
+            for(Integer key : this.farmersMetadata.keySet()){
+                this.farmersMetadata.get(key).condition.signalAll();
+            }
+        }
+        finally{
+            rl.unlock();
         }
     }
 
     
 }
-
-
-
-
-
-
-//lock.lock();
-//        this.currentNumFarmers+=1;
-//        try{
-//            Condition farmerCondition = lock.newCondition();
-//            farmers.add(farmerCondition);
-//            int randomIndex;
-//            while(this.run){
-//                randomIndex = (int)Math.round(Math.random()*5);
-//                while(farmerPosition[randomIndex][currentIteration]!=null){
-//                    randomIndex = (int)Math.round(Math.random()*5);
-//                }
-//                farmerPosition[randomIndex][currentIteration]=1;
-//                if(this.currentNumFarmers==this.MAXFARMERS){
-//                    farmers.get(0).signal();
-//                    farmerCondition.await();
-//                }else{
-//                    farmerCondition.await();
-//                }
-//            }
-//        } catch (InterruptedException ex) {
-//            Logger.getLogger(Path.class.getName()).log(Level.SEVERE, null, ex);
-//        }finally{
-//            lock.unlock();
-//        }

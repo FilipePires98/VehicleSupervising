@@ -33,6 +33,7 @@ public class CCMessageProcessor extends Thread implements MessageProcessor {
                 this.cc.enableCollectBtn();
                 break;
             case "allFarmersrReadyToReturn":
+                this.cc.enableReturnBtn();
                 break;
             case "allFarmersrReadyWaiting":
                 this.cc.enablePrepareBtn();
