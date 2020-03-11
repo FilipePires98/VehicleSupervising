@@ -160,7 +160,6 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
             this.metadata.NUMBERSTEPS = maxNumberOfSteps;
             this.metadata.TIMEOUT = timeout;
             this.prepareOrderGiven = true;
-            System.out.println("[Storehouse] Prepare order given.");
             this.prepareOrder.signalAll();
         }
         finally{

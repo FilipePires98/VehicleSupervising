@@ -34,11 +34,11 @@ public class FarmInfrastructure extends javax.swing.JFrame {
      * Creates new form NewJFrame
      */
     public FarmInfrastructure() {
-        initComponents();
+        initComponents();     
         
         metadata = new MonitorMetadata(teamSize);
         
-        storeHouse = new Storehouse(this, metadata, teamSize);
+        storeHouse = new Storehouse(this,metadata, teamSize);
         standing = new Standing(this, metadata);
         path = new Path(this, metadata, pathSize);
         granary = new Granary(this, metadata);
@@ -49,13 +49,14 @@ public class FarmInfrastructure extends javax.swing.JFrame {
             f.start();
             farmerTeam[i] = f;
         }
+            
+        ccClient = new SocketClient("localhost",6666);
         
         ccClient = new SocketClient("localhost",6666);
         messageProcessor = new CCProxy(ccClient, storeHouse, standing, path, granary);
         fiServer = new SocketServer(7777, messageProcessor);
         fiServer.start();
         ccClient.send("infrastructureServerOnline");
-        
     }
 
     /**
@@ -716,18 +717,12 @@ public class FarmInfrastructure extends javax.swing.JFrame {
         //</editor-fold>
         //</editor-fold>
         
-        try {
-            
-        } catch (Exception e) {
-            e.printStackTrace();
-        }finally{
-            /* Create and display the form */
-            java.awt.EventQueue.invokeLater(new Runnable() {
-                public void run() {
-                    new FarmInfrastructure().setVisible(true);
-                }
-            });
-        }
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new FarmInfrastructure().setVisible(true);
+            }
+        });
     }
     
     public void sendMessage(String message){

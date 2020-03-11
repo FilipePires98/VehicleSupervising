@@ -5,6 +5,7 @@ import fi.MonitorMetadata;
 import fi.ccInterfaces.PathCCInt;
 import fi.farmerInterfaces.PathFarmerInt;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -98,7 +99,6 @@ public class Path implements PathFarmerInt, PathCCInt {
             farmersOrder.add(farmerId);
             farmersMetadata.put(farmerId, new ConditionAndPathDepth(rl.newCondition(), -1, -1));
             this.selectSpot(farmerId, false);
-            System.out.println(metadata.NUMBERFARMERS);
 
             if(farmersInPath==metadata.NUMBERFARMERS){
                 allInPath.signalAll();
@@ -127,12 +127,17 @@ public class Path implements PathFarmerInt, PathCCInt {
                     this.farmersMetadata.get(farmerId).condition.await();
                 }
                 this.selectSpot(farmerId, false);
-                this.currentFarmerToMove=(this.farmersOrder.indexOf(farmerId)+1)%this.pathLength;
-                this.farmersMetadata.get(this.currentFarmerToMove).condition.signalAll();
+                
+                if(this.farmersInPath>1){
+                    this.currentFarmerToMove=this.farmersOrder.get((this.farmersOrder.indexOf(farmerId)+1)%this.metadata.NUMBERFARMERS);
+                    this.farmersMetadata.get(this.currentFarmerToMove).condition.signalAll();
+                }
+                
             }
             this.farmersInPath--;
-            this.farmersOrder.remove(farmerId);
+            this.farmersOrder.remove((Integer)farmerId);
             this.farmersMetadata.remove(farmerId);
+
         } catch (InterruptedException ex) {
             Logger.getLogger(Path.class.getName()).log(Level.SEVERE, null, ex);
         }finally{
@@ -180,8 +185,10 @@ public class Path implements PathFarmerInt, PathCCInt {
                     this.farmersMetadata.get(farmerId).condition.await();
                 }
                 this.selectSpot(farmerId, true);
-                this.currentFarmerToMove=(this.farmersOrder.indexOf(farmerId)+1)%this.pathLength;
-                this.farmersMetadata.get(this.currentFarmerToMove).condition.signalAll();
+                if(this.farmersInPath>1){
+                    this.currentFarmerToMove=this.farmersOrder.get((this.farmersOrder.indexOf(farmerId)+1)%this.metadata.NUMBERFARMERS);
+                    this.farmersMetadata.get(this.currentFarmerToMove).condition.signalAll();
+                }
             }
             this.farmersInPath--;
             this.farmersOrder.remove(farmerId);
@@ -211,14 +218,17 @@ public class Path implements PathFarmerInt, PathCCInt {
             farmersMetadata.get(farmerId).depth=newDepth;
             return;
         }
-        int randomPosition=(int)Math.random()*(this.metadata.MAXNUMBERFARMERS-1);
-        while(path[newDepth][randomPosition]!=null){
-            randomPosition=(int)Math.random()*(this.metadata.MAXNUMBERFARMERS-1);
+        int randomIndex=(int)Math.random()*(this.availablePositions.get(newDepth).size()-1);
+        int randomPosition=this.availablePositions.get(newDepth).get(randomIndex);
+        if(this.farmersMetadata.get(farmerId).depth!=-1){
+            path[farmersMetadata.get(farmerId).depth][farmersMetadata.get(farmerId).position]=null;
         }
-        path[farmersMetadata.get(farmerId).depth][farmersMetadata.get(farmerId).position]=null;
+        this.availablePositions.get(newDepth).remove(randomIndex);
         path[newDepth][randomPosition]=farmerId;
         farmersMetadata.get(farmerId).position=randomPosition;
         farmersMetadata.get(farmerId).depth=newDepth;
+        this.availablePositions.get(this.farmersMetadata.get(farmerId).depth).add(farmersMetadata.get(farmerId).position);
+
     }
 
     /*
