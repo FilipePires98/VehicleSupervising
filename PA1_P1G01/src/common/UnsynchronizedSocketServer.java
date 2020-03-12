@@ -14,11 +14,11 @@ import java.util.logging.Logger;
 public class UnsynchronizedSocketServer implements Runnable{
     
     private int port;
-    private MessageProcessorThread messageProcessor;
+    private MessageProcessorThread mp;
 
     public UnsynchronizedSocketServer(int port, MessageProcessorThread messageProcessor) {
         this.port=port;
-        this.messageProcessor = messageProcessor;
+        this.mp = mp;
     }
     
     @Override
@@ -31,8 +31,8 @@ public class UnsynchronizedSocketServer implements Runnable{
             while(!receivedMessage.equals("endSimulationOrder")){
                 receivedMessage=socketInputStream.readUTF();
                 System.out.println(receivedMessage);
-                this.messageProcessor.defineMessage(receivedMessage);
-                new Thread(messageProcessor).start();
+                this.mp.defineMessage(receivedMessage);
+                new Thread(mp).start();
             }
             socket.close();
         } catch (IOException ex) {

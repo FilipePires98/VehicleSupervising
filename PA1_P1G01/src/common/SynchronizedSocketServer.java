@@ -14,11 +14,11 @@ import java.util.logging.Logger;
 public class SynchronizedSocketServer implements Runnable{
     
     private int port;
-    private MessageProcessorSynchronized messageProcessor;
+    private MessageProcessorSynchronized mp;
 
-    public SynchronizedSocketServer(int port, MessageProcessorSynchronized messageProcessor) {
+    public SynchronizedSocketServer(int port, MessageProcessorSynchronized mp) {
         this.port=port;
-        this.messageProcessor = messageProcessor;
+        this.mp = mp;
     }
     
     @Override
@@ -31,8 +31,8 @@ public class SynchronizedSocketServer implements Runnable{
             while(!receivedMessage.equals("endSimulationOrder")){
                 receivedMessage=socketInputStream.readUTF();
                 System.out.println(receivedMessage);
-                this.messageProcessor.defineMessage(receivedMessage);
-                this.messageProcessor.run();
+                this.mp.defineMessage(receivedMessage);
+                this.mp.run();
             }
             socket.close();
         } catch (IOException ex) {

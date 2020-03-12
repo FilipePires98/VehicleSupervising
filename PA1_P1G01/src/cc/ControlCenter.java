@@ -40,7 +40,17 @@ public class ControlCenter extends javax.swing.JFrame implements UiAndMainContro
         this.fiClient = new SocketClient("localhost", 7777);
         this.fiClient.send("waitSimulationReady");
     }
+    
+    public void closeSocketClient() {
+        this.fiClient.send("endSimulation");
+        this.fiClient.close();
+    }
 
+    public void close() {
+        this.setVisible(false);
+        this.dispose();
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
