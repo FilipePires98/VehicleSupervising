@@ -82,10 +82,7 @@ public class CCProxy implements MessageProcessor {
                     this.standing.control("endSimulation");
                     this.path.control("endSimulation");
                     this.granary.control("endSimulation");
-                    this.fi.closeSocketClient();
-                    break;
-                case "endSimulation":
-                    this.fi.close();
+                    this.fi.closeSocketClientAndUI();
                     break;
             }
         } catch (StopHarvestException ex) {
