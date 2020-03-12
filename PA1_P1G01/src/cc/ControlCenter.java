@@ -1,5 +1,6 @@
 package cc;
 
+import cc.utils.CCMessageProcessor;
 import common.SocketClient;
 import common.UnsynchronizedSocketServer;
 import common.SynchronizedSocketServer;
@@ -9,7 +10,7 @@ import javax.swing.JTextField;
  * 
  * @author Filipe Pires (85122) and João Alegria (85048)
  */
-public class ControlCenter extends javax.swing.JFrame {
+public class ControlCenter extends javax.swing.JFrame implements UiAndMainControlsCC{
 
     private SocketClient fiClient;
     private SynchronizedSocketServer ccServer;
@@ -35,7 +36,7 @@ public class ControlCenter extends javax.swing.JFrame {
         this.serverThread.start();
     }
 
-    void initFIClient() {
+    public void initFIClient() {
         this.fiClient = new SocketClient("localhost", 7777);
         this.fiClient.send("waitSimulationReady");
     }
@@ -244,6 +245,8 @@ public class ControlCenter extends javax.swing.JFrame {
         g3.setEnabled(false);
 
         granaryCornCobs.setText("50");
+        granaryCornCobs.setCaretColor(new java.awt.Color(0, 0, 0));
+        granaryCornCobs.setDisabledTextColor(new java.awt.Color(0, 0, 0));
         granaryCornCobs.setEnabled(false);
 
         granaryCornCobsLabel.setText("Corn Cobs");
@@ -798,6 +801,8 @@ public class ControlCenter extends javax.swing.JFrame {
         storehouseCornCobsLabel.setText("Corn Cobs");
 
         storehouseCornCobs.setText("0");
+        storehouseCornCobs.setCaretColor(new java.awt.Color(0, 0, 0));
+        storehouseCornCobs.setDisabledTextColor(new java.awt.Color(0, 0, 0));
         storehouseCornCobs.setEnabled(false);
 
         javax.swing.GroupLayout storehousePanelLayout = new javax.swing.GroupLayout(storehousePanel);
@@ -817,12 +822,12 @@ public class ControlCenter extends javax.swing.JFrame {
                             .addComponent(sh2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(sh3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(sh1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(0, 0, Short.MAX_VALUE))
+                        .addGap(0, 36, Short.MAX_VALUE))
                     .addGroup(storehousePanelLayout.createSequentialGroup()
                         .addContainerGap()
                         .addComponent(storehouseCornCobsLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(storehouseCornCobs, javax.swing.GroupLayout.DEFAULT_SIZE, 133, Short.MAX_VALUE)))
+                        .addComponent(storehouseCornCobs)))
                 .addContainerGap())
         );
         storehousePanelLayout.setVerticalGroup(
@@ -1305,6 +1310,7 @@ public class ControlCenter extends javax.swing.JFrame {
         granaryTextFields[4] = g5;
     }
 
+    @Override
     public synchronized void presentFarmerInStorehouse(int farmerId, int position) {
         clearAll(farmerId);
         System.out.println(farmerId);
@@ -1321,6 +1327,7 @@ public class ControlCenter extends javax.swing.JFrame {
         }
     }
 
+    @Override
     public synchronized void presentFarmerInStandingArea(int farmerId, int position) {
         clearAll(farmerId);
         standingAreaTextFields[position].setText("" + farmerId);
@@ -1336,6 +1343,7 @@ public class ControlCenter extends javax.swing.JFrame {
         }
     }
 
+    @Override
     public synchronized void presentFarmerInPath(int farmerId, int position, int column) {
         clearAll(farmerId);
         pathTextFields[column][position].setText("" + farmerId);
@@ -1358,6 +1366,7 @@ public class ControlCenter extends javax.swing.JFrame {
         }
     }
 
+    @Override
     public synchronized void presentFarmerInGranary(int farmerId, int position) {
         clearAll(farmerId);
         granaryTextFields[position].setText("" + farmerId);
@@ -1373,6 +1382,7 @@ public class ControlCenter extends javax.swing.JFrame {
         }
     }
 
+    @Override
     public synchronized void presentCollectingFarmer(int farmerId) {
         clearAll(farmerId);
         gc.setText("" + farmerId);
@@ -1393,10 +1403,12 @@ public class ControlCenter extends javax.swing.JFrame {
         clearCollectionArea(farmerId);
     }
 
+    @Override
     public synchronized void updateGranaryCornCobs(int actualNumber) {
         granaryCornCobs.setText(String.valueOf(actualNumber));
     }
 
+    @Override
     public synchronized void updateStorehouseCornCobs(int actualNumber) {
         storehouseCornCobs.setText(String.valueOf(actualNumber));
     }

@@ -1,6 +1,5 @@
 package common;
 
-import cc.CCMessageProcessor;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -15,9 +14,9 @@ import java.util.logging.Logger;
 public class SynchronizedSocketServer implements Runnable{
     
     private int port;
-    private CCMessageProcessor messageProcessor;
+    private MessageProcessorSynchronized messageProcessor;
 
-    public SynchronizedSocketServer(int port, CCMessageProcessor messageProcessor) {
+    public SynchronizedSocketServer(int port, MessageProcessorSynchronized messageProcessor) {
         this.port=port;
         this.messageProcessor = messageProcessor;
     }

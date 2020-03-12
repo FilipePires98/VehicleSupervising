@@ -1,9 +1,8 @@
 package fi.monitors;
 
-import fi.EndSimulationException;
-import fi.FarmInfrastructure;
-import fi.MonitorMetadata;
-import fi.StopHarvestException;
+import fi.utils.EndSimulationException;
+import fi.utils.MonitorMetadata;
+import fi.utils.StopHarvestException;
 import fi.ccInterfaces.StandingCCInt;
 import fi.farmerInterfaces.StandingFarmerInt;
 import java.util.ArrayList;
@@ -12,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import fi.UiAndMainControlsFI;
 
 /**
  * Class for the Standing Sector of the farm.
@@ -23,7 +23,7 @@ public class Standing implements StandingFarmerInt, StandingCCInt {
         Monitor variables
     */
 
-    private FarmInfrastructure fi;
+    private UiAndMainControlsFI fi;
     private MonitorMetadata metadata;
     
     private Map<Integer, Integer> positions;
@@ -45,7 +45,7 @@ public class Standing implements StandingFarmerInt, StandingCCInt {
      * @param fi
      * @param metadata 
      */
-    public Standing(FarmInfrastructure fi, MonitorMetadata metadata) {
+    public Standing(UiAndMainControlsFI fi, MonitorMetadata metadata) {
         this.fi = fi;
         this.metadata=metadata;
         positions=new HashMap<Integer, Integer>();

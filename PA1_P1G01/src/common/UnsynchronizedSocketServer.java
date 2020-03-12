@@ -14,9 +14,9 @@ import java.util.logging.Logger;
 public class UnsynchronizedSocketServer implements Runnable{
     
     private int port;
-    private MessageProcessor messageProcessor;
+    private MessageProcessorThread messageProcessor;
 
-    public UnsynchronizedSocketServer(int port, MessageProcessor messageProcessor) {
+    public UnsynchronizedSocketServer(int port, MessageProcessorThread messageProcessor) {
         this.port=port;
         this.messageProcessor = messageProcessor;
     }

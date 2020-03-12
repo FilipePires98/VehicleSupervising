@@ -1,32 +1,33 @@
 package fi.workers;
 
-import common.MessageProcessor;
 import common.SocketClient;
-import fi.EndSimulationException;
+import fi.utils.EndSimulationException;
 import fi.FarmInfrastructure;
-import fi.StopHarvestException;
+import fi.utils.StopHarvestException;
 import fi.ccInterfaces.GranaryCCInt;
 import fi.ccInterfaces.PathCCInt;
 import fi.ccInterfaces.StandingCCInt;
 import fi.ccInterfaces.StorehouseCCInt;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import common.MessageProcessorThread;
+import fi.UiAndMainControlsFI;
 
 /**
  * Message processor for the Farm Infrastructure.
  * @author Filipe Pires (85122) and João Alegria (85048)
  */
-public class CCProxy implements MessageProcessor {
+public class CCProxy implements MessageProcessorThread {
     
     private StorehouseCCInt storeHouse;
     private StandingCCInt standing;
     private PathCCInt path;
     private GranaryCCInt granary;
-    private FarmInfrastructure fi;
+    private UiAndMainControlsFI fi;
     
     private String message;
 
-    public CCProxy(FarmInfrastructure fi, StorehouseCCInt storeHouse,StandingCCInt standing,PathCCInt path,GranaryCCInt granary) {
+    public CCProxy(UiAndMainControlsFI fi, StorehouseCCInt storeHouse,StandingCCInt standing,PathCCInt path,GranaryCCInt granary) {
         this.storeHouse=storeHouse;
         this.standing=standing;
         this.path=path;

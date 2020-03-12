@@ -1,7 +1,7 @@
 package fi.workers;
 
-import fi.EndSimulationException;
-import fi.StopHarvestException;
+import fi.utils.EndSimulationException;
+import fi.utils.StopHarvestException;
 import fi.farmerInterfaces.GranaryFarmerInt;
 import fi.farmerInterfaces.PathFarmerInt;
 import fi.farmerInterfaces.StandingFarmerInt;

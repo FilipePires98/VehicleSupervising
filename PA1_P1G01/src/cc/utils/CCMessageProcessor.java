@@ -3,29 +3,33 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cc;
+package cc.utils;
 
-import common.MessageProcessor;
+import cc.ControlCenter;
+import common.MessageProcessorSynchronized;
+import common.MessageProcessorThread;
+import cc.UiAndMainControlsCC;
 
 /**
  *
  * @author joaoalegria
  */
-public class CCMessageProcessor {
+public class CCMessageProcessor implements MessageProcessorSynchronized{
     
-    private ControlCenter cc;
+    private UiAndMainControlsCC cc;
     
     private String message;
 
-    public CCMessageProcessor(ControlCenter cc) {
+    public CCMessageProcessor(UiAndMainControlsCC cc) {
         this.cc=cc;
     }
     
-
+    @Override
     public void defineMessage(String message) {
         this.message=message;
     }
 
+    @Override
     public void run() {
         String[] processedMessage = message.split(";");
         switch(processedMessage[0]){

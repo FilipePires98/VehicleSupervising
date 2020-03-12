@@ -1,9 +1,8 @@
 package fi.monitors;
 
-import fi.EndSimulationException;
-import fi.FarmInfrastructure;
-import fi.MonitorMetadata;
-import fi.StopHarvestException;
+import fi.utils.EndSimulationException;
+import fi.utils.MonitorMetadata;
+import fi.utils.StopHarvestException;
 import fi.ccInterfaces.StorehouseCCInt;
 import fi.farmerInterfaces.StorehouseFarmerInt;
 import fi.workers.Farmer;
@@ -11,11 +10,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import fi.UiAndMainControlsFI;
 
 /**
  * Class for the Storehouse Sector of the farm.
@@ -27,7 +26,7 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
         Monitor variables
     */
 
-    private FarmInfrastructure fi;
+    private UiAndMainControlsFI fi;
     private MonitorMetadata metadata;
     
     private ReentrantLock rl = new ReentrantLock();
@@ -55,7 +54,7 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
      * @param fi
      * @param metadata
      */
-    public Storehouse(FarmInfrastructure fi, MonitorMetadata metadata) {
+    public Storehouse(UiAndMainControlsFI fi, MonitorMetadata metadata) {
         this.fi = fi;
         this.metadata=metadata;
         farmersInStorehouse = 0;
@@ -76,8 +75,8 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
     /**
      * 
      * @param farmerId 
-     * @throws fi.StopHarvestException 
-     * @throws fi.EndSimulationException 
+     * @throws fi.utils.StopHarvestException 
+     * @throws fi.utils.EndSimulationException 
      */
     @Override
     public void farmerEnter(int farmerId) throws StopHarvestException, EndSimulationException{

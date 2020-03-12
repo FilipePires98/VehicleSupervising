@@ -1,5 +1,6 @@
 package fi;
 
+import fi.utils.MonitorMetadata;
 import fi.monitors.*;
 import fi.workers.Farmer;
 import fi.workers.CCProxy;
@@ -14,7 +15,7 @@ import javax.swing.*;
  * 
  * @author Filipe Pires (85122) and João Alegria (85048)
  */
-public class FarmInfrastructure extends JFrame {
+public class FarmInfrastructure extends JFrame implements UiAndMainControlsFI{
 
     private static UnsynchronizedSocketServer fiServer;
     private static Thread serverThread;
@@ -47,7 +48,7 @@ public class FarmInfrastructure extends JFrame {
 
         storeHouse = new Storehouse(this, metadata);
         standing = new Standing(this, metadata);
-        path = new Path(this, metadata);
+        path = new Path(this, metadata, pathSize);
         granary = new Granary(this, metadata);
 
         ccClient = new SocketClient("localhost", 6666);
@@ -921,105 +922,7 @@ public class FarmInfrastructure extends JFrame {
         granaryTextFields[4] = g5;
     }
 
-    // private void clearPathNeighbors(int farmerId, int column) {
-    // switch (column + 1) {
-    // case 1:
-    // clearStandingArea(farmerId);
-    // for (int i = 0; i < teamSize; i++) {
-    // if (!(pathTextFields[column + 1][i].getText()).equals("")
-    // && Integer.valueOf(pathTextFields[column + 1][i].getText()) == farmerId) {
-    // pathTextFields[column + 1][i].setText("");
-    // return;
-    // }
-    // if (!(pathTextFields[column][i].getText()).equals("")
-    // && Integer.valueOf(pathTextFields[column][i].getText()) == farmerId) {
-    // pathTextFields[column][i].setText("");
-    // return;
-    // }
-    // }
-    // break;
-    // case 2:
-    // clearStandingArea(farmerId);
-    // for (int i = 0; i < teamSize; i++) {
-    // if (!(pathTextFields[column - 1][i].getText()).equals("")
-    // && Integer.valueOf(pathTextFields[column - 1][i].getText()) == farmerId) {
-    // pathTextFields[column - 1][i].setText("");
-    // return;
-    // }
-    // if (!(pathTextFields[column + 1][i].getText()).equals("")
-    // && Integer.valueOf(pathTextFields[column + 1][i].getText()) == farmerId) {
-    // pathTextFields[column + 1][i].setText("");
-    // return;
-    // }
-    // if (!(pathTextFields[column + 2][i].getText()).equals("")
-    // && Integer.valueOf(pathTextFields[column + 2][i].getText()) == farmerId) {
-    // pathTextFields[column + 2][i].setText("");
-    // return;
-    // }
-    // }
-    // break;
-    // case pathSize - 1:
-    // for (int i = 0; i < teamSize; i++) {
-    // if (!(pathTextFields[column - 2][i].getText()).equals("")
-    // && Integer.valueOf(pathTextFields[column - 2][i].getText()) == farmerId) {
-    // pathTextFields[column - 2][i].setText("");
-    // return;
-    // }
-    // if (!(pathTextFields[column - 1][i].getText()).equals("")
-    // && Integer.valueOf(pathTextFields[column - 1][i].getText()) == farmerId) {
-    // pathTextFields[column - 1][i].setText("");
-    // return;
-    // }
-    // if (!(pathTextFields[column + 1][i].getText()).equals("")
-    // && Integer.valueOf(pathTextFields[column + 1][i].getText()) == farmerId) {
-    // pathTextFields[column + 1][i].setText("");
-    // return;
-    // }
-    // clearGranary(farmerId);
-    // }
-    // break;
-    // case pathSize:
-    // for (int i = 0; i < teamSize; i++) {
-    // if (!(pathTextFields[column - 1][i].getText()).equals("")
-    // && Integer.valueOf(pathTextFields[column - 1][i].getText()) == farmerId) {
-    // pathTextFields[column - 1][i].setText("");
-    // return;
-    // }
-    // if (!(pathTextFields[column][i].getText()).equals("")
-    // && Integer.valueOf(pathTextFields[column][i].getText()) == farmerId) {
-    // pathTextFields[column][i].setText("");
-    // return;
-    // }
-    // clearGranary(farmerId);
-    // }
-    // break;
-    // default:
-    // for (int i = 0; i < teamSize; i++) {
-    // if (!(pathTextFields[column - 2][i].getText()).equals("")
-    // && Integer.valueOf(pathTextFields[column - 2][i].getText()) == farmerId) {
-    // pathTextFields[column - 2][i].setText("");
-    // return;
-    // }
-    // if (!(pathTextFields[column - 1][i].getText()).equals("")
-    // && Integer.valueOf(pathTextFields[column - 1][i].getText()) == farmerId) {
-    // pathTextFields[column - 1][i].setText("");
-    // return;
-    // }
-    // if (!(pathTextFields[column + 1][i].getText()).equals("")
-    // && Integer.valueOf(pathTextFields[column + 1][i].getText()) == farmerId) {
-    // pathTextFields[column + 1][i].setText("");
-    // return;
-    // }
-    // if (!(pathTextFields[column + 2][i].getText()).equals("")
-    // && Integer.valueOf(pathTextFields[column + 2][i].getText()) == farmerId) {
-    // pathTextFields[column + 2][i].setText("");
-    // return;
-    // }
-    // }
-    // break;
-    // }
-    // }
-
+    @Override
     public void presentFarmerInStorehouse(int farmerId, int position) {
         clearAll(farmerId);
         storehouseTextFields[position].setText("" + farmerId);
@@ -1036,6 +939,7 @@ public class FarmInfrastructure extends JFrame {
         }
     }
 
+    @Override
     public void presentFarmerInStandingArea(int farmerId, int position) {
         clearAll(farmerId);
         standingAreaTextFields[position].setText("" + farmerId);
@@ -1052,6 +956,7 @@ public class FarmInfrastructure extends JFrame {
         }
     }
 
+    @Override
     public void presentFarmerInPath(int farmerId, int position, int column) {
         clearAll(farmerId);
         pathTextFields[column][position].setText("" + farmerId);
@@ -1075,6 +980,7 @@ public class FarmInfrastructure extends JFrame {
         }
     }
 
+    @Override
     public void presentFarmerInGranary(int farmerId, int position) {
         clearAll(farmerId);
         granaryTextFields[position].setText("" + farmerId);
@@ -1091,6 +997,7 @@ public class FarmInfrastructure extends JFrame {
         }
     }
 
+    @Override
     public void presentCollectingFarmer(int farmerId) {
         clearAll(farmerId);
         gc.setText("" + farmerId);
@@ -1112,11 +1019,13 @@ public class FarmInfrastructure extends JFrame {
         clearCollectionArea(farmerId);
     }
     
+    @Override
     public void updateGranaryCornCobs(int actualNumber){
         granaryCornCobs.setText(String.valueOf(actualNumber));
         
     }
     
+    @Override
     public void updateStorehouseCornCobs(int actualNumber){
         storehouseCornCobs.setText(String.valueOf(actualNumber));
         

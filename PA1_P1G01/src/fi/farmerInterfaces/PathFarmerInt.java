@@ -1,7 +1,7 @@
 package fi.farmerInterfaces;
 
-import fi.EndSimulationException;
-import fi.StopHarvestException;
+import fi.utils.EndSimulationException;
+import fi.utils.StopHarvestException;
 
 /**
  * 

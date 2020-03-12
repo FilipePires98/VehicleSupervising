@@ -1,4 +1,4 @@
-package fi;
+package fi.utils;
 
 /**
  * 

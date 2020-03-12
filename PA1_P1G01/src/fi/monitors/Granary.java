@@ -1,9 +1,8 @@
 package fi.monitors;
 
-import fi.EndSimulationException;
-import fi.FarmInfrastructure;
-import fi.MonitorMetadata;
-import fi.StopHarvestException;
+import fi.utils.EndSimulationException;
+import fi.utils.MonitorMetadata;
+import fi.utils.StopHarvestException;
 import fi.ccInterfaces.GranaryCCInt;
 import fi.farmerInterfaces.GranaryFarmerInt;
 import fi.workers.Farmer;
@@ -15,6 +14,7 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import fi.UiAndMainControlsFI;
 
 /**
  * Class for the Granary Sector of the farm.
@@ -26,7 +26,7 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
         Monitor variables
     */
     
-    private FarmInfrastructure fi;
+    private UiAndMainControlsFI fi;
     private MonitorMetadata metadata;
     
     private ReentrantLock rl = new ReentrantLock();
@@ -57,7 +57,7 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
      * @param fi
      * @param metadata 
      */
-    public Granary(FarmInfrastructure fi, MonitorMetadata metadata) {
+    public Granary(UiAndMainControlsFI fi, MonitorMetadata metadata) {
         this.fi = fi;
         this.metadata=metadata;
         positions=new HashMap<Integer, Integer>();
@@ -223,6 +223,7 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
                     int cobs=((Farmer)Thread.currentThread()).getCornCobs();
                     this.maxCornCobs+=cobs;
                     this.fi.updateGranaryCornCobs(this.maxCornCobs);
+                    this.fi.sendMessage("updateGranaryCobs;"+this.maxCornCobs);
                     ((Farmer)Thread.currentThread()).setCornCobs(0);
                     this.availablePosition.add(this.positions.get(farmerId));
                     this.positions.remove(farmerId);

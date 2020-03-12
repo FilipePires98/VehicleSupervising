@@ -1,14 +1,12 @@
 package fi.monitors;
 
-import fi.EndSimulationException;
-import fi.FarmInfrastructure;
-import fi.MonitorMetadata;
-import fi.StopHarvestException;
+import fi.utils.EndSimulationException;
+import fi.utils.MonitorMetadata;
+import fi.utils.StopHarvestException;
 import fi.ccInterfaces.PathCCInt;
 import fi.farmerInterfaces.PathFarmerInt;
 import fi.workers.Farmer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +14,7 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import fi.UiAndMainControlsFI;
 
 /**
  * Class for the Path Sector of the farm.
@@ -44,18 +43,19 @@ public class Path implements PathFarmerInt, PathCCInt {
         Monitor variables
     */
     
-    private FarmInfrastructure fi;
-    private MonitorMetadata metadata;
+    private final UiAndMainControlsFI fi;
+    private final MonitorMetadata metadata;
     
-    private ReentrantLock rl = new ReentrantLock();
-    private Condition allInPath = rl.newCondition();
+    private final ReentrantLock rl;
+    private final Condition allInPath;
     
-    private List<Integer> farmersOrder;
+    private final List<Integer> farmersOrder;
     private Integer currentFarmerToMove=null;
-    private Integer path[][];
-    private Map<Integer, ConditionAndPathDepth> farmersMetadata;
-    private List<List<Integer>> availablePositions;
+    private final Integer path[][];
+    private final Map<Integer, ConditionAndPathDepth> farmersMetadata;
+    private final List<List<Integer>> availablePositions;
     
+    private final int pathSize;
     private int farmersInPath;
     private boolean stopHarvest=false;
     private boolean endSimulation=false;
@@ -69,17 +69,21 @@ public class Path implements PathFarmerInt, PathCCInt {
      * Path monitor constructor.
      * @param fi
      * @param metadata
+     * @param pathSize
      */
-    public Path(FarmInfrastructure fi, MonitorMetadata metadata) {
+    public Path(UiAndMainControlsFI fi, MonitorMetadata metadata, int pathSize) {
+        this.rl = new ReentrantLock();
+        this.allInPath = rl.newCondition();
         this.fi = fi;
         this.metadata=metadata;
         this.farmersInPath = 0;
+        this.pathSize=pathSize;
         this.farmersOrder=new ArrayList();
-        this.path=new Integer[fi.pathSize][metadata.MAXNUMBERFARMERS];
+        this.path=new Integer[pathSize][metadata.MAXNUMBERFARMERS];
         this.farmersMetadata = new HashMap();
         this.availablePositions = new ArrayList();
         
-        for(int i=0; i< fi.pathSize; i++){
+        for(int i=0; i< pathSize; i++){
             this.availablePositions.add(new ArrayList());
             for(int j=0; j<metadata.MAXNUMBERFARMERS; j++){
                 this.availablePositions.get(i).add(j);
@@ -95,7 +99,9 @@ public class Path implements PathFarmerInt, PathCCInt {
     
     /**
      * 
-     * @param farmerId 
+     * @param farmerId
+     * @throws fi.utils.StopHarvestException 
+     * @throws fi.utils.EndSimulationException 
      */
     @Override
     public void farmerEnter(int farmerId) throws StopHarvestException, EndSimulationException{
@@ -142,13 +148,15 @@ public class Path implements PathFarmerInt, PathCCInt {
     /**
      * 
      * @param farmerId 
+     * @throws fi.utils.StopHarvestException 
+     * @throws fi.utils.EndSimulationException 
      */
     @Override
     public void farmerGoToGranary(int farmerId) throws StopHarvestException, EndSimulationException{
         rl.lock();
         try {
             this.waitRandomDelay();
-            while(this.farmersMetadata.get(farmerId).depth<fi.pathSize){
+            while(this.farmersMetadata.get(farmerId).depth<this.pathSize){
 
                 while(this.currentFarmerToMove!=farmerId){
 
@@ -194,6 +202,8 @@ public class Path implements PathFarmerInt, PathCCInt {
     /**
      * 
      * @param farmerId 
+     * @throws fi.utils.StopHarvestException 
+     * @throws fi.utils.EndSimulationException 
      */
     @Override
     public void farmerReturn(int farmerId) throws StopHarvestException, EndSimulationException{
@@ -202,7 +212,7 @@ public class Path implements PathFarmerInt, PathCCInt {
             this.waitRandomDelay();
             farmersInPath++;
             farmersOrder.add(farmerId);
-            farmersMetadata.put(farmerId, new ConditionAndPathDepth(rl.newCondition(), fi.pathSize, -1));
+            farmersMetadata.put(farmerId, new ConditionAndPathDepth(rl.newCondition(), this.pathSize, -1));
             this.selectSpot(farmerId, true, true);
             this.waitTimeout();
             if(farmersInPath==metadata.NUMBERFARMERS){
@@ -240,6 +250,8 @@ public class Path implements PathFarmerInt, PathCCInt {
     /**
      * 
      * @param farmerId 
+     * @throws fi.utils.StopHarvestException 
+     * @throws fi.utils.EndSimulationException 
      */
     @Override
     public void farmerGoToStorehouse(int farmerId) throws StopHarvestException, EndSimulationException{
@@ -311,9 +323,9 @@ public class Path implements PathFarmerInt, PathCCInt {
             }
 
             this.allInPath.signalAll();
-            for(Integer key : this.farmersMetadata.keySet()){
+            this.farmersMetadata.keySet().forEach((key) -> {
                 this.farmersMetadata.get(key).condition.signalAll();
-            }
+            });
         }
         finally{
             rl.unlock();
@@ -343,7 +355,7 @@ public class Path implements PathFarmerInt, PathCCInt {
         }else{
             newDepth=this.farmersMetadata.get(farmerId).depth+numberOfSteps;
         }
-        if(newDepth>=fi.pathSize || newDepth<0){
+        if(newDepth>=this.pathSize || newDepth<0){
             path[farmersMetadata.get(farmerId).depth][farmersMetadata.get(farmerId).position]=null;
             this.availablePositions.get(this.farmersMetadata.get(farmerId).depth).add(farmersMetadata.get(farmerId).position);
             farmersMetadata.get(farmerId).depth=newDepth;
