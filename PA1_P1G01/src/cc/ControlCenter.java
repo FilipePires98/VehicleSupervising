@@ -255,6 +255,7 @@ public class ControlCenter extends javax.swing.JFrame {
     }
 
     public void enablePrepareBtn() {
+        this.stopBtn.setEnabled(false);
         this.prepareBtn.setEnabled(true);
         this.numFarmers.setEnabled(true);
         this.numCornCobs.setEnabled(true);
@@ -304,7 +305,7 @@ public class ControlCenter extends javax.swing.JFrame {
         System.out.println("[CC] Return to storehouse requested.");
 
         // Update UI
-        this.stopBtn.setEnabled(false);
+//        this.stopBtn.setEnabled(false);
         this.returnBtn.setEnabled(false);
         // this.prepareBtn.setEnabled(true); // only if all farmers have returned and
         // delivered the corn cobs!

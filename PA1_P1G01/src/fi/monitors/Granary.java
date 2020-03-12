@@ -220,6 +220,10 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
                     entitiesToStop--;
                     farmersInGranary--;
                     farmersCollected--;
+                    int cobs=((Farmer)Thread.currentThread()).getCornCobs();
+                    this.maxCornCobs+=cobs;
+                    this.fi.updateGranaryCornCobs(this.maxCornCobs);
+                    ((Farmer)Thread.currentThread()).setCornCobs(0);
                     this.availablePosition.add(this.positions.get(farmerId));
                     this.positions.remove(farmerId);
                     if(entitiesToStop==0){

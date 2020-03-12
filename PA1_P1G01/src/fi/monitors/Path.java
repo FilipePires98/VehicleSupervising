@@ -6,6 +6,7 @@ import fi.MonitorMetadata;
 import fi.StopHarvestException;
 import fi.ccInterfaces.PathCCInt;
 import fi.farmerInterfaces.PathFarmerInt;
+import fi.workers.Farmer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -214,6 +215,7 @@ public class Path implements PathFarmerInt, PathCCInt {
                 if(this.stopHarvest){
                     entitiesToStop--;
                     farmersInPath--;
+                    ((Farmer)Thread.currentThread()).setCornCobs(0);
                     path[farmersMetadata.get(farmerId).depth][farmersMetadata.get(farmerId).position]=null;
                     this.availablePositions.get(this.farmersMetadata.get(farmerId).depth).add(farmersMetadata.get(farmerId).position);
                     this.farmersOrder.remove((Integer)farmerId);
@@ -251,6 +253,7 @@ public class Path implements PathFarmerInt, PathCCInt {
                     if(this.stopHarvest){
                         entitiesToStop--;
                         farmersInPath--;
+                        ((Farmer)Thread.currentThread()).setCornCobs(0);
                         path[farmersMetadata.get(farmerId).depth][farmersMetadata.get(farmerId).position]=null;
                         this.availablePositions.get(this.farmersMetadata.get(farmerId).depth).add(farmersMetadata.get(farmerId).position);
                         this.farmersOrder.remove((Integer)farmerId);
