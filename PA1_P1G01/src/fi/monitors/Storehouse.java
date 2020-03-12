@@ -67,7 +67,6 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
         for(int i=0; i<this.metadata.MAXNUMBERFARMERS;i++){
             availablePosition.add(i);
         }
-        this.fi.updateStorehouseCornCobs(this.cornCobs);
     }
     
     /*
@@ -91,6 +90,7 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
             this.cornCobs+=cobs;
             ((Farmer)Thread.currentThread()).setCornCobs(0);
             this.fi.updateStorehouseCornCobs(this.cornCobs);
+            this.fi.sendMessage("updateStorehouseCobs;"+this.cornCobs);
             System.out.println("[Storehouse] Farmer " + farmerId + " entered.");
             while(farmersInStorehouse<this.metadata.MAXNUMBERFARMERS){
                 allInStorehouse.await();
@@ -264,6 +264,7 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
         this.positions.put(farmerId, availablePosition.get(randomPosition));
         this.availablePosition.remove(randomPosition);
         this.fi.presentFarmerInStorehouse(farmerId,positions.get(farmerId));
+        this.fi.sendMessage("presentInStorehouse;"+farmerId+";"+positions.get(farmerId));
     }
     
     private void waitRandomDelay(){

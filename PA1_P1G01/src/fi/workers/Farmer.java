@@ -57,6 +57,7 @@ public class Farmer extends Thread {
             } catch (StopHarvestException ex) {
                 
             } catch (EndSimulationException ex) {
+                System.out.println("Farmer "+this.id+" exited with success!");
                 return;
             }
         }

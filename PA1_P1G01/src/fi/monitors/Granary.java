@@ -65,8 +65,6 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
         for(int i=0; i<this.metadata.MAXNUMBERFARMERS;i++){
             availablePosition.add(i);
         }
-        
-        this.fi.updateGranaryCornCobs(maxCornCobs);
     }
     
     /*
@@ -161,6 +159,7 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
             this.availablePosition.add(this.positions.get(farmerId));
             this.positions.remove(farmerId);
             this.fi.presentCollectingFarmer(farmerId);
+            this.fi.sendMessage("presentInCollecting;"+farmerId);
             if(this.maxCornCobs-this.metadata.NUMBERCORNCOBS>=0){
                 ((Farmer)Thread.currentThread()).setCornCobs(this.metadata.NUMBERCORNCOBS);
                 this.maxCornCobs-=this.metadata.NUMBERCORNCOBS;
@@ -169,6 +168,7 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
                 this.maxCornCobs-=this.maxCornCobs;
             }
             this.fi.updateGranaryCornCobs(this.maxCornCobs);
+            this.fi.sendMessage("updateGranaryCobs;"+this.maxCornCobs);
             System.out.println(this.metadata.NUMBERCORNCOBS);
             this.farmersCollected++;
             this.waitTimeout();
@@ -406,6 +406,7 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
         this.positions.put(farmerId, availablePosition.get(randomPosition));
         this.availablePosition.remove(randomPosition);
         this.fi.presentFarmerInGranary(farmerId,positions.get(farmerId));
+        this.fi.sendMessage("presentInGranary;"+farmerId+";"+positions.get(farmerId));
     }
     
     private void waitRandomDelay(){

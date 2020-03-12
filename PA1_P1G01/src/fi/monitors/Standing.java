@@ -210,6 +210,7 @@ public class Standing implements StandingFarmerInt, StandingCCInt {
         this.positions.put(farmerId, availablePosition.get(randomPosition));
         this.availablePosition.remove(randomPosition);
         this.fi.presentFarmerInStandingArea(farmerId,positions.get(farmerId));
+        this.fi.sendMessage("presentInStanding;"+farmerId+";"+positions.get(farmerId));
     }
     
     private void waitRandomDelay(){

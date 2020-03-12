@@ -361,6 +361,7 @@ public class Path implements PathFarmerInt, PathCCInt {
         farmersMetadata.get(farmerId).depth=newDepth;
 
         this.fi.presentFarmerInPath(farmerId,farmersMetadata.get(farmerId).position, farmersMetadata.get(farmerId).depth);
+        this.fi.sendMessage("presentInPath;"+farmerId+";"+farmersMetadata.get(farmerId).position+";"+farmersMetadata.get(farmerId).depth);
 
     }
     
