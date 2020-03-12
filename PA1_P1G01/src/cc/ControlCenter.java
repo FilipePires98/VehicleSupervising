@@ -27,7 +27,17 @@ public class ControlCenter extends javax.swing.JFrame {
         this.fiClient = new SocketClient("localhost", 7777);
         this.fiClient.send("waitSimulationReady");
     }
+    
+    public void closeSocketClient() {
+        this.fiClient.send("endSimulation");
+        this.fiClient.close();
+    }
 
+    public void close() {
+        this.setVisible(false);
+        this.dispose();
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -243,16 +253,6 @@ public class ControlCenter extends javax.swing.JFrame {
         // Send message to FI to update farmer positions (move to Standing Area)
 
     }// GEN-LAST:event_prepareBtnActionPerformed
-
-    public void closeSocketClient() {
-        this.fiClient.send("endSimulation");
-        this.fiClient.close();
-    }
-
-    public void close() {
-        this.setVisible(false);
-        this.dispose();
-    }
 
     public void enablePrepareBtn() {
         this.stopBtn.setEnabled(false);

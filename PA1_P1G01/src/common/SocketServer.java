@@ -14,11 +14,11 @@ import java.util.logging.Logger;
 public class SocketServer implements Runnable{
     
     private int port;
-    private MessageProcessor messageProcessor;
+    private MessageProcessor mp;
 
-    public SocketServer(int port, MessageProcessor messageProcessor) {
+    public SocketServer(int port, MessageProcessor mp) {
         this.port=port;
-        this.messageProcessor = messageProcessor;
+        this.mp = mp;
     }
     
     @Override
@@ -31,8 +31,8 @@ public class SocketServer implements Runnable{
             while(!receivedMessage.equals("endSimulation")){
                 receivedMessage=socketInputStream.readUTF();
                 System.out.println(receivedMessage);
-                this.messageProcessor.defineMessage(receivedMessage);
-                new Thread(messageProcessor).start();
+                this.mp.defineMessage(receivedMessage);
+                new Thread(mp).start();
             }
             socket.close();
         } catch (IOException ex) {
