@@ -194,12 +194,12 @@ public class FarmInfrastructure extends JFrame {
                             .addComponent(sh2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(sh3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(sh1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(0, 38, Short.MAX_VALUE))
+                        .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(storehousePanelLayout.createSequentialGroup()
                         .addContainerGap()
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(swCornCobs)))
+                        .addComponent(swCornCobs, javax.swing.GroupLayout.DEFAULT_SIZE, 37, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         storehousePanelLayout.setVerticalGroup(
@@ -606,23 +606,24 @@ public class FarmInfrastructure extends JFrame {
             .addGroup(granaryPanelLayout.createSequentialGroup()
                 .addGroup(granaryPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(granaryPanelLayout.createSequentialGroup()
-                        .addGap(21, 21, 21)
                         .addGroup(granaryPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(g4, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(g5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(g1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(granaryPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(g2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(g3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addGroup(granaryPanelLayout.createSequentialGroup()
+                                .addGap(43, 43, 43)
+                                .addGroup(granaryPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(g4, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(g5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(g2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(g3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(g1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addGroup(granaryPanelLayout.createSequentialGroup()
+                                .addContainerGap()
+                                .addComponent(granaryLabel)))
+                        .addGap(0, 39, Short.MAX_VALUE))
                     .addGroup(granaryPanelLayout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(granaryLabel)))
-                .addGap(70, 70, 70))
-            .addGroup(granaryPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel2)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(gCornCobs)
+                        .addComponent(jLabel2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(gCornCobs, javax.swing.GroupLayout.DEFAULT_SIZE, 38, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         granaryPanelLayout.setVerticalGroup(
@@ -667,7 +668,7 @@ public class FarmInfrastructure extends JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(pathPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(granaryPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 129, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(granaryPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -850,11 +851,8 @@ public class FarmInfrastructure extends JFrame {
     }
     
     public void presentFarmerInStorehouse(int farmerId, int position) {
-        clearStorehouse(farmerId);
         clearStandingArea(farmerId);
-        clearPath(farmerId);
-        clearGranary(farmerId);
-//        clearPathNeighbors(farmerId,0);
+        clearPathNeighbors(farmerId,0);
         storehouseTextFields[position].setText(""+farmerId);
     }
     
@@ -869,10 +867,7 @@ public class FarmInfrastructure extends JFrame {
     
     public void presentFarmerInStandingArea(int farmerId, int position) {
         clearStorehouse(farmerId);
-        clearStandingArea(farmerId);
-        clearPath(farmerId);
-        clearGranary(farmerId);
-//        clearPathNeighbors(farmerId,0);
+        clearPathNeighbors(farmerId,0);
         standingAreaTextFields[position].setText(""+farmerId);
     }
     
@@ -886,118 +881,98 @@ public class FarmInfrastructure extends JFrame {
     }
     
     public void presentFarmerInPath(int farmerId, int position, int column) {
-        clearStorehouse(farmerId);
         clearStandingArea(farmerId);
-        clearPath(farmerId);
-        clearGranary(farmerId);
-//        clearPathNeighbors(farmerId,column);
+        clearPathNeighbors(farmerId,column);
         pathTextFields[column][position].setText(""+farmerId);
     }
     
-    private void clearPath(int farmerId){
-        for(int c=0; c<this.pathSize; c++){
-            for(int p=0; p<this.teamSize; p++){
-                int currentInt;
-                try{
-                    currentInt=Integer.valueOf(pathTextFields[c][p].getText());
-                }catch(NumberFormatException ex){
-                    currentInt=-1;
+    private void clearPathNeighbors(int farmerId, int column) {
+        switch(column+1) {
+            case 1:
+                clearStandingArea(farmerId);
+                for(int i=0; i<teamSize; i++) {
+                    if(!(pathTextFields[column+1][i].getText()).equals("") && Integer.valueOf(pathTextFields[column+1][i].getText()) == farmerId) {
+                        pathTextFields[column+1][i].setText("");
+                        return;
+                    }
+                    if(!(pathTextFields[column][i].getText()).equals("") && Integer.valueOf(pathTextFields[column][i].getText()) == farmerId) {
+                        pathTextFields[column][i].setText("");
+                        return;
+                    }
                 }
-                if(currentInt == farmerId) {
-                    pathTextFields[c][p].setText("");
-                    return;
+                break;
+            case 2:
+                clearStandingArea(farmerId);
+                for(int i=0; i<teamSize; i++) {
+                    if(!(pathTextFields[column-1][i].getText()).equals("") && Integer.valueOf(pathTextFields[column-1][i].getText()) == farmerId) {
+                        pathTextFields[column-1][i].setText("");
+                        return;
+                    }
+                    if(!(pathTextFields[column+1][i].getText()).equals("") && Integer.valueOf(pathTextFields[column+1][i].getText()) == farmerId) {
+                        pathTextFields[column+1][i].setText("");
+                        return;
+                    }
+                    if(!(pathTextFields[column+2][i].getText()).equals("") && Integer.valueOf(pathTextFields[column+2][i].getText()) == farmerId) {
+                        pathTextFields[column+2][i].setText("");
+                        return;
+                    }
                 }
-            }
+                break;
+            case pathSize-1:
+                for(int i=0; i<teamSize; i++) {
+                    if(!(pathTextFields[column-2][i].getText()).equals("") && Integer.valueOf(pathTextFields[column-2][i].getText()) == farmerId) {
+                        pathTextFields[column-2][i].setText("");
+                        return;
+                    }
+                    if(!(pathTextFields[column-1][i].getText()).equals("") && Integer.valueOf(pathTextFields[column-1][i].getText()) == farmerId) {
+                        pathTextFields[column-1][i].setText("");
+                        return;
+                    }
+                    if(!(pathTextFields[column+1][i].getText()).equals("") && Integer.valueOf(pathTextFields[column+1][i].getText()) == farmerId) {
+                        pathTextFields[column+1][i].setText("");
+                        return;
+                    }
+                    clearGranary(farmerId);
+                }
+                break;
+            case pathSize:
+                for(int i=0; i<teamSize; i++) {
+                    if(!(pathTextFields[column-1][i].getText()).equals("") && Integer.valueOf(pathTextFields[column-1][i].getText()) == farmerId) {
+                        pathTextFields[column-1][i].setText("");
+                        return;
+                    }
+                    if(!(pathTextFields[column][i].getText()).equals("") && Integer.valueOf(pathTextFields[column][i].getText()) == farmerId) {
+                        pathTextFields[column][i].setText("");
+                        return;
+                    }
+                    clearGranary(farmerId);
+                }
+                break;
+            default:
+                for(int i=0; i<teamSize; i++) {
+                    if(!(pathTextFields[column-2][i].getText()).equals("") && Integer.valueOf(pathTextFields[column-2][i].getText()) == farmerId) {
+                        pathTextFields[column-2][i].setText("");
+                        return;
+                    }
+                    if(!(pathTextFields[column-1][i].getText()).equals("") && Integer.valueOf(pathTextFields[column-1][i].getText()) == farmerId) {
+                        pathTextFields[column-1][i].setText("");
+                        return;
+                    }
+                    if(!(pathTextFields[column+1][i].getText()).equals("") && Integer.valueOf(pathTextFields[column+1][i].getText()) == farmerId) {
+                        pathTextFields[column+1][i].setText("");
+                        return;
+                    }
+                    if(!(pathTextFields[column+2][i].getText()).equals("") && Integer.valueOf(pathTextFields[column+2][i].getText()) == farmerId) {
+                        pathTextFields[column+2][i].setText("");
+                        return;
+                    }
+                }
+                break;
         }
     }
     
-//    private void clearPathNeighbors(int farmerId, int column) {
-//        switch(column+1) {
-//            case 1:
-//                for(int i=0; i<teamSize; i++) {
-//                    if(!(pathTextFields[column+1][i].getText()).equals("") && Integer.valueOf(pathTextFields[column+1][i].getText()) == farmerId) {
-//                        pathTextFields[column+1][i].setText("");
-//                        return;
-//                    }
-//                    if(!(pathTextFields[column][i].getText()).equals("") && Integer.valueOf(pathTextFields[column][i].getText()) == farmerId) {
-//                        pathTextFields[column][i].setText("");
-//                        return;
-//                    }
-//                }
-//                break;
-//            case 2:
-//                for(int i=0; i<teamSize; i++) {
-//                    if(!(pathTextFields[column-1][i].getText()).equals("") && Integer.valueOf(pathTextFields[column-1][i].getText()) == farmerId) {
-//                        pathTextFields[column-1][i].setText("");
-//                        return;
-//                    }
-//                    if(!(pathTextFields[column+1][i].getText()).equals("") && Integer.valueOf(pathTextFields[column+1][i].getText()) == farmerId) {
-//                        pathTextFields[column+1][i].setText("");
-//                        return;
-//                    }
-//                    if(!(pathTextFields[column+2][i].getText()).equals("") && Integer.valueOf(pathTextFields[column+2][i].getText()) == farmerId) {
-//                        pathTextFields[column+2][i].setText("");
-//                        return;
-//                    }
-//                }
-//                break;
-//            case pathSize-1:
-//                for(int i=0; i<teamSize; i++) {
-//                    if(!(pathTextFields[column-2][i].getText()).equals("") && Integer.valueOf(pathTextFields[column-2][i].getText()) == farmerId) {
-//                        pathTextFields[column-2][i].setText("");
-//                        return;
-//                    }
-//                    if(!(pathTextFields[column-1][i].getText()).equals("") && Integer.valueOf(pathTextFields[column-1][i].getText()) == farmerId) {
-//                        pathTextFields[column-1][i].setText("");
-//                        return;
-//                    }
-//                    if(!(pathTextFields[column+1][i].getText()).equals("") && Integer.valueOf(pathTextFields[column+1][i].getText()) == farmerId) {
-//                        pathTextFields[column+1][i].setText("");
-//                        return;
-//                    }
-//                }
-//                break;
-//            case pathSize:
-//                for(int i=0; i<teamSize; i++) {
-//                    if(!(pathTextFields[column-1][i].getText()).equals("") && Integer.valueOf(pathTextFields[column-1][i].getText()) == farmerId) {
-//                        pathTextFields[column-1][i].setText("");
-//                        return;
-//                    }
-//                    if(!(pathTextFields[column][i].getText()).equals("") && Integer.valueOf(pathTextFields[column][i].getText()) == farmerId) {
-//                        pathTextFields[column][i].setText("");
-//                        return;
-//                    }
-//                }
-//                break;
-//            default:
-//                for(int i=0; i<teamSize; i++) {
-//                    if(!(pathTextFields[column-2][i].getText()).equals("") && Integer.valueOf(pathTextFields[column-2][i].getText()) == farmerId) {
-//                        pathTextFields[column-2][i].setText("");
-//                        return;
-//                    }
-//                    if(!(pathTextFields[column-1][i].getText()).equals("") && Integer.valueOf(pathTextFields[column-1][i].getText()) == farmerId) {
-//                        pathTextFields[column-1][i].setText("");
-//                        return;
-//                    }
-//                    if(!(pathTextFields[column+1][i].getText()).equals("") && Integer.valueOf(pathTextFields[column+1][i].getText()) == farmerId) {
-//                        pathTextFields[column+1][i].setText("");
-//                        return;
-//                    }
-//                    if(!(pathTextFields[column+2][i].getText()).equals("") && Integer.valueOf(pathTextFields[column+2][i].getText()) == farmerId) {
-//                        pathTextFields[column+2][i].setText("");
-//                        return;
-//                    }
-//                }
-//                break;
-//        }
-//    }
-    
     public void presentFarmerInGranary(int farmerId, int position) {
-//        clearPathNeighbors(farmerId,9);
-        clearStorehouse(farmerId);
-        clearStandingArea(farmerId);
-        clearPath(farmerId);
-        clearGranary(farmerId);
+        clearPathNeighbors(farmerId,9);
         granaryTextFields[position].setText(""+farmerId);
     }
     
