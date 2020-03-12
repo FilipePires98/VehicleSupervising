@@ -75,7 +75,6 @@ public class CCProxy implements MessageProcessor {
                     this.path.control("stopHarvest");
                     this.granary.control("stopHarvest");
                     this.storeHouse.waitAllFarmersReady();
-                    this.fi.clearHarvest();
                     this.fi.sendMessage("allFarmersrReadyWaiting");
                     break;
                 case "endSimulationOrder":
