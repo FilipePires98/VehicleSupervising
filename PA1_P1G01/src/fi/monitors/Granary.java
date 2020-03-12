@@ -148,8 +148,12 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
         rl.lock();
         try{
             this.waitRandomDelay();
+            this.availablePosition.add(this.positions.get(farmerId));
+            this.positions.remove(farmerId);
+            this.fi.presentCollectingFarmer(farmerId);
             this.farmersCollected++;
             this.waitTimeout();
+            this.selectSpot(farmerId);
             while(this.farmersCollected<metadata.NUMBERFARMERS){
                 this.allCollected.await();
                 
