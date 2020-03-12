@@ -22,6 +22,7 @@ import java.util.logging.Logger;
  */
 
 public class Path implements PathFarmerInt, PathCCInt {
+
     
     /**
      * Private inner class for holding useful information for tracking farmers while moving inside the Path. 
@@ -57,6 +58,7 @@ public class Path implements PathFarmerInt, PathCCInt {
     private int farmersInPath;
     private boolean stopHarvest=false;
     private boolean endSimulation=false;
+    private int entitiesToStop=0;
 
     /*
         Constructors
@@ -113,12 +115,13 @@ public class Path implements PathFarmerInt, PathCCInt {
                 allInPath.await();
                 
                 if(this.stopHarvest){
+                    entitiesToStop--;
                     farmersInPath--;
                     path[farmersMetadata.get(farmerId).depth][farmersMetadata.get(farmerId).position]=null;
                     this.availablePositions.get(this.farmersMetadata.get(farmerId).depth).add(farmersMetadata.get(farmerId).position);
                     this.farmersOrder.remove((Integer)farmerId);
                     this.farmersMetadata.remove(farmerId);
-                    if(farmersInPath==0){
+                    if(entitiesToStop==0){
                         stopHarvest=false;
                     }
                     throw new StopHarvestException();
@@ -151,12 +154,13 @@ public class Path implements PathFarmerInt, PathCCInt {
                     this.farmersMetadata.get(farmerId).condition.await();
                     
                     if(this.stopHarvest){
+                        entitiesToStop--;
                         farmersInPath--;
                         path[farmersMetadata.get(farmerId).depth][farmersMetadata.get(farmerId).position]=null;
                         this.availablePositions.get(this.farmersMetadata.get(farmerId).depth).add(farmersMetadata.get(farmerId).position);
                         this.farmersOrder.remove((Integer)farmerId);
                         this.farmersMetadata.remove(farmerId);
-                        if(farmersInPath==0){
+                        if(entitiesToStop==0){
                             stopHarvest=false;
                         }
                         throw new StopHarvestException();
@@ -208,12 +212,13 @@ public class Path implements PathFarmerInt, PathCCInt {
                 allInPath.await();
                 
                 if(this.stopHarvest){
+                    entitiesToStop--;
                     farmersInPath--;
                     path[farmersMetadata.get(farmerId).depth][farmersMetadata.get(farmerId).position]=null;
                     this.availablePositions.get(this.farmersMetadata.get(farmerId).depth).add(farmersMetadata.get(farmerId).position);
                     this.farmersOrder.remove((Integer)farmerId);
                     this.farmersMetadata.remove(farmerId);
-                    if(farmersInPath==0){
+                    if(entitiesToStop==0){
                         stopHarvest=false;
                     }
                     throw new StopHarvestException();
@@ -244,12 +249,13 @@ public class Path implements PathFarmerInt, PathCCInt {
                     this.farmersMetadata.get(farmerId).condition.await();
                     
                     if(this.stopHarvest){
+                        entitiesToStop--;
                         farmersInPath--;
                         path[farmersMetadata.get(farmerId).depth][farmersMetadata.get(farmerId).position]=null;
                         this.availablePositions.get(this.farmersMetadata.get(farmerId).depth).add(farmersMetadata.get(farmerId).position);
                         this.farmersOrder.remove((Integer)farmerId);
                         this.farmersMetadata.remove(farmerId);
-                        if(farmersInPath==0){
+                        if(entitiesToStop==0){
                             stopHarvest=false;
                         }
                         throw new StopHarvestException();
@@ -293,6 +299,7 @@ public class Path implements PathFarmerInt, PathCCInt {
                 case "stopHarvest":
                     if(this.farmersInPath!=0){
                         this.stopHarvest=true;
+                        this.entitiesToStop=this.farmersInPath;
                     }
                     break;
                 case "endSimulation":

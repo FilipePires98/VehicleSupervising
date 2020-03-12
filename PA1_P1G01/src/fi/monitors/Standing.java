@@ -34,6 +34,7 @@ public class Standing implements StandingFarmerInt, StandingCCInt {
     private boolean stopHarvest=false;
     private boolean endSimulation=false;
     private boolean proxyInMonitor=false;
+    private int entitiesToStop=0;
     
     /*
         Constructors
@@ -74,11 +75,12 @@ public class Standing implements StandingFarmerInt, StandingCCInt {
                 wait();
                 
                 if(this.stopHarvest){
+                    entitiesToStop--;
                     farmersInStanding--;
                     this.availablePosition.add(this.positions.get(farmerId));
                     this.positions.remove(farmerId);
-                    if(farmersInStanding==0){
-                        this.stopHarvest=false;
+                    if(entitiesToStop==0){
+                        stopHarvest=false;
                     }
                     throw new StopHarvestException();
                 }
@@ -105,12 +107,12 @@ public class Standing implements StandingFarmerInt, StandingCCInt {
                 wait();
                 
                 if(this.stopHarvest){
+                    entitiesToStop--;
                     farmersInStanding--;
                     this.availablePosition.add(this.positions.get(farmerId));
                     this.positions.remove(farmerId);
-                    if(farmersInStanding==0){
-                        startOrderGiven=false;
-                        this.stopHarvest=false;
+                    if(entitiesToStop==0){
+                        stopHarvest=false;
                     }
                     throw new StopHarvestException();
                 }
@@ -153,8 +155,11 @@ public class Standing implements StandingFarmerInt, StandingCCInt {
                 wait();
                 
                 if(this.stopHarvest){
+                    entitiesToStop--;
                     this.proxyInMonitor=false;
-                    this.stopHarvest=false;
+                    if(entitiesToStop==0){
+                        stopHarvest=false;
+                    }
                     throw new StopHarvestException();
                 }
                 if(this.endSimulation){
@@ -179,6 +184,10 @@ public class Standing implements StandingFarmerInt, StandingCCInt {
             case "stopHarvest":
                 if(this.farmersInStanding!=0 || proxyInMonitor){
                     this.stopHarvest=true;
+                    this.entitiesToStop=this.farmersInStanding;
+                    if(proxyInMonitor){
+                        this.entitiesToStop++;
+                    }
                 }
                 break;
             case "endSimulation":

@@ -21,6 +21,7 @@ public class Farmer extends Thread {
     private PathFarmerInt path;
     private GranaryFarmerInt granary;
     private final int id;
+    private int cornCobs=0;
 
     public Farmer(int id,StorehouseFarmerInt storeHouse,StandingFarmerInt standing,PathFarmerInt path,GranaryFarmerInt granary) {
         this.storeHouse=storeHouse;
@@ -59,6 +60,18 @@ public class Farmer extends Thread {
                 return;
             }
         }
+    }
+    
+    public int getID(){
+        return this.id;
+    }
+
+    public int getCornCobs() {
+        return cornCobs;
+    }
+
+    public void setCornCobs(int cornCobs) {
+        this.cornCobs = cornCobs;
     }
     
     

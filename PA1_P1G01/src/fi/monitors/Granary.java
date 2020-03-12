@@ -6,6 +6,7 @@ import fi.MonitorMetadata;
 import fi.StopHarvestException;
 import fi.ccInterfaces.GranaryCCInt;
 import fi.farmerInterfaces.GranaryFarmerInt;
+import fi.workers.Farmer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -44,6 +45,8 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
     private boolean stopHarvest=false;
     private boolean endSimulation=false;
     private boolean proxyInMonitor=false;
+    private int entitiesToStop=0;
+    private int maxCornCobs=50;
 
     /*
         Constructors
@@ -62,6 +65,8 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
         for(int i=0; i<this.metadata.MAXNUMBERFARMERS;i++){
             availablePosition.add(i);
         }
+        
+        this.fi.updateGranaryCornCobs(maxCornCobs);
     }
     
     /*
@@ -84,10 +89,13 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
                 allInGranary.await();
                 
                 if(this.stopHarvest){
+                    entitiesToStop--;
                     farmersInGranary--;
                     this.availablePosition.add(this.positions.get(farmerId));
                     this.positions.remove(farmerId);
-                    if(farmersInGranary==0){
+                    if(entitiesToStop==0){
+                        readyToReturn=false;
+                        readyToCollect=false;
                         stopHarvest=false;
                     }
                     throw new StopHarvestException();
@@ -117,10 +125,12 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
                 this.waitCollectOrder.await();
                 
                 if(this.stopHarvest){
+                    entitiesToStop--;
                     farmersInGranary--;
                     this.availablePosition.add(this.positions.get(farmerId));
                     this.positions.remove(farmerId);
-                    if(farmersInGranary==0){
+                    if(entitiesToStop==0){
+                        readyToReturn=false;
                         readyToCollect=false;
                         stopHarvest=false;
                     }
@@ -151,6 +161,15 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
             this.availablePosition.add(this.positions.get(farmerId));
             this.positions.remove(farmerId);
             this.fi.presentCollectingFarmer(farmerId);
+            if(this.maxCornCobs-this.metadata.NUMBERCORNCOBS>=0){
+                ((Farmer)Thread.currentThread()).setCornCobs(this.metadata.NUMBERCORNCOBS);
+                this.maxCornCobs-=this.metadata.NUMBERCORNCOBS;
+            }else if(this.maxCornCobs>0 && this.maxCornCobs<this.metadata.NUMBERCORNCOBS){
+                ((Farmer)Thread.currentThread()).setCornCobs(this.maxCornCobs);
+                this.maxCornCobs-=this.maxCornCobs;
+            }
+            this.fi.updateGranaryCornCobs(this.maxCornCobs);
+            System.out.println(this.metadata.NUMBERCORNCOBS);
             this.farmersCollected++;
             this.waitTimeout();
             this.selectSpot(farmerId);
@@ -158,11 +177,14 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
                 this.allCollected.await();
                 
                 if(this.stopHarvest){
+                    entitiesToStop--;
                     farmersInGranary--;
                     farmersCollected--;
                     this.availablePosition.add(this.positions.get(farmerId));
                     this.positions.remove(farmerId);
-                    if(farmersInGranary==0){
+                    if(entitiesToStop==0){
+                        readyToReturn=false;
+                        readyToCollect=false;
                         stopHarvest=false;
                     }
                     throw new StopHarvestException();
@@ -195,12 +217,14 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
                 this.waitReturnOrder.await();
                 
                 if(this.stopHarvest){
+                    entitiesToStop--;
                     farmersInGranary--;
                     farmersCollected--;
                     this.availablePosition.add(this.positions.get(farmerId));
                     this.positions.remove(farmerId);
-                    if(farmersInGranary==0){
+                    if(entitiesToStop==0){
                         readyToReturn=false;
+                        readyToCollect=false;
                         stopHarvest=false;
                     }
                     throw new StopHarvestException();
@@ -242,8 +266,13 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
                 this.allInGranary.await();
                 
                 if(this.stopHarvest){
+                    entitiesToStop--;
                     this.proxyInMonitor=false;
-                    this.stopHarvest=false;
+                    if(entitiesToStop==0){
+                        readyToReturn=false;
+                        readyToCollect=false;
+                        stopHarvest=false;
+                    }
                     throw new StopHarvestException();
                 }
                 if(this.endSimulation){
@@ -289,8 +318,13 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
                 this.allCollected.await();
                 
                 if(this.stopHarvest){
+                    entitiesToStop--;
                     this.proxyInMonitor=false;
-                    this.stopHarvest=false;
+                    if(entitiesToStop==0){
+                        readyToReturn=false;
+                        readyToCollect=false;
+                        stopHarvest=false;
+                    }
                     throw new StopHarvestException();
                 }
                 if(this.endSimulation){
@@ -336,6 +370,10 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
                 case "stopHarvest":
                     if(this.farmersInGranary!=0 || proxyInMonitor){
                         this.stopHarvest=true;
+                        this.entitiesToStop=this.farmersInGranary;
+                        if(proxyInMonitor){
+                            this.entitiesToStop++;
+                        }
                     }
                     break;
                 case "endSimulation":

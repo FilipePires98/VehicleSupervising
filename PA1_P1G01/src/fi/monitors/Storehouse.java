@@ -6,6 +6,7 @@ import fi.MonitorMetadata;
 import fi.StopHarvestException;
 import fi.ccInterfaces.StorehouseCCInt;
 import fi.farmerInterfaces.StorehouseFarmerInt;
+import fi.workers.Farmer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -42,6 +43,8 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
     private boolean stopHarvest=false;
     private boolean endSimulation=false;
     private boolean proxyInMonitor=false;
+    private int entitiesToStop=0;
+    private int cornCobs=0;
     
     /*
         Constructors
@@ -64,7 +67,7 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
         for(int i=0; i<this.metadata.MAXNUMBERFARMERS;i++){
             availablePosition.add(i);
         }
-        
+        this.fi.updateStorehouseCornCobs(this.cornCobs);
     }
     
     /*
@@ -84,16 +87,22 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
             this.waitRandomDelay();
             farmersInStorehouse++;
             this.selectSpot(farmerId);
+            int cobs = ((Farmer)Thread.currentThread()).getCornCobs();
+            this.cornCobs+=cobs;
+            ((Farmer)Thread.currentThread()).setCornCobs(0);
+            this.fi.updateStorehouseCornCobs(this.cornCobs);
             System.out.println("[Storehouse] Farmer " + farmerId + " entered.");
             while(farmersInStorehouse<this.metadata.MAXNUMBERFARMERS){
                 allInStorehouse.await();
                 
                 if(this.stopHarvest){
+                    entitiesToStop--;
                     farmersInStorehouse--;
                     this.availablePosition.add(this.positions.get(farmerId));
                     this.positions.remove(farmerId);
-                    if(farmersInStorehouse==0){
-                        this.stopHarvest=false;
+                    if(entitiesToStop==0){
+                        prepareOrderGiven=false;
+                        stopHarvest=false;
                     }
                     throw new StopHarvestException();
                 }
@@ -121,10 +130,11 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
             while(!prepareOrderGiven){
                 prepareOrder.await();
                 if(this.stopHarvest){
+                    entitiesToStop--;
                     farmersInStorehouse--;
                     this.availablePosition.add(this.positions.get(farmerId));
                     this.positions.remove(farmerId);
-                    if(farmersInStorehouse==0){
+                    if(entitiesToStop==0){
                         prepareOrderGiven=false;
                         stopHarvest=false;
                     }
@@ -168,8 +178,12 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
                 allInStorehouse.await();
                 
                 if(this.stopHarvest){
+                    this.entitiesToStop--;
                     this.proxyInMonitor=false;
-                    this.stopHarvest=false;
+                    if(entitiesToStop==0){
+                        prepareOrderGiven=false;
+                        stopHarvest=false;
+                    }
                     throw new StopHarvestException();
                 }
                 if(this.endSimulation){
@@ -222,6 +236,10 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
                 case "stopHarvest":
                     if(this.farmersInStorehouse!=0 || proxyInMonitor){
                         this.stopHarvest=true;
+                        this.entitiesToStop=this.farmersInStorehouse;
+                        if(proxyInMonitor){
+                            this.entitiesToStop++;
+                        }
                     }
                     break;
                 case "endSimulation":

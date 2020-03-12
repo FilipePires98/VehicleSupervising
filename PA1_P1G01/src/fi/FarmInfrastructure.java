@@ -1230,4 +1230,12 @@ public class FarmInfrastructure extends JFrame {
         clearGranary(farmerId);
         clearCollectionArea(farmerId);
     }
+    
+    public void updateGranaryCornCobs(int actualNumber){
+        granaryCornCobs.setText(String.valueOf(actualNumber));
+    }
+    
+    public void updateStorehouseCornCobs(int actualNumber){
+        storehouseCornCobs.setText(String.valueOf(actualNumber));
+    }
 }
