@@ -83,8 +83,8 @@ public class FarmInfrastructure extends JFrame {
         sh2 = new javax.swing.JTextField();
         sh5 = new javax.swing.JTextField();
         sh4 = new javax.swing.JTextField();
-        jLabel1 = new javax.swing.JLabel();
-        swCornCobs = new javax.swing.JTextField();
+        storehouseCornCobsLabel = new javax.swing.JLabel();
+        storehouseCornCobs = new javax.swing.JTextField();
         standingAreaPanel = new javax.swing.JPanel();
         standingAreaLabel = new javax.swing.JLabel();
         sa1 = new javax.swing.JTextField();
@@ -151,8 +151,8 @@ public class FarmInfrastructure extends JFrame {
         g1 = new javax.swing.JTextField();
         g2 = new javax.swing.JTextField();
         g3 = new javax.swing.JTextField();
-        gCornCobs = new javax.swing.JTextField();
-        jLabel2 = new javax.swing.JLabel();
+        granaryCornCobs = new javax.swing.JTextField();
+        granaryCornCobsLabel = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -172,10 +172,10 @@ public class FarmInfrastructure extends JFrame {
 
         sh4.setEnabled(false);
 
-        jLabel1.setText("Corn Cobs");
+        storehouseCornCobsLabel.setText("Corn Cobs");
 
-        swCornCobs.setText("0");
-        swCornCobs.setEnabled(false);
+        storehouseCornCobs.setText("0");
+        storehouseCornCobs.setEnabled(false);
 
         javax.swing.GroupLayout storehousePanelLayout = new javax.swing.GroupLayout(storehousePanel);
         storehousePanel.setLayout(storehousePanelLayout);
@@ -197,9 +197,9 @@ public class FarmInfrastructure extends JFrame {
                         .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(storehousePanelLayout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(jLabel1)
+                        .addComponent(storehouseCornCobsLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(swCornCobs, javax.swing.GroupLayout.DEFAULT_SIZE, 37, Short.MAX_VALUE)))
+                        .addComponent(storehouseCornCobs, javax.swing.GroupLayout.DEFAULT_SIZE, 37, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         storehousePanelLayout.setVerticalGroup(
@@ -210,11 +210,11 @@ public class FarmInfrastructure extends JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(storehousePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(storehousePanelLayout.createSequentialGroup()
-                        .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(storehouseCornCobsLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, storehousePanelLayout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(swCornCobs, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(storehouseCornCobs, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(23, 23, 23)))
                 .addComponent(sh1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -594,10 +594,10 @@ public class FarmInfrastructure extends JFrame {
 
         g3.setEnabled(false);
 
-        gCornCobs.setText("0");
-        gCornCobs.setEnabled(false);
+        granaryCornCobs.setText("0");
+        granaryCornCobs.setEnabled(false);
 
-        jLabel2.setText("Corn Cobs");
+        granaryCornCobsLabel.setText("Corn Cobs");
 
         javax.swing.GroupLayout granaryPanelLayout = new javax.swing.GroupLayout(granaryPanel);
         granaryPanel.setLayout(granaryPanelLayout);
@@ -621,9 +621,9 @@ public class FarmInfrastructure extends JFrame {
                         .addGap(0, 39, Short.MAX_VALUE))
                     .addGroup(granaryPanelLayout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(jLabel2)
+                        .addComponent(granaryCornCobsLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(gCornCobs, javax.swing.GroupLayout.DEFAULT_SIZE, 38, Short.MAX_VALUE)))
+                        .addComponent(granaryCornCobs, javax.swing.GroupLayout.DEFAULT_SIZE, 38, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         granaryPanelLayout.setVerticalGroup(
@@ -633,10 +633,10 @@ public class FarmInfrastructure extends JFrame {
                 .addComponent(granaryLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(granaryPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(granaryCornCobsLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, granaryPanelLayout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(gCornCobs, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(granaryCornCobs, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(17, 17, 17)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(g1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -753,11 +753,10 @@ public class FarmInfrastructure extends JFrame {
     private javax.swing.JTextField g3;
     private javax.swing.JTextField g4;
     private javax.swing.JTextField g5;
-    private javax.swing.JTextField gCornCobs;
+    private javax.swing.JTextField granaryCornCobs;
+    private javax.swing.JLabel granaryCornCobsLabel;
     private javax.swing.JLabel granaryLabel;
     private javax.swing.JPanel granaryPanel;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
     private javax.swing.JTextField p01_1;
     private javax.swing.JTextField p01_2;
     private javax.swing.JTextField p01_3;
@@ -821,9 +820,10 @@ public class FarmInfrastructure extends JFrame {
     private javax.swing.JTextField sh5;
     private javax.swing.JLabel standingAreaLabel;
     private javax.swing.JPanel standingAreaPanel;
+    private javax.swing.JTextField storehouseCornCobs;
+    private javax.swing.JLabel storehouseCornCobsLabel;
     private javax.swing.JLabel storehouseLabel;
     private javax.swing.JPanel storehousePanel;
-    private javax.swing.JTextField swCornCobs;
     private javax.swing.JLabel titleLabel;
     // End of variables declaration//GEN-END:variables
     
@@ -982,6 +982,21 @@ public class FarmInfrastructure extends JFrame {
                 granaryTextFields[i].setText("");
                 return;
             }
+        }
+    }
+    
+    public void clearHarvest() {
+        int i,j;
+        for(i=0; i<teamSize; i++) {
+            standingAreaTextFields[i].setText("");
+        }
+        for(i=0; i<pathSize; i++) {
+            for(j=0; j<teamSize; j++) {
+                pathTextFields[i][j].setText("");
+            }
+        }
+        for(i=0; i<teamSize; i++) {
+            granaryTextFields[i].setText("");
         }
     }
 }
