@@ -74,7 +74,7 @@ public class ControlCenter extends javax.swing.JFrame {
 
         stepLabel.setText("Max. Step:");
 
-        maxStep.setModel(new javax.swing.SpinnerNumberModel(1, 1, 2, 1));
+        maxStep.setModel(new javax.swing.SpinnerNumberModel(1, 1, 3, 1));
         maxStep.setEnabled(false);
 
         prepareBtn.setText("Prepare");
