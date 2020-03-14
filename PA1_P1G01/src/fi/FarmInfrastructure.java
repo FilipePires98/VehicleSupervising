@@ -5,9 +5,7 @@ import fi.monitors.*;
 import fi.workers.Farmer;
 import fi.workers.CCProxy;
 import common.SocketClient;
-import common.UnsynchronizedSocketServer;
-import java.util.ArrayList;
-import java.util.List;
+import common.SocketServer;
 import javax.swing.*;
 
 /**
@@ -17,7 +15,7 @@ import javax.swing.*;
  */
 public class FarmInfrastructure extends JFrame implements UiAndMainControlsFI{
 
-    private static UnsynchronizedSocketServer fiServer;
+    private static SocketServer fiServer;
     private static Thread serverThread;
     private static SocketClient ccClient;
 
@@ -54,7 +52,7 @@ public class FarmInfrastructure extends JFrame implements UiAndMainControlsFI{
         ccClient = new SocketClient("localhost", 6666);
 
         messageProcessor = new CCProxy(this, storeHouse, standing, path, granary);
-        fiServer = new UnsynchronizedSocketServer(7777, messageProcessor);
+        fiServer = new SocketServer(7777, messageProcessor);
         serverThread = new Thread(fiServer);
         serverThread.start();
         

@@ -2,8 +2,7 @@ package cc;
 
 import cc.utils.CCMessageProcessor;
 import common.SocketClient;
-import common.UnsynchronizedSocketServer;
-import common.SynchronizedSocketServer;
+import common.SocketServer;
 import javax.swing.JTextField;
 
 /**
@@ -13,7 +12,7 @@ import javax.swing.JTextField;
 public class ControlCenter extends javax.swing.JFrame implements UiAndMainControlsCC{
 
     private SocketClient fiClient;
-    private SynchronizedSocketServer ccServer;
+    private SocketServer ccServer;
     private Thread serverThread;
 
     private JTextField[] storehouseTextFields;
@@ -31,7 +30,7 @@ public class ControlCenter extends javax.swing.JFrame implements UiAndMainContro
     public ControlCenter() {
         initComponents();
         groupTextFields();
-        this.ccServer = new SynchronizedSocketServer(6666, new CCMessageProcessor(this));
+        this.ccServer = new SocketServer(6666, new CCMessageProcessor(this));
         this.serverThread = new Thread(ccServer);
         this.serverThread.start();
     }

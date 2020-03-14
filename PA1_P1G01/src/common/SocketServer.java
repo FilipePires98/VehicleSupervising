@@ -11,12 +11,12 @@ import java.util.logging.Logger;
  * 
  * @author Filipe Pires (85122) and João Alegria (85048)
  */
-public class UnsynchronizedSocketServer implements Runnable{
+public class SocketServer implements Runnable{
     
     private int port;
-    private MessageProcessorThread mp;
+    private MessageProcessor mp;
 
-    public UnsynchronizedSocketServer(int port, MessageProcessorThread messageProcessor) {
+    public SocketServer(int port, MessageProcessor mp) {
         this.port=port;
         this.mp = mp;
     }
@@ -30,13 +30,12 @@ public class UnsynchronizedSocketServer implements Runnable{
             String receivedMessage="a";
             while(!receivedMessage.equals("endSimulationOrder")){
                 receivedMessage=socketInputStream.readUTF();
-                System.out.println(receivedMessage);
-                this.mp.defineMessage(receivedMessage);
-                new Thread(mp).start();
+                System.out.println("Transmitted Message: "+receivedMessage);
+                this.mp.processMessage(receivedMessage);
             }
             socket.close();
         } catch (IOException ex) {
-            Logger.getLogger(UnsynchronizedSocketServer.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(SocketServer.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
