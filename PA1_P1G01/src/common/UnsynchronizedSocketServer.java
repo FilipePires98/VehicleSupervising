@@ -16,7 +16,7 @@ public class UnsynchronizedSocketServer implements Runnable{
     private int port;
     private MessageProcessorThread mp;
 
-    public UnsynchronizedSocketServer(int port, MessageProcessorThread messageProcessor) {
+    public UnsynchronizedSocketServer(int port, MessageProcessorThread mp) {
         this.port=port;
         this.mp = mp;
     }

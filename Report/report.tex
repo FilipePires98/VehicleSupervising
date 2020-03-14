@@ -56,7 +56,7 @@ We also mention how the work was distributed amongst the authors.
 The Java application has the purpose of conducting harvest simulations on an agricultural farm.
 Along with the technical aspects of the implementation, we also elaborate on the adopted solutions for concurrency.
 Efforts on making the UI highly usable and the code readable and well documented are also stated here.
-All code developed is publicly accessible in our GitHub repository: 
+All code developed is publicly accessible in our GitHub repository:
 \url{https://github.com/FilipePires98/AS/}.
 \newpage
 
@@ -67,7 +67,7 @@ Tasks must be distributed amongst workers and quantities must be calculated and 
 As the whole system grows, its complexity and difficulty in management grows as well, so management tools emerge as valuable assets for farmers.
 
 Amongst the many features of such tools, one offers a particularly interesting view of the farm as it simulates its behavior.
-Such simulations allow farm owners to plan harvest and test strategies to understand which offer the greatest productivity and profit.
+Such simulations allow farm owners to plan harvests and test strategies to understand which offer the greatest productivity and profit.
 These simulator tools may be as complex as the farm itself, but allow manipulation of time and other resources without any cost.
 So, it is easy to understand that solutions of this nature offer value to the farming audience in general.
 
@@ -138,7 +138,7 @@ This and other interface-related aspects will be mentioned in greater detail fur
 \section{System Architecture} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 In this chapter we focus on the implementation of each component and on the architecture of the entire solution.
-Here, we resort to diagrams to visually aid the reader to understand what is here stated.
+Here, we resort to a class diagram (see Figure \ref{class_diagram}) to visually aid the reader to understand what is here stated.
 We also present screenshots of the GUIs to explain how the interaction works.
 
 \begin{figure}[H]
@@ -151,7 +151,48 @@ We also present screenshots of the GUIs to explain how the interaction works.
   \label{class_diagram}
 \end{figure}
 
-.....
+Our harvest simulator follows a modular structure.
+As we will see, each component has a specific purpose and is responsible for one key aspect of the system's functionality.
+The principle of least knowledge is here applied and code dependency is kept low.
+This means that there are no unnecessary elements but it is needless to say that without any of the components the system will not work as intended.
+The system is designed to be extensible as well, through the use of well defined interfaces that allow the insertion of new elements such as new farm areas or 
+even different types of farmers.
+
+All relevant actions during simulations are printed to a unique terminal, with the due identification of where it comes from, allowing an easy management of 
+what is occurring during execution.
+To deal with exceptions thrown by user commands, we designed our own exception handling mechanisms.
+Also, since the user side is the greatest potential source of errors, the interface is confined to its most limited usage, i.e. users are only allowed to do 
+what they can actually do at all times.
+Although this may seem to reduce the usability of the solution, it actually helps users by guiding them towards what they can and want to do, without leaving 
+margin for errors.
+
+Components belonging to the same logical layer are grouped within a package.
+Interfaces, classes and methods are all documented and naming conventions are kept throughout the code, focusing on allowing readers to understand what methods 
+do and what variables hold just by reading their names.
+Communications between independent components are done through well defined protocols.
+These are mentioned further ahead, in a section dedicated to them.
+
+
+\subsection{Components} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+........
+
+\subsection{User Interface} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+........
+
+\newpage
+\section{Concurrency Strategy} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+..... the two main entities (CC and FI) are both the server and the client to each other
+
+\subsection{Communications} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+........
+
+\subsection{Farmers} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+........
 
 %%%%%%%%%%%%%%%%%%%%%%% FIGURE %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -233,27 +274,6 @@ We also present screenshots of the GUIs to explain how the interaction works.
 % \vspace{0.2in}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\subsection{Components} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-........
-
-\subsection{User Interface} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-........
-
-\newpage
-\section{Concurrency Strategy} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-.....
-
-\subsection{Communications} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-........
-
-\subsection{Farmers} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-........
 
 \newpage
 \section{Documentation} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
