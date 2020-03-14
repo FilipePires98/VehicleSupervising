@@ -11,12 +11,12 @@ import java.util.logging.Logger;
  * 
  * @author Filipe Pires (85122) and João Alegria (85048)
  */
-public class SynchronizedSocketServer implements Runnable{
+public class SocketServer implements Runnable{
     
     private int port;
-    private MessageProcessorSynchronized mp;
+    private MessageProcessor mp;
 
-    public SynchronizedSocketServer(int port, MessageProcessorSynchronized mp) {
+    public SocketServer(int port, MessageProcessor mp) {
         this.port=port;
         this.mp = mp;
     }
@@ -30,13 +30,12 @@ public class SynchronizedSocketServer implements Runnable{
             String receivedMessage="a";
             while(!receivedMessage.equals("endSimulationOrder")){
                 receivedMessage=socketInputStream.readUTF();
-                System.out.println(receivedMessage);
-                this.mp.defineMessage(receivedMessage);
-                this.mp.run();
+                System.out.println("Transmitted Message: "+receivedMessage);
+                this.mp.processMessage(receivedMessage);
             }
             socket.close();
         } catch (IOException ex) {
-            Logger.getLogger(SynchronizedSocketServer.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(SocketServer.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     

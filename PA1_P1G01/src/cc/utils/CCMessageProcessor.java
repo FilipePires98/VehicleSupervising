@@ -5,32 +5,24 @@
  */
 package cc.utils;
 
-import cc.ControlCenter;
-import common.MessageProcessorSynchronized;
-import common.MessageProcessorThread;
 import cc.UiAndMainControlsCC;
+import common.MessageProcessor;
 
 /**
  *
  * @author joaoalegria
  */
-public class CCMessageProcessor implements MessageProcessorSynchronized{
+public class CCMessageProcessor implements MessageProcessor{
     
     private UiAndMainControlsCC cc;
     
-    private String message;
 
     public CCMessageProcessor(UiAndMainControlsCC cc) {
         this.cc=cc;
     }
     
     @Override
-    public void defineMessage(String message) {
-        this.message=message;
-    }
-
-    @Override
-    public void run() {
+    public void processMessage(String message) {
         String[] processedMessage = message.split(";");
         switch(processedMessage[0]){
             case "presentInStorehouse":
@@ -74,5 +66,4 @@ public class CCMessageProcessor implements MessageProcessorSynchronized{
                 break;
         }
     }
-    
 }
