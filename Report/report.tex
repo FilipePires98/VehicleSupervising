@@ -134,12 +134,54 @@ We added to CC's interface a mirror of FI's to allow the possibility of both ent
 that the user on CC's side has knowledge of what is happening during the simulation.
 This and other interface-related aspects will be mentioned in greater detail further ahead.
 
+\begin{figure}[H]
+  \centering
+  \begin{minipage}{\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{FarmSimulation_FarmDesign.png}
+  \end{minipage}%
+  \caption{Visual representation of the farm, taken from \cite{assign}.}
+  \label{class_diagram}
+\end{figure} 
+
 \newpage
 \section{System Architecture} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 In this chapter we focus on the implementation of each component and on the architecture of the entire solution.
-Here, we resort to a class diagram (see Figure \ref{class_diagram}) to visually aid the reader to understand what is here stated.
+Here, we resort to a class diagram (see Figure \ref{class_diagram}) to visually aid interpretation.
 We also present screenshots of the GUIs to explain how the interaction works.
+
+Our harvest simulator follows a modular structure implemented in Java.
+As we will see, each component has a specific purpose and is responsible for one key aspect of the system's functionality.
+The principle of least knowledge is here applied and code dependency is kept low.
+This means that there are no unnecessary elements but it is needless to say that without any of the components the system will not work as intended.
+The system is designed to be extensible as well, through the use of well defined interfaces that allow the insertion of new elements such as new farm areas or 
+even different types of farmers.
+
+All relevant actions during simulations are printed to a unique terminal, with the due source identification, allowing an easy management of what is occurring 
+during execution.
+To deal with exceptions thrown by user commands, we designed our own exception handling mechanisms.
+Also, since the user side is the greatest potential source of errors, the interface is confined to its most limited usage, i.e. users are only allowed to do 
+what they can actually do at all times.
+Although this may seem to reduce the usability of the solution, it actually helps users by guiding them towards what they can and want to do, without leaving 
+margin for errors.
+
+Components belonging to the same logical layer are grouped within a package.
+Interfaces, classes and methods are all documented, with the help of Javadoc, and naming conventions are applied throughout the code, focusing on allowing readers 
+to understand what methods and variables do by reading their names alone.
+Communications between independent components are done through defined protocols. 
+
+\subsection{Components} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Let us now go deeper into each component in order to understand how the execution flow is conducted.
+Once the Java application is executed, out Main class launches a subprocess dedicated to the FarmInfrastructure and instantiates the ControlCenter, passing full 
+control to it.
+Every Java application has a single instance of class java.lang.Runtime that allows the application to interface with the environment in which it is running.
+By obtaining the environment through \textit{Runtime.getRuntime()} and calling the \textit{Runtime.exec(String command)} method, the Main class is able to launch 
+an independent Java process and manage it - allowing the existance of the previously mentioned unique terminal for printing system status during runtime.
+The \texttt{command} string is built by retrieving the directory where the code is located: 
+
+\texttt{java -cp <userdir>/build/classes fi.FarmInfrastructure}
 
 \begin{figure}[H]
   \centering
@@ -149,33 +191,23 @@ We also present screenshots of the GUIs to explain how the interaction works.
   \end{minipage}%
   \caption{Class diagram of the Farm Simulation application.}
   \label{class_diagram}
-\end{figure}
+\end{figure} 
 
-Our harvest simulator follows a modular structure.
-As we will see, each component has a specific purpose and is responsible for one key aspect of the system's functionality.
-The principle of least knowledge is here applied and code dependency is kept low.
-This means that there are no unnecessary elements but it is needless to say that without any of the components the system will not work as intended.
-The system is designed to be extensible as well, through the use of well defined interfaces that allow the insertion of new elements such as new farm areas or 
-even different types of farmers.
+Now we have our two entities - the system's core.
+ControlCenter and FarmInfrastructure implement the UiAndMainControlsCC interface and UiAndMainControlsFI interface respectively.
+Both classes extend from \texttt{javax.swing.JFrame} and contain the code regarding the GUIs and communicate with each other with the use of sockets.
+Both have instances of SocketServer and SocketClient and work as servers and clients simultaneously.
+The communication establishment is explained in section \ref{communications}.
 
-All relevant actions during simulations are printed to a unique terminal, with the due identification of where it comes from, allowing an easy management of 
-what is occurring during execution.
-To deal with exceptions thrown by user commands, we designed our own exception handling mechanisms.
-Also, since the user side is the greatest potential source of errors, the interface is confined to its most limited usage, i.e. users are only allowed to do 
-what they can actually do at all times.
-Although this may seem to reduce the usability of the solution, it actually helps users by guiding them towards what they can and want to do, without leaving 
-margin for errors.
+MonitorMetadata and 4 Monitors (and respective interfaces)
 
-Components belonging to the same logical layer are grouped within a package.
-Interfaces, classes and methods are all documented and naming conventions are kept throughout the code, focusing on allowing readers to understand what methods 
-do and what variables hold just by reading their names.
-Communications between independent components are done through well defined protocols.
-These are mentioned further ahead, in a section dedicated to them.
+Farmer and FarmerState
+
+Exceptions
+
+........ 
 
 
-\subsection{Components} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-........
 
 \subsection{User Interface} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -184,11 +216,13 @@ These are mentioned further ahead, in a section dedicated to them.
 \newpage
 \section{Concurrency Strategy} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-..... the two main entities (CC and FI) are both the server and the client to each other
+..... 
 
-\subsection{Communications} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Communications} \label{communications} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 ........
+
+SocketClient, SocketServer, CCMessageProcessor and CCProxy, ProcessingThread (and MessageProcessor interface)
 
 \subsection{Farmers} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -307,7 +341,7 @@ After completing the assignment, we drew a few conclusions regarding the topics 
 \begin{thebibliography}{9} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   \bibliographystyle{Science}
 
-  \bibitem{trab3}
+  \bibitem{assign}
     Óscar Pereira,
     \textit{SA: Practical Assignment no.1},
     University of Aveiro,

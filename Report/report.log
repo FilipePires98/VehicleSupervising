@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Arch Linux) (preloaded format=pdflatex 2020.2.20)  14 MAR 2020 19:47
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Arch Linux) (preloaded format=pdflatex 2020.2.20)  14 MAR 2020 23:21
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -199,7 +199,11 @@ Package: booktabs 2019/10/08 v1.6180339 publication quality tables
 \@thisrulewidth=\dimen129
 )
 \c@lastnote=\count107
- (/home/fp/Desktop/4A2S/AS/P/Proj1/AS/Report/report.aux)
+ (/home/fp/Desktop/4A2S/AS/P/Proj1/AS/Report/report.aux
+
+LaTeX Warning: Label `class_diagram' multiply defined.
+
+)
 \openout1 = `report.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 44.
@@ -294,35 +298,44 @@ Underfull \hbox (badness 10000) in paragraph at lines 128--130
 
  []
 
-[3]
-<FarmSimulation_ClassDiagram.png, id=75, 1333.98375pt x 1168.365pt>
+<FarmSimulation_FarmDesign.png, id=70, 831.105pt x 241.65282pt>
+File: FarmSimulation_FarmDesign.png Graphic file (type png)
+<use FarmSimulation_FarmDesign.png>
+Package pdftex.def Info: FarmSimulation_FarmDesign.png  used on input line 141.
+(pdftex.def)             Requested size: 455.24408pt x 132.36742pt.
+[3 </home/fp/Desktop/4A2S/AS/P/Proj1/AS/Report/FarmSimulation_FarmDesign.png>]
+<FarmSimulation_ClassDiagram.png, id=78, 1395.2125pt x 1650.165pt>
 File: FarmSimulation_ClassDiagram.png Graphic file (type png)
 <use FarmSimulation_ClassDiagram.png>
-Package pdftex.def Info: FarmSimulation_ClassDiagram.png  used on input line 148.
-(pdftex.def)             Requested size: 455.24408pt x 398.71855pt.
- [4 </home/fp/Desktop/4A2S/AS/P/Proj1/AS/Report/FarmSimulation_ClassDiagram.png>] [5] [6] [7] [8] [9]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 335.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 335.
+Package pdftex.def Info: FarmSimulation_ClassDiagram.png  used on input line 190.
+(pdftex.def)             Requested size: 455.24408pt x 538.43753pt.
+ [4] [5 </home/fp/Desktop/4A2S/AS/P/Proj1/AS/Report/FarmSimulation_ClassDiagram.png>] [6] [7] [8] [9] [10]
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 369.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 369.
  (/home/fp/Desktop/4A2S/AS/P/Proj1/AS/Report/report.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 335.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 335.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 369.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 369.
 Package rerunfilecheck Info: File `report.out' has not changed.
 (rerunfilecheck)             Checksum: CDC2084AC2AE3EB29FFE571D3324647B;727.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 335.
+
+
+LaTeX Warning: There were multiply-defined labels.
+
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 369.
  ) 
 Here is how much of TeX's memory you used:
- 6788 strings out of 492167
- 104286 string characters out of 6131558
- 198993 words of memory out of 5000000
- 11074 multiletter control sequences out of 15000+600000
+ 6798 strings out of 492167
+ 104552 string characters out of 6131558
+ 199076 words of memory out of 5000000
+ 11081 multiletter control sequences out of 15000+600000
  18002 words of font info for 41 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  38i,7n,42p,302b,389s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb></usr/share/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/share/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on /home/fp/Desktop/4A2S/AS/P/Proj1/AS/Report/report.pdf (9 pages, 402525 bytes).
+Output written on /home/fp/Desktop/4A2S/AS/P/Proj1/AS/Report/report.pdf (10 pages, 512567 bytes).
 PDF statistics:
- 135 PDF objects out of 1000 (max. 8388607)
- 115 compressed objects within 2 object streams
- 26 named destinations out of 1000 (max. 500000)
- 110 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 142 PDF objects out of 1000 (max. 8388607)
+ 120 compressed objects within 2 object streams
+ 28 named destinations out of 1000 (max. 500000)
+ 115 words of extra memory for PDF output out of 10000 (max. 10000000)
 
