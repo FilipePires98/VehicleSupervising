@@ -17,7 +17,7 @@ import java.util.logging.Logger;
 import fi.UiAndMainControlsFI;
 
 /**
- * Class for the Path Sector of the farm.
+ * Class for the monitor representing the Path Sector of the farm.
  * @author Filipe Pires (85122) and João Alegria (85048)
  */
 
@@ -39,9 +39,7 @@ public class Path implements PathFarmerInt, PathCCInt {
         }
     } 
     
-    /*
-        Monitor variables
-    */
+    // Monitor variables
     
     private final UiAndMainControlsFI fi;
     private final MonitorMetadata metadata;
@@ -61,15 +59,13 @@ public class Path implements PathFarmerInt, PathCCInt {
     private boolean endSimulation=false;
     private int entitiesToStop=0;
 
-    /*
-        Constructors
-    */
+    //Constructors
 
     /**
-     * Path monitor constructor.
-     * @param fi
-     * @param metadata
-     * @param pathSize
+     * Path Area monitor constructor.
+     * @param fi UiAndMainControlsFI instance enabling the access to the farm infrastructure ui and websocket client
+     * @param metadata MonitorMetadata instance containing the parameters to the current harvest run
+     * @param pathSize int containing the path size
      */
     public Path(UiAndMainControlsFI fi, MonitorMetadata metadata, int pathSize) {
         this.rl = new ReentrantLock();
@@ -92,16 +88,15 @@ public class Path implements PathFarmerInt, PathCCInt {
         
     }
     
-    /*
-        Methods executed by farmers
-    */
+    //Methods executed by farmers
     
     
     /**
-     * 
-     * @param farmerId
-     * @throws fi.utils.StopHarvestException 
-     * @throws fi.utils.EndSimulationException 
+     * Registers the entry of a farmer in the path area in the Standing-Granary direction.
+     * Farmers must wait for all farmers the be inside the path area.
+     * @param farmerId int containing the farmer identifier
+     * @throws fi.utils.StopHarvestException when the harvest run has stopped
+     * @throws fi.utils.EndSimulationException when the simulation has ended
      */
     @Override
     public void farmerEnter(int farmerId) throws StopHarvestException, EndSimulationException{
@@ -146,10 +141,14 @@ public class Path implements PathFarmerInt, PathCCInt {
     }
 
     /**
-     * 
-     * @param farmerId 
-     * @throws fi.utils.StopHarvestException 
-     * @throws fi.utils.EndSimulationException 
+     * Function containing the logic for the farmers to walk in the path in the Standing-Granary direction.
+     * Farmers will go through the path making a random number of steps between 1 and the number defined by the user.
+     * Farmers only move forwards. Farmers must only enter positions that are empty.
+     * Farmers will be blocked in the function until they reach the end of the path.
+     * Farmers must execute this method after entering in the path area.
+     * @param farmerId int containing the farmer identifier
+     * @throws fi.utils.StopHarvestException when the harvest run has stopped
+     * @throws fi.utils.EndSimulationException when the simulation has ended
      */
     @Override
     public void farmerGoToGranary(int farmerId) throws StopHarvestException, EndSimulationException{
@@ -200,10 +199,11 @@ public class Path implements PathFarmerInt, PathCCInt {
     }
     
     /**
-     * 
-     * @param farmerId 
-     * @throws fi.utils.StopHarvestException 
-     * @throws fi.utils.EndSimulationException 
+     * Registers the entry of a farmer in the path area in the Granary-Standing direction.
+     * Farmers must wait for all farmers the be inside the path area.
+     * @param farmerId int containing the farmer identifier
+     * @throws fi.utils.StopHarvestException when the harvest run has stopped
+     * @throws fi.utils.EndSimulationException when the simulation has ended
      */
     @Override
     public void farmerReturn(int farmerId) throws StopHarvestException, EndSimulationException{
@@ -248,10 +248,14 @@ public class Path implements PathFarmerInt, PathCCInt {
     }
 
     /**
-     * 
-     * @param farmerId 
-     * @throws fi.utils.StopHarvestException 
-     * @throws fi.utils.EndSimulationException 
+     * Function containing the logic for the farmers to walk in the path in the Granary-Standing direction.
+     * Farmers will go through the path making a random number of steps between 1 and the number defined by the user.
+     * Farmers only move forwards. Farmers must only enter positions that are empty.
+     * Farmers will be blocked in the function until they reach the end of the path.
+     * Farmers must execute this method after entering in the path area.
+     * @param farmerId int containing the farmer identifier
+     * @throws fi.utils.StopHarvestException when the harvest run has stopped
+     * @throws fi.utils.EndSimulationException when the simulation has ended
      */
     @Override
     public void farmerGoToStorehouse(int farmerId) throws StopHarvestException, EndSimulationException{
@@ -297,13 +301,11 @@ public class Path implements PathFarmerInt, PathCCInt {
     }
    
 
-    /*
-        Methods executed by Message Processor
-    */
+    //Methods executed by Message Processor
 
     /**
-     * 
-     * @param action 
+     * Notifies every entity in the monitor that either the harvest run has stopped or the simulation has ended. 
+     * @param action string containing the action to perform
      */
     @Override
     public void control(String action) {
@@ -333,14 +335,12 @@ public class Path implements PathFarmerInt, PathCCInt {
     }
 
     
-    /*
-        Aux Methods
-    */
+    //Aux Methods
     
     /**
-     * 
-     * @param farmerId
-     * @param reverse 
+     * Selects a spot in the path area position for a farmer to settle on.
+     * @param farmerId int containing the farmer identifier
+     * @param first boolean representing if the farmer is in the Standing-Granary direction(false) or in the Granary-Standing direction(true) 
      */
     private void selectSpot(int farmerId, boolean reverse, boolean first){
         int numberOfSteps;
@@ -377,6 +377,9 @@ public class Path implements PathFarmerInt, PathCCInt {
 
     }
     
+    /**
+     * Auxiliary function created to make each thread wait a random delay.
+     */
     private void waitRandomDelay(){
         try {
             int randomDelay=(int)(Math.random()*(this.metadata.MAXDELAY));
@@ -386,6 +389,9 @@ public class Path implements PathFarmerInt, PathCCInt {
         }
     }
     
+    /**
+     * Auxiliary function created to make each thread wait the specified timeout defined by the user.
+     */
     private void waitTimeout(){
         try {
             Thread.sleep(this.metadata.TIMEOUT);

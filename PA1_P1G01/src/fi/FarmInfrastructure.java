@@ -40,6 +40,7 @@ public class FarmInfrastructure extends JFrame implements UiAndMainControlsFI{
      * Creates new form NewJFrame
      */
     public FarmInfrastructure() {
+        this.setTitle("Farm Infrastructure");
         initComponents();
         groupTextFields();
         metadata = new MonitorMetadata(teamSize, maxDelay);
@@ -88,6 +89,7 @@ public class FarmInfrastructure extends JFrame implements UiAndMainControlsFI{
         sh4 = new javax.swing.JTextField();
         storehouseCornCobsLabel = new javax.swing.JLabel();
         storehouseCornCobs = new javax.swing.JTextField();
+        ss = new javax.swing.JTextField();
         standingAreaPanel = new javax.swing.JPanel();
         standingAreaLabel = new javax.swing.JLabel();
         sa1 = new javax.swing.JTextField();
@@ -181,17 +183,19 @@ public class FarmInfrastructure extends JFrame implements UiAndMainControlsFI{
         storehouseCornCobs.setText("0");
         storehouseCornCobs.setEnabled(false);
 
+        ss.setEnabled(false);
+
         javax.swing.GroupLayout storehousePanelLayout = new javax.swing.GroupLayout(storehousePanel);
         storehousePanel.setLayout(storehousePanelLayout);
         storehousePanelLayout.setHorizontalGroup(
             storehousePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(storehousePanelLayout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(storehousePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(storehouseLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(storehousePanelLayout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(storehouseLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(storehousePanelLayout.createSequentialGroup()
-                        .addGap(43, 43, 43)
+                        .addComponent(ss, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
                         .addGroup(storehousePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(sh4, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(sh5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -200,7 +204,6 @@ public class FarmInfrastructure extends JFrame implements UiAndMainControlsFI{
                             .addComponent(sh1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(storehousePanelLayout.createSequentialGroup()
-                        .addContainerGap()
                         .addComponent(storehouseCornCobsLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(storehouseCornCobs, javax.swing.GroupLayout.DEFAULT_SIZE, 37, Short.MAX_VALUE)))
@@ -224,7 +227,9 @@ public class FarmInfrastructure extends JFrame implements UiAndMainControlsFI{
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(sh2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(sh3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(storehousePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(sh3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(ss, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(sh4, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -708,17 +713,7 @@ public class FarmInfrastructure extends JFrame implements UiAndMainControlsFI{
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-
         System.out.println("Initializing Farm Infrastructure... ");
-
-        /* Set the Nimbus look and feel */
-        // <editor-fold defaultstate="collapsed" desc=" Look and feel setting code
-        // (optional) ">
-        /*
-         * If Nimbus (introduced in Java SE 6) is not available, stay with the default
-         * look and feel. For details see
-         * http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
-         */
         try {
             for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
@@ -740,7 +735,6 @@ public class FarmInfrastructure extends JFrame implements UiAndMainControlsFI{
                     null, ex);
         }
         // </editor-fold>
-        // </editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -748,18 +742,6 @@ public class FarmInfrastructure extends JFrame implements UiAndMainControlsFI{
                 new FarmInfrastructure().setVisible(true);
             }
         });
-    }
-
-    public void sendMessage(String message) {
-        this.ccClient.send(message);
-    }
-
-    public void closeSocketClientAndUI() {
-        this.ccClient.send("endSimulationOrder");
-        this.ccClient.close();
-        this.setVisible(false);
-        this.dispose();
-        System.out.println("Farming Infrastructure exited with success!");
     }
 
 
@@ -836,6 +818,7 @@ public class FarmInfrastructure extends JFrame implements UiAndMainControlsFI{
     private javax.swing.JTextField sh3;
     private javax.swing.JTextField sh4;
     private javax.swing.JTextField sh5;
+    private javax.swing.JTextField ss;
     private javax.swing.JLabel standingAreaLabel;
     private javax.swing.JPanel standingAreaPanel;
     private javax.swing.JTextField storehouseCornCobs;
@@ -920,13 +903,50 @@ public class FarmInfrastructure extends JFrame implements UiAndMainControlsFI{
         granaryTextFields[4] = g5;
     }
 
+    /**
+     * Sends message through the created socket client.
+     * Serves as passthrough to the entities that need to send a message to the control center.
+     * @param message string containing the message to send
+     */
+    @Override
+    public void sendMessage(String message) {
+        this.ccClient.send(message);
+    }
+    
+    /**
+     * Closes the control center socket client
+     */
+    @Override
+    public void closeSocketClient() {
+        this.ccClient.send("endSimulationOrder");
+        this.ccClient.close();
+    }
+
+    /**
+     * Closes the Farm Infrastructure GUI and consequently the process.
+     */
+    @Override
+    public void close() {
+        this.setVisible(false);
+        this.dispose();
+        System.out.println("Farming Infrastructure exited with success!");
+    }
+
+    /**
+     * Presents the farmer id in the respective position of the Storehouse.
+     * @param farmerId int identifying the farmer entering the position 
+     * @param position int identifying the Storehouse position
+     */
     @Override
     public void presentFarmerInStorehouse(int farmerId, int position) {
         clearAll(farmerId);
         storehouseTextFields[position].setText("" + farmerId);
-        
     }
 
+    /**
+     * Clears the Storehouse of a specific farmer id.
+     * @param farmerId int identifying the farmer to clear from the Storehouse.
+     */
     private void clearStorehouse(int farmerId) {
         for (int i = 0; i < teamSize; i++) {
             if (!(storehouseTextFields[i].getText()).equals("")
@@ -937,13 +957,21 @@ public class FarmInfrastructure extends JFrame implements UiAndMainControlsFI{
         }
     }
 
+    /**
+     * Presents the farmer id in the respective position of the Standing Area.
+     * @param farmerId int identifying the farmer entering the position 
+     * @param position int identifying the Standing area position
+     */
     @Override
     public void presentFarmerInStandingArea(int farmerId, int position) {
         clearAll(farmerId);
         standingAreaTextFields[position].setText("" + farmerId);
-        
     }
 
+    /**
+     * Clears the Standing area of a specific farmer id.
+     * @param farmerId int identifying the farmer to clear from the Standing area.
+     */
     private void clearStandingArea(int farmerId) {
         for (int i = 0; i < teamSize; i++) {
             if (!(standingAreaTextFields[i].getText()).equals("")
@@ -954,13 +982,21 @@ public class FarmInfrastructure extends JFrame implements UiAndMainControlsFI{
         }
     }
 
+    /**
+     * Presents the farmer id in the respective position of the Path Area.
+     * @param farmerId int identifying the farmer entering the position 
+     * @param position int identifying the Path area position
+     */
     @Override
     public void presentFarmerInPath(int farmerId, int position, int column) {
         clearAll(farmerId);
         pathTextFields[column][position].setText("" + farmerId);
-        
     }
 
+    /**
+     * Clears the Path area of a specific farmer id.
+     * @param farmerId int identifying the farmer to clear from the Path area.
+     */
     private void clearPath(int farmerId) {
         for (int c = 0; c < this.pathSize; c++) {
             for (int p = 0; p < this.teamSize; p++) {
@@ -978,13 +1014,21 @@ public class FarmInfrastructure extends JFrame implements UiAndMainControlsFI{
         }
     }
 
+    /**
+     * Presents the farmer id in the respective position of the Granary Area.
+     * @param farmerId int identifying the farmer entering the position 
+     * @param position int identifying the Granary area position
+     */
     @Override
     public void presentFarmerInGranary(int farmerId, int position) {
         clearAll(farmerId);
         granaryTextFields[position].setText("" + farmerId);
-        
     }
 
+    /**
+     * Clears the Granary area of a specific farmer id.
+     * @param farmerId int identifying the farmer to clear from the Granary area.
+     */
     private void clearGranary(int farmerId) {
         for (int i = 0; i < teamSize; i++) {
             if (!(granaryTextFields[i].getText()).equals("")
@@ -995,37 +1039,78 @@ public class FarmInfrastructure extends JFrame implements UiAndMainControlsFI{
         }
     }
 
+    /**
+     * Presents the farmer id in the respective position of the Collecting Area.
+     * @param farmerId int identifying the farmer entering the position 
+     * @param position int identifying the Collecting area position
+     */
     @Override
     public void presentCollectingFarmer(int farmerId) {
         clearAll(farmerId);
         gc.setText("" + farmerId);
-        
     }
 
+    /**
+     * Clears the Collecting area of a specific farmer id.
+     * @param farmerId int identifying the farmer to clear from the Collecting area.
+     */
     private void clearCollectionArea(int farmerId) {
         if (!(gc.getText()).equals("") && Integer.valueOf(gc.getText()) == farmerId) {
             gc.setText("");
             return;
         }
     }
+    
+    /**
+     * Presents the farmer id in the respective position of the Storing Area.
+     * @param farmerId int identifying the farmer entering the position 
+     * @param position int identifying the Collecting area position
+     */
+    @Override
+    public void presentStoringFarmer(int farmerId) {
+        clearAll(farmerId);
+        ss.setText("" + farmerId);
+    }
 
+    /**
+     * Clears the Storing area of a specific farmer id.
+     * @param farmerId int identifying the farmer to clear from the Storing area.
+     */
+    private void clearStoringArea(int farmerId) {
+        if (!(ss.getText()).equals("") && Integer.valueOf(ss.getText()) == farmerId) {
+            ss.setText("");
+            return;
+        }
+    }
+
+    /**
+     * Clears all the area of a specific farmer id.
+     * @param farmerId int identifying the farmer to clear all the areas
+     */
     private void clearAll(int farmerId) {
         clearStorehouse(farmerId);
         clearStandingArea(farmerId);
         clearPath(farmerId);
         clearGranary(farmerId);
         clearCollectionArea(farmerId);
+        clearStoringArea(farmerId);
     }
-    
+
+    /**
+     * Updates the corn cobs number in the Granary area.
+     * @param actualNumber int representing the current corn cobs number.
+     */
     @Override
-    public void updateGranaryCornCobs(int actualNumber){
+    public void updateGranaryCornCobs(int actualNumber) {
         granaryCornCobs.setText(String.valueOf(actualNumber));
-        
     }
-    
+
+    /**
+     * Updates the corn cobs number in the Storehouse area.
+     * @param actualNumber int representing the current corn cobs number.
+     */
     @Override
-    public void updateStorehouseCornCobs(int actualNumber){
+    public void updateStorehouseCornCobs(int actualNumber) {
         storehouseCornCobs.setText(String.valueOf(actualNumber));
-        
     }
 }

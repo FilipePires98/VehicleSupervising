@@ -14,14 +14,12 @@ import java.util.logging.Logger;
 import fi.UiAndMainControlsFI;
 
 /**
- * Class for the Standing Sector of the farm.
+ * Class for the monitor representing the Standing Sector of the farm.
  * @author Filipe Pires (85122) and João Alegria (85048)
  */
 public class Standing implements StandingFarmerInt, StandingCCInt {
     
-    /*
-        Monitor variables
-    */
+    //Monitor variables
 
     private UiAndMainControlsFI fi;
     private MonitorMetadata metadata;
@@ -36,14 +34,12 @@ public class Standing implements StandingFarmerInt, StandingCCInt {
     private boolean proxyInMonitor=false;
     private int entitiesToStop=0;
     
-    /*
-        Constructors
-    */
+    //Constructors
     
     /**
      * Standing Area monitor constructor.
-     * @param fi
-     * @param metadata 
+     * @param fi UiAndMainControlsFI instance enabling the access to the farm infrastructure ui and websocket client
+     * @param metadata MonitorMetadata instance containing the parameters to the current harvest run
      */
     public Standing(UiAndMainControlsFI fi, MonitorMetadata metadata) {
         this.fi = fi;
@@ -55,14 +51,15 @@ public class Standing implements StandingFarmerInt, StandingCCInt {
         }
     }
     
-    /*
-        Methods executed by farmers
-    */
+    //Methods executed by farmers
     
 
     /**
-     * 
-     * @param farmerId 
+     * Registers the entry of a farmer in the standing area.
+     * Farmers must wait for all farmers the be inside the standing area.
+     * @param farmerId int containing the farmer identifier
+     * @throws fi.utils.StopHarvestException when the harvest run has stopped
+     * @throws fi.utils.EndSimulationException when the simulation has ended
      */
     @Override
     public synchronized void farmerEnter(int farmerId) throws StopHarvestException, EndSimulationException{
@@ -96,8 +93,11 @@ public class Standing implements StandingFarmerInt, StandingCCInt {
     }
 
     /**
-     * 
-     * @param farmerId 
+     * Farmers must wait for a start order given by the Control Center.
+     * Farmers must execute this method after entering in the standing area.
+     * @param farmerId int containing the farmer identifier
+     * @throws fi.utils.StopHarvestException when the harvest run has stopped
+     * @throws fi.utils.EndSimulationException when the simulation has ended
      */
     @Override
     public synchronized void farmerWaitStartOrder(int farmerId) throws StopHarvestException, EndSimulationException{
@@ -131,12 +131,10 @@ public class Standing implements StandingFarmerInt, StandingCCInt {
         } 
     }
     
-    /*
-        Methods executed by Message Processor
-    */
+    //Methods executed by Message Processor
     
     /**
-     * 
+     * Notifies all the farmers waiting for a start order.
      */
     @Override
     public synchronized void sendStartOrder() {
@@ -146,6 +144,11 @@ public class Standing implements StandingFarmerInt, StandingCCInt {
     }
 
     
+    /**
+     * Control Center Proxy must wait for all farmers to enter in the Standing area to notify the Control Center.
+     * @throws fi.utils.StopHarvestException when the harvest run has stopped
+     * @throws fi.utils.EndSimulationException when the simulation has ended
+     */
     @Override
     public synchronized void waitForAllFarmers() throws StopHarvestException, EndSimulationException{
         try {
@@ -174,8 +177,8 @@ public class Standing implements StandingFarmerInt, StandingCCInt {
     
 
     /**
-     * 
-     * @param action 
+     * Notifies every entity in the monitor that either the harvest run has stopped or the simulation has ended. 
+     * @param action string containing the action to perform
      */
     @Override
     public synchronized void control(String action) {
@@ -201,10 +204,12 @@ public class Standing implements StandingFarmerInt, StandingCCInt {
     
     
     
-    /*
-        Aux Methods
-    */
+    //Aux Methods
     
+    /**
+     * Selects a spot in the Standing area position for a farmer to settle on.
+     * @param farmerId int containing the farmer identifier
+     */
     private void selectSpot(int farmerId){
         int randomPosition=(int)(Math.random()*(this.availablePosition.size()-1));
         this.positions.put(farmerId, availablePosition.get(randomPosition));
@@ -213,6 +218,9 @@ public class Standing implements StandingFarmerInt, StandingCCInt {
         this.fi.sendMessage("presentInStanding;"+farmerId+";"+positions.get(farmerId));
     }
     
+    /**
+     * Auxiliary function created to make each thread wait a random delay.
+     */
     private void waitRandomDelay(){
         try {
             int randomDelay=(int)(Math.random()*(this.metadata.MAXDELAY));
