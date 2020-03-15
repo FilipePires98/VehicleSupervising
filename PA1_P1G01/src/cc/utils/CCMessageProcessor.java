@@ -1,16 +1,10 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package cc.utils;
-
 import cc.UiAndMainControlsCC;
 import common.MessageProcessor;
 
 /**
- *
- * @author joaoalegria
+ * Class responsible for processing all the received messages from the Farm Infrastructure.
+ * @author Filipe Pires (85122) and João Alegria (85048)
  */
 public class CCMessageProcessor implements MessageProcessor{
     
@@ -21,6 +15,10 @@ public class CCMessageProcessor implements MessageProcessor{
         this.cc=cc;
     }
     
+    /**
+     * Processes the incoming messages in a sequential manner since the Control Center needs to process each message one at a time.
+     * @param message 
+     */
     @Override
     public void processMessage(String message) {
         String[] processedMessage = message.split(";");
@@ -39,6 +37,9 @@ public class CCMessageProcessor implements MessageProcessor{
                 break;
             case "presentInCollecting":
                 this.cc.presentCollectingFarmer(Integer.valueOf(processedMessage[1]));
+                break;
+            case "presentInStoring":
+                this.cc.presentStoringFarmer(Integer.valueOf(processedMessage[1]));
                 break;
             case "updateGranaryCobs":
                 this.cc.updateGranaryCornCobs(Integer.valueOf(processedMessage[1]));
@@ -62,7 +63,8 @@ public class CCMessageProcessor implements MessageProcessor{
                 this.cc.enablePrepareBtn();
                 break;
             case "endSimulationOrder":
-                this.cc.closeSocketClientAndUI();
+                this.cc.closeSocketClient();
+                this.cc.close();
                 break;
         }
     }

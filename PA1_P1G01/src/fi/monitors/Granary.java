@@ -17,14 +17,12 @@ import java.util.logging.Logger;
 import fi.UiAndMainControlsFI;
 
 /**
- * Class for the Granary Sector of the farm.
+ * Class for the monitor representing the Granary Sector of the farm.
  * @author Filipe Pires (85122) and João Alegria (85048)
  */
 public class Granary implements GranaryFarmerInt, GranaryCCInt{
     
-    /*
-        Monitor variables
-    */
+    //Monitor variables
     
     private UiAndMainControlsFI fi;
     private MonitorMetadata metadata;
@@ -48,14 +46,12 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
     private int entitiesToStop=0;
     private int maxCornCobs=50;
 
-    /*
-        Constructors
-    */
+    //Constructors
     
     /**
-     * Granary monitor constructor.
-     * @param fi
-     * @param metadata 
+     * Granary Area monitor constructor.
+     * @param fi UiAndMainControlsFI instance enabling the access to the farm infrastructure ui and websocket client
+     * @param metadata MonitorMetadata instance containing the parameters to the current harvest run
      */
     public Granary(UiAndMainControlsFI fi, MonitorMetadata metadata) {
         this.fi = fi;
@@ -67,13 +63,14 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
         }
     }
     
-    /*
-        Methods executed by farmers
-    */
+    //Methods executed by farmers
     
     /**
-     * 
-     * @param farmerId 
+     * Registers the entry of a farmer in the granary area.
+     * Farmers must wait for all farmers the be inside the granary area.
+     * @param farmerId int containing the farmer identifier
+     * @throws fi.utils.StopHarvestException when the harvest run has stopped
+     * @throws fi.utils.EndSimulationException when the simulation has ended
      */
     @Override
     public void farmerEnter(int farmerId) throws StopHarvestException, EndSimulationException{
@@ -111,8 +108,11 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
     }
 
     /**
-     * 
-     * @param farmerId 
+     * Farmers must wait for a collect order given by the Control Center.
+     * Farmers must execute this method after entering in the granary area.
+     * @param farmerId int containing the farmer identifier
+     * @throws fi.utils.StopHarvestException when the harvest run has stopped
+     * @throws fi.utils.EndSimulationException when the simulation has ended
      */
     @Override
     public void farmerWaitCollectOrder(int farmerId) throws StopHarvestException, EndSimulationException{
@@ -148,8 +148,15 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
     }
 
     /**
-     * 
-     * @param farmerId 
+     * Farmers when given the collect order must collect the number of cobs specified by the user, or less in the case the granary doesn't 
+     * have that much corn cobs.
+     * This task is done by the farmers one at a time.
+     * Farmers must leave their position and go closer to the cobs location. After collecting, each farmer hold the number of cobs 
+     * collected and must return to a empty space.
+     * Farmers must wait for all the farmers to collect.
+     * @param farmerId int containing the farmer identifier
+     * @throws fi.utils.StopHarvestException when the harvest run has stopped
+     * @throws fi.utils.EndSimulationException when the simulation has ended
      */
     @Override
     public void farmerCollect(int farmerId) throws StopHarvestException, EndSimulationException{
@@ -169,7 +176,6 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
             }
             this.fi.updateGranaryCornCobs(this.maxCornCobs);
             this.fi.sendMessage("updateGranaryCobs;"+this.maxCornCobs);
-            System.out.println(this.metadata.NUMBERCORNCOBS);
             this.farmersCollected++;
             this.waitTimeout();
             this.selectSpot(farmerId);
@@ -205,8 +211,11 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
     }
 
     /**
-     * 
-     * @param farmerId 
+     * Farmers must wait for a return order given by the Control Center.
+     * Farmers must execute this method after collecting the corn cobs.
+     * @param farmerId int containing the farmer identifier
+     * @throws fi.utils.StopHarvestException when the harvest run has stopped
+     * @throws fi.utils.EndSimulationException when the simulation has ended
      */
     @Override
     public void farmerWaitReturnOrder(int farmerId) throws StopHarvestException, EndSimulationException{
@@ -254,12 +263,12 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
         }
     }
     
-    /*
-        Methods executed by Message Processor
-    */
+    //Methods executed by Message Processor
 
     /**
-     * 
+     * Control Center Proxy must wait for all farmers to enter in the granary to notify the Control Center.
+     * @throws fi.utils.StopHarvestException when the harvest run has stopped
+     * @throws fi.utils.EndSimulationException when the simulation has ended
      */
     @Override
     public void waitAllFarmersReadyToCollect() throws StopHarvestException, EndSimulationException{
@@ -295,7 +304,7 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
     }
 
     /**
-     * 
+     * Notifies all the farmers waiting for a collect order.
      */
     @Override
     public void sendCollectOrder() {
@@ -311,7 +320,9 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
     }
 
     /**
-     * 
+     * Control Center Proxy must wait for all farmers to collect the corn cobs to notify the Control Center.
+     * @throws fi.utils.StopHarvestException when the harvest run has stopped
+     * @throws fi.utils.EndSimulationException when the simulation has ended
      */
     @Override
     public void waitAllFarmersCollect() throws StopHarvestException, EndSimulationException{
@@ -347,7 +358,7 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
     }
 
     /**
-     * 
+     * Notifies all the farmers waiting for a return order.
      */
     @Override
     public void sendReturnOrder() {
@@ -363,8 +374,8 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
     }
 
     /**
-     * 
-     * @param action 
+     * Notifies every entity in the monitor that either the harvest run has stopped or the simulation has ended. 
+     * @param action string containing the action to perform
      */
     @Override
     public void control(String action) {
@@ -398,10 +409,12 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
     
     
     
-    /*
-        Aux Methods
-    */
+    //Aux Methods
     
+    /**
+     * Selects a spot in the Granary position for a farmer to settle on.
+     * @param farmerId int containing the farmer identifier
+     */
     private void selectSpot(int farmerId){
         int randomPosition=(int)(Math.random()*(this.availablePosition.size()-1));
         this.positions.put(farmerId, availablePosition.get(randomPosition));
@@ -410,6 +423,9 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
         this.fi.sendMessage("presentInGranary;"+farmerId+";"+positions.get(farmerId));
     }
     
+    /**
+     * Auxiliary function created to make each thread wait a random delay.
+     */
     private void waitRandomDelay(){
         try {
             int randomDelay=(int)(Math.random()*(this.metadata.MAXDELAY));
@@ -419,6 +435,9 @@ public class Granary implements GranaryFarmerInt, GranaryCCInt{
         }
     }
     
+    /**
+     * Auxiliary function created to make each thread wait the specified timeout defined by the user.
+     */
     private void waitTimeout(){
         try {
             Thread.sleep(this.metadata.TIMEOUT);

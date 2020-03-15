@@ -4,7 +4,7 @@ import fi.utils.EndSimulationException;
 import fi.utils.StopHarvestException;
 
 /**
- * 
+ * Interface defining the service the Standing monitor should provide to the Farmers.
  * @author Filipe Pires (85122) and João Alegria (85048)
  */
 public interface StandingFarmerInt {

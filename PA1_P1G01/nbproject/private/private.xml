@@ -5,20 +5,16 @@
             <url>src/fi/workers/CCProxy.java</url>
             <bookmark id="1">
                 <name/>
-                <line>91</line>
+                <line>97</line>
                 <key/>
             </bookmark>
         </file>
     </editor-bookmarks>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/home/joaoalegria/Desktop/AS/PA1_P1G01/src/cc/ControlCenter.java</file>
-            <file>file:/home/joaoalegria/Desktop/AS/PA1_P1G01/src/fi/FarmInfrastructure.java</file>
             <file>file:/home/joaoalegria/Desktop/AS/PA1_P1G01/src/fi/workers/CCProxy.java</file>
-            <file>file:/home/joaoalegria/Desktop/AS/PA1_P1G01/src/common/MessageProcessor.java</file>
-            <file>file:/home/joaoalegria/Desktop/AS/PA1_P1G01/src/cc/utils/CCMessageProcessor.java</file>
-            <file>file:/home/joaoalegria/Desktop/AS/PA1_P1G01/src/cc/UiAndMainControlsCC.java</file>
-            <file>file:/home/joaoalegria/Desktop/AS/PA1_P1G01/src/common/SocketServer.java</file>
+            <file>file:/home/joaoalegria/Desktop/AS/PA1_P1G01/src/fi/FarmInfrastructure.java</file>
+            <file>file:/home/joaoalegria/Desktop/AS/PA1_P1G01/src/fi/workers/Farmer.java</file>
         </group>
     </open-files>
 </project-private>

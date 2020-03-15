@@ -10,7 +10,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Class for the Farmer Thread for the agricultural harvest.
+ * Definition of the Farmer Thread for the agricultural harvest.
  * @author Filipe Pires (85122) and João Alegria (85048)
  */
 public class Farmer extends Thread {
@@ -31,6 +31,9 @@ public class Farmer extends Thread {
         this.id=id;
     }
     
+    /**
+     * Function containing the life-cycle of the Farmer thread.
+     */
     @Override
     public void run() {
         while(true){
@@ -54,6 +57,8 @@ public class Farmer extends Thread {
                 this.state=FarmerState.RETURN;
                 this.path.farmerReturn(id);
                 this.path.farmerGoToStorehouse(id);
+                this.state=FarmerState.STORE;
+                this.storeHouse.farmerStore(id);
             } catch (StopHarvestException ex) {
                 
             } catch (EndSimulationException ex) {

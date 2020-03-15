@@ -21,6 +21,10 @@ public class SocketServer implements Runnable{
         this.mp = mp;
     }
     
+    /**
+     * Executes the life-cycle of the socket server.
+     * When receiving a new message the server passes the message to the respective message processor.
+     */
     @Override
     public void run() {
         try {

@@ -17,14 +17,12 @@ import java.util.logging.Logger;
 import fi.UiAndMainControlsFI;
 
 /**
- * Class for the Storehouse Sector of the farm.
+ * Class for the monitor representing the Storehouse Sector of the farm.
  * @author Filipe Pires (85122) and João Alegria (85048)
  */
 public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
     
-    /*
-        Monitor variables
-    */
+    //Monitor variables
 
     private UiAndMainControlsFI fi;
     private MonitorMetadata metadata;
@@ -45,14 +43,12 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
     private int entitiesToStop=0;
     private int cornCobs=0;
     
-    /*
-        Constructors
-    */
+    //Constructors
     
     /**
      * Storehouse monitor constructor.
-     * @param fi
-     * @param metadata
+     * @param fi UiAndMainControlsFI instance enabling the access to the farm infrastructure ui and websocket client
+     * @param metadata MonitorMetadata instance containing the parameters to the current harvest run
      */
     public Storehouse(UiAndMainControlsFI fi, MonitorMetadata metadata) {
         this.fi = fi;
@@ -68,15 +64,39 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
         }
     }
     
-    /*
-        Methods executed by farmers
-    */
+    //Methods executed by farmers
+    
     
     /**
-     * 
-     * @param farmerId 
-     * @throws fi.utils.StopHarvestException 
-     * @throws fi.utils.EndSimulationException 
+     * After collecting the cobs, each farmer must store the collected corn cobs in the storehouse 
+     * before entering and preparing for another run.
+     * If the farmer is carrying cobs the cobs are added to the cobs in the storehouse and removed from the farmer.
+     * @param farmerId int containing the farmer identifier
+     */
+    @Override
+    public void farmerStore(int farmerId){
+        rl.lock();
+        try {
+            this.waitRandomDelay();
+            this.fi.sendMessage("presentInStoring;"+farmerId);
+            this.fi.presentStoringFarmer(farmerId);
+            int cobs = ((Farmer)Thread.currentThread()).getCornCobs();
+            this.cornCobs+=cobs;
+            ((Farmer)Thread.currentThread()).setCornCobs(0);
+            this.fi.updateStorehouseCornCobs(this.cornCobs);
+            this.fi.sendMessage("updateStorehouseCobs;"+this.cornCobs);
+            this.waitTimeout();
+        } finally {
+            rl.unlock();
+        }
+    }
+    
+    /**
+     * Registers the entry of a farmer in the storehouse.
+     * Farmers must wait for all farmers the be inside the storehouse.
+     * @param farmerId int containing the farmer identifier
+     * @throws fi.utils.StopHarvestException when the harvest run has stopped
+     * @throws fi.utils.EndSimulationException when the simulation has ended
      */
     @Override
     public void farmerEnter(int farmerId) throws StopHarvestException, EndSimulationException{
@@ -85,11 +105,6 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
             this.waitRandomDelay();
             farmersInStorehouse++;
             this.selectSpot(farmerId);
-            int cobs = ((Farmer)Thread.currentThread()).getCornCobs();
-            this.cornCobs+=cobs;
-            ((Farmer)Thread.currentThread()).setCornCobs(0);
-            this.fi.updateStorehouseCornCobs(this.cornCobs);
-            this.fi.sendMessage("updateStorehouseCobs;"+this.cornCobs);
             System.out.println("[Storehouse] Farmer " + farmerId + " entered.");
             while(farmersInStorehouse<this.metadata.MAXNUMBERFARMERS){
                 allInStorehouse.await();
@@ -118,8 +133,11 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
     }
     
     /**
-     * 
-     * @param farmerId 
+     * Farmers must wait for a prepare order given by the Control Center.
+     * Farmers must execute this method after entering in the storehouse.
+     * @param farmerId int containing the farmer identifier
+     * @throws fi.utils.StopHarvestException when the harvest run has stopped
+     * @throws fi.utils.EndSimulationException when the simulation has ended
      */
     @Override
     public void farmerWaitPrepareOrder(int farmerId) throws StopHarvestException, EndSimulationException {
@@ -160,12 +178,12 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
         }
     }
     
-    /*
-        Methods executed by Message Processor
-    */
+    //Methods executed by Message Processor
     
     /**
-     * 
+     * Control Center Proxy must wait for all farmers to enter in the Storehouse to notify the Control Center.
+     * @throws fi.utils.StopHarvestException when the harvest run has stopped
+     * @throws fi.utils.EndSimulationException when the simulation has ended
      */
     @Override
     public void waitAllFarmersReady() throws StopHarvestException, EndSimulationException{
@@ -198,11 +216,16 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
     }
     
     /**
-     * 
-     * @param numberOfFarmers
-     * @param numberOfCornCobs
-     * @param maxNumberOfSteps
-     * @param timeout 
+     * Notifies all the farmers waiting for a prepare order.
+     * Simultaneously defines the characteristics of the current harvest run, which are:
+     * 1. The number of selected farmers
+     * 2. The number of corn cobs each farmer must collect
+     * 3. The maximum number of steps each farmer may do in the path area
+     * 4. The timeout to take in consideration in the path and granary areas
+     * @param numberOfFarmers int containing the number of selected farmers
+     * @param numberOfCornCobs int containing the number of corn cobs each farmer must collect
+     * @param maxNumberOfSteps int containing the maximum number of steps each farmer may take in the path area
+     * @param timeout int containing the timeout to consider in the path and granary area
      */
     @Override
     public void sendSelectionAndPrepareOrder(int numberOfFarmers, int numberOfCornCobs, int maxNumberOfSteps, int timeout) {
@@ -223,8 +246,8 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
     }
     
     /**
-     * 
-     * @param action 
+     * Notifies every entity in the monitor that either the harvest run has stopped or the simulation has ended. 
+     * @param action string containing the action to perform
      */
     @Override
     public void control(String action) {
@@ -254,10 +277,12 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
         }
     }
     
-    /*
-        Aux Methods
-    */
+    //Aux Methods
     
+    /**
+     * Selects a spot in the Storehouse position for a farmer to settle on.
+     * @param farmerId int containing the farmer identifier
+     */
     private void selectSpot(int farmerId){
         int randomPosition=(int)(Math.random()*(this.availablePosition.size()-1));
         this.positions.put(farmerId, availablePosition.get(randomPosition));
@@ -266,12 +291,26 @@ public class Storehouse implements StorehouseFarmerInt, StorehouseCCInt{
         this.fi.sendMessage("presentInStorehouse;"+farmerId+";"+positions.get(farmerId));
     }
     
+    /**
+     * Auxiliary function created to make each thread wait a random delay.
+     */
     private void waitRandomDelay(){
         try {
             int randomDelay=(int)(Math.random()*(this.metadata.MAXDELAY));
             Thread.sleep(randomDelay);
         } catch (InterruptedException ex) {
             Logger.getLogger(Storehouse.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    /**
+     * Auxiliary function created to make each thread wait the specified timeout defined by the user.
+     */
+    private void waitTimeout(){
+        try {
+            Thread.sleep(this.metadata.TIMEOUT);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(Path.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 

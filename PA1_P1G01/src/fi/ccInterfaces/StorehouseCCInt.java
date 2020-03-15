@@ -5,7 +5,7 @@ import fi.utils.StopHarvestException;
 import fi.farmerInterfaces.*;
 
 /**
- * 
+ * Interface defining the service the Storehouse monitor should provide to the Control Center.
  * @author Filipe Pires (85122) and João Alegria (85048)
  */
 public interface StorehouseCCInt {

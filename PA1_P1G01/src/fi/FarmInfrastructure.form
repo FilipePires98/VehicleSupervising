@@ -88,13 +88,12 @@
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" attributes="0">
+                  <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" alignment="0" attributes="0">
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="storehouseLabel" max="32767" attributes="0"/>
-                      </Group>
+                      <Component id="storehouseLabel" alignment="0" max="32767" attributes="0"/>
                       <Group type="102" attributes="0">
-                          <EmptySpace min="-2" pref="43" max="-2" attributes="0"/>
+                          <Component id="ss" min="-2" pref="40" max="-2" attributes="0"/>
+                          <EmptySpace min="-2" pref="18" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
                               <Component id="sh4" alignment="0" min="-2" pref="40" max="-2" attributes="0"/>
                               <Component id="sh5" alignment="0" min="-2" pref="40" max="-2" attributes="0"/>
@@ -105,7 +104,6 @@
                           <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                       </Group>
                       <Group type="102" alignment="0" attributes="0">
-                          <EmptySpace max="-2" attributes="0"/>
                           <Component id="storehouseCornCobsLabel" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="storehouseCornCobs" pref="37" max="32767" attributes="0"/>
@@ -136,7 +134,10 @@
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="sh2" min="-2" pref="40" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
-                  <Component id="sh3" min="-2" pref="40" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="sh3" alignment="3" min="-2" pref="40" max="-2" attributes="0"/>
+                      <Component id="ss" alignment="3" min="-2" pref="40" max="-2" attributes="0"/>
+                  </Group>
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="sh4" min="-2" pref="40" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
@@ -185,6 +186,11 @@
         <Component class="javax.swing.JTextField" name="storehouseCornCobs">
           <Properties>
             <Property name="text" type="java.lang.String" value="0"/>
+            <Property name="enabled" type="boolean" value="false"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JTextField" name="ss">
+          <Properties>
             <Property name="enabled" type="boolean" value="false"/>
           </Properties>
         </Component>

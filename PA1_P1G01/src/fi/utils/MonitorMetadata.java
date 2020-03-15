@@ -1,7 +1,7 @@
 package fi.utils;
 
 /**
- * 
+ * Auxiliary object created to centralize some information about the simulated harvest.
  * @author Filipe Pires (85122) and João Alegria (85048)
  */
 public class MonitorMetadata {

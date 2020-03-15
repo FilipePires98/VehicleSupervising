@@ -7,7 +7,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * 
+ * Custom Socket Client created to provide a simple and easy object to use when needing a socket client.
  * @author Filipe Pires (85122) and João Alegria (85048)
  */
 public class SocketClient {
@@ -27,6 +27,10 @@ public class SocketClient {
         }
     }
     
+    /**
+     * Sends a text message to the subscribed socket server. 
+     * @param message string containing the message to send
+     */
     public void send(String message){
         try {
             this.out.writeUTF(message);
@@ -36,6 +40,9 @@ public class SocketClient {
         }
     }
     
+    /**
+     * Closes the socket client.
+     */
     public void close(){
         try {
             this.out.close();
