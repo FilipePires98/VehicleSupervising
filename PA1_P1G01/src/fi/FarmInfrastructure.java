@@ -40,6 +40,7 @@ public class FarmInfrastructure extends JFrame implements UiAndMainControlsFI{
      * Creates new form NewJFrame
      */
     public FarmInfrastructure() {
+        this.setTitle("Farm Infrastructure");
         initComponents();
         groupTextFields();
         metadata = new MonitorMetadata(teamSize, maxDelay);

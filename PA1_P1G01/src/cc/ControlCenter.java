@@ -25,6 +25,7 @@ public class ControlCenter extends javax.swing.JFrame implements UiAndMainContro
 
     
     public ControlCenter() {
+        this.setTitle("Control Center");
         initComponents();
         groupTextFields();
         this.ccServer = new SocketServer(6666, new CCMessageProcessor(this));
