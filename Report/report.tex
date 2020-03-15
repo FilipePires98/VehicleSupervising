@@ -155,16 +155,15 @@ Our harvest simulator follows a modular structure implemented in Java.
 As we will see, each component has a specific purpose and is responsible for one key aspect of the system's functionality.
 The principle of least knowledge is here applied and code dependency is kept low.
 This means that there are no unnecessary elements but it is needless to say that without any of the components the system will not work as intended.
-The system is designed to be extensible as well, through the use of well defined interfaces that allow the insertion of new elements such as new farm areas or 
-even different types of farmers.
+The system is designed to be extensible as well, through the use of well defined interfaces that allow the creation of new versions of farm areas without 
+refactoring the main entities.
 
 All relevant actions during simulations are printed to a unique terminal, with the due source identification, allowing an easy management of what is occurring 
 during execution.
 To deal with exceptions thrown by user commands, we designed our own exception handling mechanisms.
 Also, since the user side is the greatest potential source of errors, the interface is confined to its most limited usage, i.e. users are only allowed to do 
 what they can actually do at all times.
-Although this may seem to reduce the usability of the solution, it actually helps users by guiding them towards what they can and want to do, without leaving 
-margin for errors.
+Although this may seem to reduce the usability of the solution, it actually helps users by guiding them towards what they want to do, without leaving margin for errors.
 
 Components belonging to the same logical layer are grouped within a package.
 Interfaces, classes and methods are all documented, with the help of Javadoc, and naming conventions are applied throughout the code, focusing on allowing readers 
@@ -173,7 +172,6 @@ Communications between independent components are done through defined protocols
 
 \subsection{Components} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Let us now go deeper into each component in order to understand how the execution flow is conducted.
 Once the Java application is executed, out Main class launches a subprocess dedicated to the FarmInfrastructure and instantiates the ControlCenter, passing full 
 control to it.
 Every Java application has a single instance of class java.lang.Runtime that allows the application to interface with the environment in which it is running.
@@ -185,7 +183,7 @@ The \texttt{command} string is built by retrieving the directory where the code 
 
 \begin{figure}[H]
   \centering
-  \begin{minipage}{\textwidth}
+  \begin{minipage}{1.05\textwidth}
     \centering
     \includegraphics[width=\linewidth]{FarmSimulation_ClassDiagram.png}
   \end{minipage}%
@@ -196,20 +194,21 @@ The \texttt{command} string is built by retrieving the directory where the code 
 Now we have our two entities - the system's core.
 ControlCenter and FarmInfrastructure implement the UiAndMainControlsCC interface and UiAndMainControlsFI interface respectively.
 Both classes extend from \texttt{javax.swing.JFrame} and contain the code regarding the GUIs and communicate with each other with the use of sockets.
-Both have instances of SocketServer and SocketClient and work as servers and clients simultaneously.
-The communication establishment is explained in section \ref{communications}.
+Both have instances of SocketServer and SocketClient, that in return have instances of \texttt{java.net.Socket}, and work as servers and clients simultaneously.
+Communication establishment is explained in section \ref{communications}.
 
-MonitorMetadata and 4 Monitors (and respective interfaces)
-
-Farmer and FarmerState
-
-Exceptions
-
-........ 
-
-
+Farmers are simulated as thread instances from the same class.
+Their states are defined in the FarmerState enumerate.
+When instantiated by FI, they wait for orders that will start their lifecycle of retrieving and storing virtual corn cobs.
+MonitorMetadata, as the name states, contains the metadata of the monitors (the farm areas).
+This information applies constraints to the farm areas where farmers will pass, hence influencing the execution flow according to the users' wishes.
+As each farmer has its own execution thread, their access to shared resources must be controlled.
+This is where the monitors come in hand. 
+The concurrency measures implemented by our monitors are justified in section \ref{monitors_and_farmers}. 
 
 \subsection{User Interface} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Having succinctly gone through all components, we move on to presenting the user interface and explaining its confinements.
 
 ........
 
@@ -218,15 +217,24 @@ Exceptions
 
 ..... 
 
+\subsection{Monitors \& Farmers} \label{monitors_and_farmers} %%%%%%%%%%%%%%%%%%%%%%%
+
+........
+
+MonitorMetadata and 4 Monitors (and respective interfaces)
+Farmer and FarmerState
+
 \subsection{Communications} \label{communications} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 ........
 
 SocketClient, SocketServer, CCMessageProcessor and CCProxy, ProcessingThread (and MessageProcessor interface)
 
-\subsection{Farmers} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Exceptions} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 ........
+
+Exceptions
 
 %%%%%%%%%%%%%%%%%%%%%%% FIGURE %%%%%%%%%%%%%%%%%%%%%%%%%%%
 

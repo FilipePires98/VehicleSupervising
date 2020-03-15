@@ -6,8 +6,9 @@
 \BOOKMARK [2][-]{subsection.3.1}{Components}{section.3}% 6
 \BOOKMARK [2][-]{subsection.3.2}{User Interface}{section.3}% 7
 \BOOKMARK [1][-]{section.4}{Concurrency Strategy}{}% 8
-\BOOKMARK [2][-]{subsection.4.1}{Communications}{section.4}% 9
-\BOOKMARK [2][-]{subsection.4.2}{Farmers}{section.4}% 10
-\BOOKMARK [1][-]{section.5}{Documentation}{}% 11
-\BOOKMARK [1][-]{section.6}{Discussion}{}% 12
-\BOOKMARK [1][-]{section.7}{Conclusions}{}% 13
+\BOOKMARK [2][-]{subsection.4.1}{Monitors \046 Farmers}{section.4}% 9
+\BOOKMARK [2][-]{subsection.4.2}{Communications}{section.4}% 10
+\BOOKMARK [2][-]{subsection.4.3}{Exceptions}{section.4}% 11
+\BOOKMARK [1][-]{section.5}{Documentation}{}% 12
+\BOOKMARK [1][-]{section.6}{Discussion}{}% 13
+\BOOKMARK [1][-]{section.7}{Conclusions}{}% 14
