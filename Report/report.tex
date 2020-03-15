@@ -138,23 +138,26 @@ This and other interface-related aspects will be mentioned in greater detail fur
   \centering
   \begin{minipage}{\textwidth}
     \centering
-    \includegraphics[width=\linewidth]{FarmSimulation_FarmDesign.png}
+    \includegraphics[width=\linewidth]{img/Design_FI.png}
   \end{minipage}%
   \caption{Visual representation of the farm, taken from \cite{assign}.}
-  \label{class_diagram}
+  \label{Design_FI}
 \end{figure} 
 
 \newpage
 \section{System Architecture} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 In this chapter we focus on the implementation of each component and on the architecture of the entire solution.
-Here, we resort to a class diagram (see Figure \ref{class_diagram}) to visually aid interpretation.
+Here, we resort to a class diagram (see Figure \ref{ClassDiagram}) in UML \cite{uml} to visually aid interpretation.
 We also present screenshots of the GUIs to explain how the interaction works.
 
 Our harvest simulator follows a modular structure implemented in Java.
 As we will see, each component has a specific purpose and is responsible for one key aspect of the system's functionality.
 The principle of least knowledge is here applied and code dependency is kept low.
 This means that there are no unnecessary elements but it is needless to say that without any of the components the system will not work as intended.
+
+Components belonging to the same logical layer are grouped within a package.
+Communications between independent components are done through defined protocols. 
 The system is designed to be extensible as well, through the use of well defined interfaces that allow the creation of new versions of farm areas without 
 refactoring the main entities.
 
@@ -165,11 +168,6 @@ Also, since the user side is the greatest potential source of errors, the interf
 what they can actually do at all times.
 Although this may seem to reduce the usability of the solution, it actually helps users by guiding them towards what they want to do, without leaving margin for errors.
 
-Components belonging to the same logical layer are grouped within a package.
-Interfaces, classes and methods are all documented, with the help of Javadoc, and naming conventions are applied throughout the code, focusing on allowing readers 
-to understand what methods and variables do by reading their names alone.
-Communications between independent components are done through defined protocols. 
-
 \subsection{Components} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Once the Java application is executed, out Main class launches a subprocess dedicated to the FarmInfrastructure and instantiates the ControlCenter, passing full 
@@ -177,7 +175,7 @@ control to it.
 Every Java application has a single instance of class java.lang.Runtime that allows the application to interface with the environment in which it is running.
 By obtaining the environment through \textit{Runtime.getRuntime()} and calling the \textit{Runtime.exec(String command)} method, the Main class is able to launch 
 an independent Java process and manage it - allowing the existance of the previously mentioned unique terminal for printing system status during runtime.
-The \texttt{command} string is built by retrieving the directory where the code is located: 
+The \texttt{command} string is built by retrieving the directory where the code is located:  
 
 \texttt{java -cp <userdir>/build/classes fi.FarmInfrastructure}
 
@@ -185,10 +183,10 @@ The \texttt{command} string is built by retrieving the directory where the code 
   \centering
   \begin{minipage}{1.05\textwidth}
     \centering
-    \includegraphics[width=\linewidth]{FarmSimulation_ClassDiagram.png}
+    \includegraphics[width=\linewidth]{img/ClassDiagram.png}
   \end{minipage}%
   \caption{Class diagram of the Farm Simulation application.}
-  \label{class_diagram}
+  \label{ClassDiagram}
 \end{figure} 
 
 Now we have our two entities - the system's core.
@@ -209,8 +207,55 @@ The concurrency measures implemented by our monitors are justified in section \r
 \subsection{User Interface} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Having succinctly gone through all components, we move on to presenting the user interface and explaining its confinements.
+Built with Swing \cite{swing}, the UIs remain faithful to the design concept proposed for the simulation, with some improvements.
 
+In Figure \ref{UserInterface_FI} we see a screen capture during runtime of the FI interface.
+Here, the user holds no control and only sees what is happening to each Farmer thread by tracking the movement of their IDs.
+Note that the IDs correspond to internal class identifiers and not the actual thread identifiers.
+This means that, if desired, such IDs could be replaced by strings containing the farmer names for example (as long as they were unique, of course).
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}{.9\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{img/UserInterface_FI.png}
+  \end{minipage}%
+  \caption{Screenshot of the FI UI.}
+  \label{UserInterface_FI}
+\end{figure} 
+
+Now Figures \ref{UserInterface_CC_1}, \ref{UserInterface_CC_2} and \ref{UserInterface_CC_3} offer a more interesting view on the system.
 ........
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}{.9\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{img/UserInterface_CC_1.png}
+  \end{minipage}%
+  \caption{Screenshot of the CC UI right after launching the application.}
+  \label{UserInterface_CC_1}
+\end{figure} 
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}{.9\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{img/UserInterface_CC_2.png}
+  \end{minipage}%
+  \caption{Screenshot of the CC UI while farmers are crossing the Path.}
+  \label{UserInterface_CC_2}
+\end{figure} 
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}{.9\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{img/UserInterface_CC_3.png}
+  \end{minipage}%
+  \caption{Screenshot of the CC UI when the farmers are ready to collect corn cobs.}
+  \label{UserInterface_CC_3}
+\end{figure} 
 
 \newpage
 \section{Concurrency Strategy} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -235,28 +280,6 @@ SocketClient, SocketServer, CCMessageProcessor and CCProxy, ProcessingThread (an
 ........
 
 Exceptions
-
-%%%%%%%%%%%%%%%%%%%%%%% FIGURE %%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% \begin{figure}[H]
-%   \centering
-%   \begin{minipage}{\textwidth}
-%     \centering
-%     \includegraphics[width=\linewidth]{faces_example.png}
-%   \end{minipage}%
-%   \caption{Image taken from the assignment description \cite{trab3}. Examples from the ORL face dataset. In the first row, ten face images corresponding to the same subject (s01). In the second row, the first face image of subjects s02 to s11.}
-%   \label{fig:1}
-% \end{figure}
-
-%%%%%%%%%%%%%%%%%%%%%%%% LIST %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% \vspace{-10pt}
-% \begin{itemize}[noitemsep]
-%   \item Append - this operation unites the two images one above the other (duplicating the height of the resulting image).
-%   \item Interlace - interpolated horizontal stripes of both images are stacked together (in this operation half of the data of each image is not used).
-%   \item Average - for each pixel position, the average of the gray value of both images at that position is calculated and added to the new image in the same position.
-% \end{itemize}
-% \vspace{-10pt}
 
 %%%%%%%%%%%%%%%%%%%%%%%% TABLE %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -318,14 +341,21 @@ Exceptions
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \newpage
-\section{Documentation} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Additional Remarks} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-.....
+\subsection{Documentation} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\newpage
-\section{Discussion} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Packages, interfaces, classes and methods are all documented, with the help of Javadoc \cite{javadoc}, and naming conventions are applied throughout the code, 
+focusing on allowing readers to understand what methods do and variables are for by reading their names alone.
 
-.....
+A significant effort was placed on this as we understood it would be greatly beneficial in the long term.
+And it was indeed. As soon as one developer completed a component and ensured the textual guidance, the other would quickly be up-to-date on the internal 
+functioning of such component in his own tasks.
+
+Creating the diagrams here presented also allowed to keep a wider perspective on the project and discuss important issues during debugging while maintaining 
+the same mental picture.
+
+\subsection{Assignment Contributions} %%%%%%%%%%%%%%%%%%%%%%
 
 Regarding the work distribution amongst developers, a close-contact strategy was defined where each worked on a piece of software according to a predefined plan. 
 The project structure and architecture was decided in conjunction, as well as the key concurrency solutions chosen.
@@ -337,7 +367,6 @@ with the remaining components.
 Bug and error solving was made along the development phase by both developers any time it was required.
 
 Once the final version of the application was completed, this report and the code documentation became our primary concern, with both contributing equally.
-
 
 \newpage
 \section{Conclusions} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -354,22 +383,25 @@ After completing the assignment, we drew a few conclusions regarding the topics 
     \textit{SA: Practical Assignment no.1},
     University of Aveiro,
     2019/20.
-  
-  % \bibitem{imgmagick}
-  %   ImageMagick Studio LLC,
-  %   \textit{ImageMagick},
-  %   \url{https://imagemagick.org/index.php},
-  %   accessed in December 2019.
 
-  % \bibitem{lzmaExplanation}
-  %   Borbely, R.,
-  %   On normalized compression distance and large malware: Towards a useful definition of normalized compression distance for the classification of large files,
-  %   Journal of Computer Virology and Hacking Techniques,
-  %   2015,
-  %   10.1007/s11416-015-0260-0
-  %   \url{https://www.researchgate.net/publication/290319316_On_normalized_compression_distance_and_large_malware_Towards_a_useful_definition_of_normalized_compression_distance_for_the_classification_of_large_files},
-  %   accessed in December 2019.
-  
+  \bibitem{uml}
+    Object Management Group,
+    \textit{What is UML},
+    \url{https://www.uml.org/what-is-uml.htm},
+    accessed in March 2020.
+
+  \bibitem{swing}
+    Oracle,
+    \textit{Swing},
+    \url{https://docs.oracle.com/javase/8/docs/technotes/guides/swing/index.html},
+    accessed in February 2020.
+    
+  \bibitem{javadoc}
+    Oracle,
+    \textit{Javadoc Technology},
+    \url{https://docs.oracle.com/javase/8/docs/technotes/guides/javadoc/index.html},
+    accessed in February 2020.
+
 \end{thebibliography}
 
 \clearpage

@@ -12,17 +12,10 @@
     </editor-bookmarks>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-<<<<<<< HEAD
-            <file>file:/home/fp/Desktop/4A2S/AS/P/Proj1/AS/PA1_P1G01/src/fi/FarmInfrastructure.java</file>
-            <file>file:/home/fp/Desktop/4A2S/AS/P/Proj1/AS/PA1_P1G01/src/fi/UiAndMainControlsFI.java</file>
-            <file>file:/home/fp/Desktop/4A2S/AS/P/Proj1/AS/PA1_P1G01/src/Main.java</file>
-            <file>file:/home/fp/Desktop/4A2S/AS/P/Proj1/AS/PA1_P1G01/src/cc/ControlCenter.java</file>
-=======
             <file>file:/home/joaoalegria/Desktop/AS/PA1_P1G01/src/cc/ControlCenter.java</file>
             <file>file:/home/joaoalegria/Desktop/AS/PA1_P1G01/src/fi/workers/CCProxy.java</file>
             <file>file:/home/joaoalegria/Desktop/AS/PA1_P1G01/src/fi/FarmInfrastructure.java</file>
             <file>file:/home/joaoalegria/Desktop/AS/PA1_P1G01/src/fi/workers/Farmer.java</file>
->>>>>>> 05b464ef782a3ca9a1e24874eecee0a9d38e480c
         </group>
     </open-files>
 </project-private>

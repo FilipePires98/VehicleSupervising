@@ -17,7 +17,7 @@ public class CCMessageProcessor implements MessageProcessor{
     
     /**
      * Processes the incoming messages in a sequential manner since the Control Center needs to process each message one at a time.
-     * @param message 
+     * @param message formatted message with the code of what to execute.
      */
     @Override
     public void processMessage(String message) {

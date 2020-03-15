@@ -1042,7 +1042,6 @@ public class FarmInfrastructure extends JFrame implements UiAndMainControlsFI{
     /**
      * Presents the farmer id in the respective position of the Collecting Area.
      * @param farmerId int identifying the farmer entering the position 
-     * @param position int identifying the Collecting area position
      */
     @Override
     public void presentCollectingFarmer(int farmerId) {
@@ -1064,7 +1063,6 @@ public class FarmInfrastructure extends JFrame implements UiAndMainControlsFI{
     /**
      * Presents the farmer id in the respective position of the Storing Area.
      * @param farmerId int identifying the farmer entering the position 
-     * @param position int identifying the Collecting area position
      */
     @Override
     public void presentStoringFarmer(int farmerId) {
