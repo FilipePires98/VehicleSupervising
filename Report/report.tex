@@ -315,27 +315,29 @@ the main entities, and the exception handling solutions for user stop and shutdo
 \subsection{Monitors \& Farmers} \label{monitors} %%%%%%%%%%%%%%%%%%%%%%%
 
 Amongst the four monitors of FI, only one was implemented using the implicit monitor lock accessed using synchronized methods.
-The StandingArea is a monitor meant to ensure all selected threads are ready to follow orders - it is a sort of farmer synchronization place with no other purpose 
-other than that.
-Commands given here are to be executed by all threads here locked and therefore this implicit lock mechanism was ideal.
+The StandingArea is a monitor meant to ensure all selected threads are ready to follow orders.
+Commands given are to be executed by all threads here locked and therefore this implicit lock mechanism was ideal.
 
 Now, for all other monitors, synchronization wasn't as trivial.
 As more than one condition should unlock specific threads at given moments, a more powerful synchronization mechanism was required.
 And this is where Reentrant Locks come in.
 A ReentrantLock \cite{reentrantlock} instance is a reentrant mutual exclusion lock with the same basic behavior and semantics as the implicit monitor lock, 
-but with extended capabilities.
-Such extended capabilities include: 1) the ability to have more than one condition variable per monitor; 2) the ability to make the lock fair, unlike the 
-implicit lock, i.e. a lock that favors granting access to the longest-waiting thread; 3) the ability to check if the lock is being held; 4) the ability to get 
-the list of lock waiting threads.
+but with extended capabilities which include: the ability to have more than one condition variable per monitor; the ability to make the lock fair, unlike the 
+implicit lock, i.e. a lock that favors granting access to the longest-waiting thread; the ability to check if the lock is being held; the ability to get the 
+list of lock waiting threads.
 
 Storehouse needed two conditions to know if all Farmer threads were ready to be used and if the command 'Prepare' had been given.
-The Granary needed four: to check if all selected farmers were inside the granary for the cobs collecting, to know if the commands 'Collect' and 'Return' had 
+The Granary needed four to check if all selected farmers were inside the Granary to collect corn, to know if the commands 'Collect' and 'Return' had 
 been given, and to check if all farmers had attempted to collect corn cobs.
 The Path needed only one condition to determine whether all selected farmers were in it or not.
 Now the Path was definitely the monitor that most took advantage of the additional features of ReentrantLocks.
 During movements on the Path, we needed to make sure that the order of actions was kept between farmers, so as to prevent situations where farmers would run all 
 the path while others remained in the first positions of it.
-Since by design ReentrantLocks were fair, this was made easy for us and allowed us to focus on other critical challenges.
+Since by design ReentrantLocks were fair, this was made easy for us and allowed us to focus on other challenges.
+
+Additional constraints implemented by these monitors are: at any given moment, only one farmer is inside a box; a random delay of up to 100ms is provided 
+between each lock and the correspondent unlock.
+These increase faithfulness to reality of the harvest simulation.
 
 \subsection{Communications} \label{communications} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
