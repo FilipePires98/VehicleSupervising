@@ -270,16 +270,24 @@ MonitorMetadata and 4 Monitors (and respective interfaces)
 Farmer and FarmerState
 
 \subsection{Communications} \label{communications} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+In this project, the communication system adopted and constrained by the guidelines provided was through sockets, using strings as messages. To enable this, we implemented two auxiliary classes to enable both client(\textit{SocketClient}) and server(\textit{SocketServer}) ready to use options. For each instance of SocketServer, a \textit{MessageProcessor} instance must be provided as the internal message processing logic, and since in this problem there is two entities that need to receive and process messages, \textit{CCMessageProcessor} and \textit{CCProxy} were created.
+Taking a closer look at the communication system implemented, starting at the \textit{SocketClient}, this class establishes a connection to the endpoint and port defined in its constructor, providing then a send method, which as the name suggest, sends a message to the socket server present in the other end of the connection and finally a close method, which as the name also implies, closes the socket connection previously established.  In relation to the \textit{SocketServer} class, as it suggests, it implements a ready to use server using sockets and deployed in the port provided in the constructor. It is implemented based on a thread, so that the server life-cycle can occur parallel to the main logic of the problem. The server is constantly waiting to receive a message, that when received is automatically passed to the MessageProcessor instance provided also in the constructor. The server will die after receiving and processing a previously defined message, in this case the string "endSimulationOrder".
 
-........
+As already mentioned, the \textit{SocketServer} needs a \textit{MessageProcessor} instance as its message processing logic. \textit{MessageProcessor} is an interface that any class containing message processing logic should implement and that requires the implementation of the method \texttt{process
+Message}. \textit{CCMessageProcessor} implements the \textit{MessageProcessor} interface and is responsible for processing any messages the Control Center receives. This implementation processes the messages in a sequential form, given the fact that the Control Center is mainly a GUI that enables the user to send commands to the Farm Infrastructure and visualize the state and positions of the farmers in the simulated farm, functionality added by our group since we consider the Control Center process and the Farm Infrastructure one independent although connected, and for that reason the processes can run in different machines, needing to know only the endpoints and ports, meaning that the Control Center, being the main entity of the simulation, should have also access to the state of the Farm Infrastructure and its components and workers.
 
-SocketClient, SocketServer, CCMessageProcessor and CCProxy, ProcessingThread (and MessageProcessor interface)
+On the other hand, the \textit{CCProxy} acts as the message processor for the messages destined to the Farm Infrastructure as well as a substitute for the COntrol Center in the Farm Infrastructure process. Being a entity in a highly concurrent environment, a thread based processing was implemented, meaning that for each received message, a new \texttt{Thread} was initiated with its life-cycle defined in the \texttt{Runnable} \textit{ProcessingThread}. This approach allows the correct handling of several messages at the same time, a crucial aspect in the Farm Infrastructure environment. The \textit{ProcessingThread} class is the one containing the actual logic for the processing of each message the \textit{FarmInfrastructure} receives.
+
+% SocketClient, SocketServer, CCMessageProcessor and CCProxy, ProcessingThread (and MessageProcessor interface)
 
 \subsection{Exceptions} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+When developing the solution for this complex concurrent scenario, the stop harvest and end simulation events were the ones who generated the most questions and difficulties. Since all threads can be locked in quite different points of its life-cycle, a solution to notify them all that doesn't implied verifying at each new step if in fact the harvest had stopped or the simulation had ended was not natural not immediate.
 
-........
+After many discussions and trials, the exception approach was selected and implemented. Exceptions enabled us to only verify if the harvest stopping and simulation ended conditions were true in a few strategic places, as well as in the case one of the conditions was verified, the corresponding exception was thrown and the current thread executing the code would automatically know, stop what they were doing and jump to the exception catching code, enabling us to process that event. 
 
-Exceptions
+For this purpose, we create two custom exception classes, the StopHarvestSimulation and the EndSimulationException, both with self-explaining names.
+
+% Exceptions
 
 %%%%%%%%%%%%%%%%%%%%%%%% TABLE %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
