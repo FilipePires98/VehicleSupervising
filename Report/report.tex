@@ -82,10 +82,8 @@ The CC is responsible for supervising the harvest, while the FI is the infrastru
 
 \subsection{Control Center} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-The Control Center is where the number of farmers to be used is defined, along with their maximum speed, the amount of existing corn cobs and a special parameter 
-called timeout.
-Timeout, defined in milliseconds, is a parameter used for regulation of the simulation's execution time and sets the maximum amount of time for each farmer to 
-make a movement.
+The Control Center is where the number of farmers out of the 5 should be selected to participate in the harvest run is defined, along with their maximum step size, the amount of corn cobs each farmer should collect and a special parameter called timeout.
+Timeout, defined in milliseconds, is a parameter used for regulation of the simulation's execution time and sets the time interval each farmer should take to make a movement.
 
 It is in the CC that users send orders for the virtual farmers to execute.
 The commands available are:
@@ -172,7 +170,7 @@ Although this may seem to reduce the usability of the solution, it actually help
 
 Once the Java application is executed, out Main class launches a subprocess dedicated to the FarmInfrastructure and instantiates the ControlCenter, passing full 
 control to it.
-Every Java application has a single instance of class java.lang.Runtime that allows the application to interface with the environment in which it is running.
+Every Java application has a single instance of class java.lang.Runtime that allows the application to interact with the environment in which it is running.
 By obtaining the environment through \textit{Runtime.getRuntime()} and calling the \textit{Runtime.exec(String command)} method, the Main class is able to launch 
 an independent Java process and manage it - allowing the existance of the previously mentioned unique terminal for printing system status during runtime.
 The \texttt{command} string is built by retrieving the directory where the code is located:  
@@ -192,12 +190,12 @@ The \texttt{command} string is built by retrieving the directory where the code 
 Now we have our two entities - the system's core.
 ControlCenter and FarmInfrastructure implement the UiAndMainControlsCC interface and UiAndMainControlsFI interface respectively.
 Both classes extend from \texttt{javax.swing.JFrame} and contain the code regarding the GUIs and communicate with each other with the use of sockets.
-Both have instances of SocketServer and SocketClient, that in return have instances of \texttt{java.net.Socket}, and work as servers and clients simultaneously.
+Both have instances of SocketServer and SocketClient, that in return have instances of \texttt{java.net.Socket}, and together establish a two-way communication channel.
 Communication establishment is explained in section \ref{communications}.
 
 Farmers are simulated as thread instances from the same class.
 Their states are defined in the FarmerState enumerate.
-When instantiated by FI, they wait for orders that will start their lifecycle of retrieving and storing virtual corn cobs.
+When instantiated by FI, they enter the Storehouse and wait for further orders that will guide their lifecycle of retrieving and storing virtual corn cobs.
 MonitorMetadata, as the name states, contains the metadata of the monitors (the farm areas).
 This information applies constraints to the farm areas where farmers will pass, hence influencing the execution flow according to the users' wishes.
 As each farmer has its own execution thread, their access to shared resources must be controlled.
@@ -329,11 +327,7 @@ list of lock waiting threads.
 Storehouse needed two conditions to know if all Farmer threads were ready to be used and if the command 'Prepare' had been given.
 The Granary needed four to check if all selected farmers were inside the Granary to collect corn, to know if the commands 'Collect' and 'Return' had 
 been given, and to check if all farmers had attempted to collect corn cobs.
-The Path needed only one condition to determine whether all selected farmers were in it or not.
-Now the Path was definitely the monitor that most took advantage of the additional features of ReentrantLocks.
-During movements on the Path, we needed to make sure that the order of actions was kept between farmers, so as to prevent situations where farmers would run all 
-the path while others remained in the first positions of it.
-Since by design ReentrantLocks were fair, this was made easy for us and allowed us to focus on other challenges.
+The Path needed one condition to determine whether all selected farmers were in it or not, and a condition for each farmers walking the Path. The Path monitor was the one that really took advantage of the fact that we could create as many conditions inside an unique ReentrantLock as we wanted. We decided to create a condition for each farmers because it was important to us to maintain the solution scalable, and imagining a scenario where there were hundreds of farmers walking in thPath, it was not feasible to notify everyone when only one specific farmer needed to be notified. For that reason, with auxiliary data structures, we registered the order in which the farmers should walk in the path and created a condition to each one of them, making each farmer notify the next until all reached the end of the section.
 
 Additional constraints implemented by these monitors are: at any given moment, only one farmer is inside a box; a random delay of up to 100ms is provided 
 between each lock and the correspondent unlock.
@@ -364,7 +358,7 @@ This implementation processes the messages in a sequential form.
 On the other hand, CCProxy acts as the message processor for those destined to the Farm Infrastructure as well as a substitute for the Control Center in the 
 Farm Infrastructure process. 
 Being a entity in a highly concurrent environment, a thread-based processing was implemented, meaning that for each received message, a new \texttt{Thread} was 
-initiated with its life-cycle defined in the ProcessingThread class (a Runnable class). 
+initiated with its life-cycle defined in the ProcessingThread class (a Runnable interface instance). 
 This approach allows the correct handling of several messages simultaneously - a crucial aspect in the FI environment. 
 The ProcessingThread class is the one containing the actual logic for the processing of each message the FarmInfrastructure receives.
 
