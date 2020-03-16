@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2020.1.3)  16 MAR 2020 16:47
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2020.1.3)  16 MAR 2020 16:55
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -659,34 +659,34 @@ Package pdftex.def Info: img/InteractionDiagram.png  used on input line 297.
 Overfull \vbox (3.49516pt too high) has occurred while \output is active []
 
  [9 </home/joaoalegria/Desktop/AS/Report/img/InteractionDiagram.png>] [10] [11] [12] [13]
-Underfull \hbox (badness 10000) in paragraph at lines 442--446
+Underfull \hbox (badness 10000) in paragraph at lines 446--450
 []\OT1/ptm/m/n/12 Oracle, \OT1/ptm/m/it/12 Swing\OT1/ptm/m/n/12 , []$\OT1/pcr/m/n/12 https : / / docs . oracle . com / javase / 8 / docs / technotes /
  []
 
 
-Underfull \hbox (badness 4779) in paragraph at lines 448--452
+Underfull \hbox (badness 4779) in paragraph at lines 452--456
 []\OT1/ptm/m/n/12 Oracle, \OT1/ptm/m/it/12 Class Reen-trant-Lock\OT1/ptm/m/n/12 , []$\OT1/pcr/m/n/12 https : / / docs . oracle . com / javase / 8 / docs /
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 448--452
+Underfull \hbox (badness 10000) in paragraph at lines 452--456
 \OT1/pcr/m/n/12 api / java / util / concurrent / locks / ReentrantLock . html$[]\OT1/ptm/m/n/12 , ac-cessed in
  []
 
 
-Underfull \hbox (badness 6725) in paragraph at lines 454--458
+Underfull \hbox (badness 6725) in paragraph at lines 458--462
 []\OT1/ptm/m/n/12 Oracle, \OT1/ptm/m/it/12 Javadoc Tech-nol-ogy\OT1/ptm/m/n/12 , []$\OT1/pcr/m/n/12 https : / / docs . oracle . com / javase / 8 / docs /
  []
 
 [14]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 463.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 463.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 467.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 467.
  (/home/joaoalegria/Desktop/AS/Report/report.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 463.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 463.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 467.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 467.
 Package rerunfilecheck Info: File `report.out' has not changed.
 (rerunfilecheck)             Checksum: 11BAF7626FB5E1AAF3A1876FFBDC4151;982.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 463.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 467.
  ) 
 Here is how much of TeX's memory you used:
  7106 strings out of 492982
@@ -695,9 +695,9 @@ Here is how much of TeX's memory you used:
  10558 multiletter control sequences out of 15000+600000
  18002 words of font info for 41 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 36i,7n,39p,872b,397s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 36i,7n,39p,489b,397s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on /home/joaoalegria/Desktop/AS/Report/report.pdf (14 pages, 686215 bytes).
+Output written on /home/joaoalegria/Desktop/AS/Report/report.pdf (14 pages, 686219 bytes).
 PDF statistics:
  209 PDF objects out of 1000 (max. 8388607)
  177 compressed objects within 2 object streams

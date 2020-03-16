@@ -327,7 +327,11 @@ list of lock waiting threads.
 Storehouse needed two conditions to know if all Farmer threads were ready to be used and if the command 'Prepare' had been given.
 The Granary needed four to check if all selected farmers were inside the Granary to collect corn, to know if the commands 'Collect' and 'Return' had 
 been given, and to check if all farmers had attempted to collect corn cobs.
-The Path needed one condition to determine whether all selected farmers were in it or not, and a condition for each farmers walking the Path. The Path monitor was the one that really took advantage of the fact that we could create as many conditions inside an unique ReentrantLock as we wanted. We decided to create a condition for each farmers because it was important to us to maintain the solution scalable, and imagining a scenario where there were hundreds of farmers walking in thPath, it was not feasible to notify everyone when only one specific farmer needed to be notified. For that reason, with auxiliary data structures, we registered the order in which the farmers should walk in the path and created a condition to each one of them, making each farmer notify the next until all reached the end of the section.
+The Path needed one condition to determine whether all selected farmers were in it or not, and a condition for each farmers walking the Path. 
+
+The Path monitor was the one that really took advantage of the fact that we could create as many conditions inside an unique ReentrantLock as we wanted. We decided to create a condition for each farmers because it was important to us to maintain the solution scalable. Imagining a scenario where there were hundreds of farmers walking in the Path, it was not feasible to notify everyone when only one specific farmer needed to be notified. 
+
+For that reason, with auxiliary data structures, we registered the order in which the farmers should walk in the path and created a condition to each one of them, making each farmer notify the next through its condition until all reached the end of the section.
 
 Additional constraints implemented by these monitors are: at any given moment, only one farmer is inside a box; a random delay of up to 100ms is provided 
 between each lock and the correspondent unlock.
