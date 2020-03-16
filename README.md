@@ -25,7 +25,10 @@ Each farmer is implemented as a different Thread.
 
 ## Instructions on how to run the code
 
-(Under construction)
+1. Have installed Java SE8.
+2. Have installed NetBeans or other IDE (only tested with Netbeans).
+3. Open the project folder 'PA1_P1G01' on your IDE.
+4. Run the Main class and enjoy the Harvest Simulation.
 
 
 
