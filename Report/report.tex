@@ -202,7 +202,7 @@ MonitorMetadata, as the name states, contains the metadata of the monitors (the 
 This information applies constraints to the farm areas where farmers will pass, hence influencing the execution flow according to the users' wishes.
 As each farmer has its own execution thread, their access to shared resources must be controlled.
 This is where the monitors come in hand. 
-The concurrency measures implemented by our monitors are justified in section \ref{monitors_and_farmers}. 
+The concurrency measures implemented by our monitors are justified in section \ref{monitors}. 
 
 \subsection{User Interface} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -225,8 +225,12 @@ This means that, if desired, such IDs could be replaced by strings containing th
 \end{figure} 
 
 Now Figures \ref{UserInterface_CC_1}, \ref{UserInterface_CC_2} and \ref{UserInterface_CC_3} offer a more interesting view on the system.
-........
+Just by looking at them a few conclusions can be drawn relevant to our situation.
+First of all, with all farmers launched and ready in the Storehouse, only the usable buttons are enabled.
+At this stage the user is allowed to define the parameters on the controls panel on the bottom.
+Such controls are well labelled and use spinners for defining integer values in order to avoid user errors.
 
+\vspace{-5pt}
 \begin{figure}[H]
   \centering
   \begin{minipage}{.9\textwidth}
@@ -235,8 +239,16 @@ Now Figures \ref{UserInterface_CC_1}, \ref{UserInterface_CC_2} and \ref{UserInte
   \end{minipage}%
   \caption{Screenshot of the CC UI right after launching the application.}
   \label{UserInterface_CC_1}
-\end{figure} 
+\end{figure}
+\vspace{-10pt}
 
+When we look at Figure \ref{UserInterface_CC_2}, we see that CC is capable of following the simulation just like FI.
+By comparing such figure with \ref{UserInterface_CC_3} we also understand that each button is only enabled when the selected farmers are all ready to 
+comply with such commands (see the 'Collect' button).
+The requirement of randomness during path walking can also be inferred through Figure \ref{UserInterface_CC_2}, as farmers do not walk always in the same line 
+nor at the same speed.
+
+\vspace{-5pt}
 \begin{figure}[H]
   \centering
   \begin{minipage}{.9\textwidth}
@@ -246,7 +258,9 @@ Now Figures \ref{UserInterface_CC_1}, \ref{UserInterface_CC_2} and \ref{UserInte
   \caption{Screenshot of the CC UI while farmers are crossing the Path.}
   \label{UserInterface_CC_2}
 \end{figure} 
+\vspace{-10pt}
 
+\vspace{-10pt}
 \begin{figure}[H]
   \centering
   \begin{minipage}{.9\textwidth}
@@ -256,97 +270,117 @@ Now Figures \ref{UserInterface_CC_1}, \ref{UserInterface_CC_2} and \ref{UserInte
   \caption{Screenshot of the CC UI when the farmers are ready to collect corn cobs.}
   \label{UserInterface_CC_3}
 \end{figure} 
+\vspace{-10pt}
+
+Two additional features are here worth mentioning.
+The existence of a unique corn collecting position inside the Granary was already suggested in the initial design, however we decided this would also make sense
+on the Storehouse as farmers would also store the corn cobs one at a time there.
+Tracking the number of corn cobs was not a concern on the design concept, but we found it to be very important, even for debugging during development.
+For this reason we also added small trackers both on the Storehouse and in the Granary that automatically update the number of cobs when it is changed.
+
+The reason we decided to include a visual representation of the farm on the side of CC was that we considered the entities running on different and independent 
+processes that could very well be running in different machines - with the only requirement of having knowledge of the endpoints and ports.
+This meant that the Control Center should also have access to the state of the Farm Infrastructure and its components and workers or else it might not know 
+if clicking the buttons was having any effect on the system.
+In reality, what CC sees is a mirror of what FI presents, so there is an unnoticeable transmission delay.
+
+\subsection{Interacting with the Infrastructure} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+As the FarmInfrastructure must be in control of all that occurs during the harvest, this class instantiates and interacts with many elements.
+Such interactions involve communicating with the ControlCenter, following the farmers and making available the farm areas.
+For an easy analysis of this flow of events, orders and task executions, we designed an interaction diagram present in Figure \ref{InteractionDiagram}.
+This diagram includes how the process starts and ends and what occurs in the event of exceptions.
+
+\vspace{-10pt}
+\begin{figure}[H]
+  \centering
+  \begin{minipage}{.9\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{img/InteractionDiagram.png}
+  \end{minipage}%
+  \caption{Interaction diagram of the Farm Infrastructure.}
+  \label{InteractionDiagram}
+\end{figure} 
+\vspace{-10pt}
 
 \newpage
 \section{Concurrency Strategy} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-..... 
+Implementing the system concurrent from the very core was essential to us, as it was required for farmers to "live" simultaneously while sharing resources and 
+these resources (farm areas positions and corn cobs) would have to be managed in such way that data integrity was kept at all times.
+Therefore, design decisions had to be made in order to deliver a robust and efficient solution.
+Such concurrency strategies are here described and justified including: the synchronization methods applied to each farm area, the means of communication between
+the main entities, and the exception handling solutions for user stop and shutdown orders.
 
-\subsection{Monitors \& Farmers} \label{monitors_and_farmers} %%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Monitors \& Farmers} \label{monitors} %%%%%%%%%%%%%%%%%%%%%%%
 
-........
+Amongst the four monitors of FI, only one was implemented using the implicit monitor lock accessed using synchronized methods.
+The StandingArea is a monitor meant to ensure all selected threads are ready to follow orders - it is a sort of farmer synchronization place with no other purpose 
+other than that.
+Commands given here are to be executed by all threads here locked and therefore this implicit lock mechanism was ideal.
 
-MonitorMetadata and 4 Monitors (and respective interfaces)
-Farmer and FarmerState
+Now, for all other monitors, synchronization wasn't as trivial.
+As more than one condition should unlock specific threads at given moments, a more powerful synchronization mechanism was required.
+And this is where Reentrant Locks come in.
+A ReentrantLock \cite{reentrantlock} instance is a reentrant mutual exclusion lock with the same basic behavior and semantics as the implicit monitor lock, 
+but with extended capabilities.
+Such extended capabilities include: 1) the ability to have more than one condition variable per monitor; 2) the ability to make the lock fair, unlike the 
+implicit lock, i.e. a lock that favors granting access to the longest-waiting thread; 3) the ability to check if the lock is being held; 4) the ability to get 
+the list of lock waiting threads.
+
+Storehouse needed two conditions to know if all Farmer threads were ready to be used and if the command 'Prepare' had been given.
+The Granary needed four: to check if all selected farmers were inside the granary for the cobs collecting, to know if the commands 'Collect' and 'Return' had 
+been given, and to check if all farmers had attempted to collect corn cobs.
+The Path needed only one condition to determine whether all selected farmers were in it or not.
+Now the Path was definitely the monitor that most took advantage of the additional features of ReentrantLocks.
+During movements on the Path, we needed to make sure that the order of actions was kept between farmers, so as to prevent situations where farmers would run all 
+the path while others remained in the first positions of it.
+Since by design ReentrantLocks were fair, this was made easy for us and allowed us to focus on other critical challenges.
 
 \subsection{Communications} \label{communications} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-In this project, the communication system adopted and constrained by the guidelines provided was through sockets, using strings as messages. To enable this, we implemented two auxiliary classes to enable both client(\textit{SocketClient}) and server(\textit{SocketServer}) ready to use options. For each instance of SocketServer, a \textit{MessageProcessor} instance must be provided as the internal message processing logic, and since in this problem there is two entities that need to receive and process messages, \textit{CCMessageProcessor} and \textit{CCProxy} were created.
-Taking a closer look at the communication system implemented, starting at the \textit{SocketClient}, this class establishes a connection to the endpoint and port defined in its constructor, providing then a send method, which as the name suggest, sends a message to the socket server present in the other end of the connection and finally a close method, which as the name also implies, closes the socket connection previously established.  In relation to the \textit{SocketServer} class, as it suggests, it implements a ready to use server using sockets and deployed in the port provided in the constructor. It is implemented based on a thread, so that the server life-cycle can occur parallel to the main logic of the problem. The server is constantly waiting to receive a message, that when received is automatically passed to the MessageProcessor instance provided also in the constructor. The server will die after receiving and processing a previously defined message, in this case the string "endSimulationOrder".
 
-As already mentioned, the \textit{SocketServer} needs a \textit{MessageProcessor} instance as its message processing logic. \textit{MessageProcessor} is an interface that any class containing message processing logic should implement and that requires the implementation of the method \texttt{process
-Message}. \textit{CCMessageProcessor} implements the \textit{MessageProcessor} interface and is responsible for processing any messages the Control Center receives. This implementation processes the messages in a sequential form, given the fact that the Control Center is mainly a GUI that enables the user to send commands to the Farm Infrastructure and visualize the state and positions of the farmers in the simulated farm, functionality added by our group since we consider the Control Center process and the Farm Infrastructure one independent although connected, and for that reason the processes can run in different machines, needing to know only the endpoints and ports, meaning that the Control Center, being the main entity of the simulation, should have also access to the state of the Farm Infrastructure and its components and workers.
+The adopted communication system was, as you might have guessed by now, messaging through sockets - as required \textit{a priori}. % using strings as messages. 
+To do this, we implemented two auxiliary classes to enable both client (SocketClient) and server (SocketServer) sides, ready for usage. 
+Each entity (CC and FI) has an instance of each of these classes, hence the reality of being both servers and clients.
 
-On the other hand, the \textit{CCProxy} acts as the message processor for the messages destined to the Farm Infrastructure as well as a substitute for the COntrol Center in the Farm Infrastructure process. Being a entity in a highly concurrent environment, a thread based processing was implemented, meaning that for each received message, a new \texttt{Thread} was initiated with its life-cycle defined in the \texttt{Runnable} \textit{ProcessingThread}. This approach allows the correct handling of several messages at the same time, a crucial aspect in the Farm Infrastructure environment. The \textit{ProcessingThread} class is the one containing the actual logic for the processing of each message the \textit{FarmInfrastructure} receives.
+Taking a closer look at the communication system's implemented and starting on the SocketClient, this class establishes a connection to the endpoint and port 
+defined in its constructor.
+Through its \textit{send(string message)} method, it is able to send requests to the socket server on the other end of the connection.
+The \textit{close()} method, as the name implies, closes the socket connection previously established.
 
-% SocketClient, SocketServer, CCMessageProcessor and CCProxy, ProcessingThread (and MessageProcessor interface)
+In relation to the SocketServer class, it implements a ready-to-use server deployed in the port provided in the constructor. 
+It is implemented based on a thread, so that the server life-cycle can occur parallel to the main logic of the problem. 
+The server is constantly waiting to receive a message, that when received is automatically passed to the MessageProcessor instance provided also in the constructor. 
+The server dies only after receiving and processing a predefined message - the string "endSimulationOrder".
+
+A SocketServer instance is provided with a MessageProcessor as the internal message processing logic.
+MessageProcessor is an interface that any class containing message processing logic should implement and that requires the implementation of the method 
+\textit{processMessage(string message)}. 
+Each entity has a different implementation of MessageProcessor with the proper functionalities for the tasks required: CCMessageProcessor and CCProxy.
+CCMessageProcessor is responsible for processing any messages the CC receives. 
+This implementation processes the messages in a sequential form.
+On the other hand, CCProxy acts as the message processor for those destined to the Farm Infrastructure as well as a substitute for the Control Center in the 
+Farm Infrastructure process. 
+Being a entity in a highly concurrent environment, a thread-based processing was implemented, meaning that for each received message, a new \texttt{Thread} was 
+initiated with its life-cycle defined in the ProcessingThread class (a Runnable class). 
+This approach allows the correct handling of several messages simultaneously - a crucial aspect in the FI environment. 
+The ProcessingThread class is the one containing the actual logic for the processing of each message the FarmInfrastructure receives.
+
+Many of these classes and their interaction with FI are visible in the diagram of Figure \ref{InteractionDiagram}.
+This section is also meant to elucidate such interactions.
 
 \subsection{Exceptions} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-When developing the solution for this complex concurrent scenario, the stop harvest and end simulation events were the ones who generated the most questions and difficulties. Since all threads can be locked in quite different points of its life-cycle, a solution to notify them all that doesn't implied verifying at each new step if in fact the harvest had stopped or the simulation had ended was not natural not immediate.
 
-After many discussions and trials, the exception approach was selected and implemented. Exceptions enabled us to only verify if the harvest stopping and simulation ended conditions were true in a few strategic places, as well as in the case one of the conditions was verified, the corresponding exception was thrown and the current thread executing the code would automatically know, stop what they were doing and jump to the exception catching code, enabling us to process that event. 
+When developing the solution for this complex concurrent scenario, the 'Stop Harvest' and 'End Simulation' events triggered by the user at any time were 
+responsible for many of our doubts and difficulties.
+Since farmer threads can be locked in quite different points of their life-cycle, a solution to notify them all that wouldn't imply verifying at each new step 
+if such triggers had been activated was not natural nor immediate and needed to be found.
 
+After many discussions and trials, the exception-handling approach was selected and implemented. 
+Exceptions enabled us to only verify if the harvest stopping and simulation ended conditions were true in a few strategic places.
+If one such condition was found to be true, the corresponding exception is thrown and the current thread executing the code automatically stops its current task 
+and jumps to the exception catching code, enabling us to process that event. 
 For this purpose, we create two custom exception classes, the StopHarvestSimulation and the EndSimulationException, both with self-explaining names.
-
-% Exceptions
-
-%%%%%%%%%%%%%%%%%%%%%%%% TABLE %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% \begin{table}[h!]
-%   \centering
-%   \begin{tabular}{@{}c|cccccc@{}}
-%                      & \textbf{\texttt{zip}} & \textbf{\texttt{gzip}} & \textbf{\texttt{lzma}} & \textbf{\texttt{bzip2}} & \textbf{\texttt{zpaq}} & \textbf{\texttt{ppmd}}\\ \midrule
-%   \textbf{Append}    & 0.707     & \textbf{0.725}   & 0.271           & 0.507     & 0.060           & 0.657 \\
-%   \textbf{Interlace} & 0.100     & 0.560            & \textbf{0.682}  & 0.578     & 0.021           & 0.025 \\ 
-%   \textbf{Average}   & 0.021     & 0.021            & 0.014           & 0.042     & \textbf{0.089}  & 0.025 \\ 
-%   \end{tabular}
-%   \vspace{5pt}
-%   \caption{Accuracy for each compressor using different concatenation operations.}
-%   \label{tab:1}
-%   \end{table}
-
-%%%%%%%%%%%%%%%%%%%%%%% EQUATION %%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% \begin{equation} \label{eq:1}
-%   NID(x,y) = \frac{max\{K(x|y),K(y|x)\}}{max\{K(x),K(y)\}}
-% \end{equation}
-
-%%%%%%%%%%%%%%%%%%%%%%%%% CODE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% \begin{verbatim}
-%   for each compressor, do:
-%     for each subject, do:
-%       minNCD = 1
-%       for each testImg, do:
-%         for each goldStdImg, do:
-%           tmp = concat(testImg,goldStdImg)
-%           cTmp = compress(tmp)
-%           cT = compress(testImg)
-%           cGS = compress(goldStdImg)
-%           maxS = getMaxSize(cTmp,cT,cGS)
-%           minS = getMinSize(cTmp,cT,cGS)
-%           NCD = (size(cTmp) - minS) / maxS
-%           if NCD < minNCD:
-%             minNCD = NCD
-% \end{verbatim}
-
-% \vspace{0.2in}
-% \begin{minipage}{0.45\textwidth}
-%   \begin{verbatim}
-%     def stringA():
-%       for i in range(5):
-%         print("01", end="")
-%   \end{verbatim}
-% \end{minipage}
-% \begin{minipage}{0.45\textwidth}
-%   \begin{verbatim}
-%     def stringB():
-%       for letter in "0010100110":
-%         print(letter, end="")
-%   \end{verbatim}
-% \end{minipage}
-% \vspace{0.2in}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \newpage
 \section{Additional Remarks} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -380,8 +414,18 @@ Once the final version of the application was completed, this report and the cod
 \section{Conclusions} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 After completing the assignment, we drew a few conclusions regarding the topics here explored and our endeavor to deliver work of quality.
+First of all, it was quite interesting to learn more complete synchronization tools like the Reentrant Lock whose existence we weren't aware of.
+Such mechanism allowed us to gain greater control without much increase in complexity.
 
-.....
+Also, we found quite meaningful to search for the usefulness of a solution like ours instead of completing a mere academical assignment.
+During development we even understood how the design could be applied to parallel problems such as the well known 'Restaurant Problem'.
+
+Regarding our satisfaction with the code delivered, we believe it fulfills all requirements for the purpose of the course and proposes additional features for 
+the final solution.
+Documentation and code readability were primary concerns of ours, as well as repository organization.
+Finally, in terms of work distribution, we believe no group element felt a greater weight and that time schedules were kept by both.
+
+For future work more activities could be added to the simulation such as ordering farmers to plant seeds on the path or adding other cereals.
 
 \begin{thebibliography}{9} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   \bibliographystyle{Science}
@@ -402,6 +446,12 @@ After completing the assignment, we drew a few conclusions regarding the topics 
     Oracle,
     \textit{Swing},
     \url{https://docs.oracle.com/javase/8/docs/technotes/guides/swing/index.html},
+    accessed in February 2020.
+
+  \bibitem{reentrantlock}
+    Oracle,
+    \textit{Class ReentrantLock},
+    \url{https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/locks/ReentrantLock.html},
     accessed in February 2020.
     
   \bibitem{javadoc}
