@@ -12,9 +12,21 @@ import java.util.logging.Logger;
  */
 public class SocketClient {
     
+    /**
+     * Output stream of the socket.
+     */
     private DataOutputStream out;
+    
+    /**
+     * Instance of the communication socket to be used.
+     */
     private Socket socket=null;
 
+    /**
+     * Class constructor for the client definition.
+     * @param ip IP address assigned to the client.
+     * @param port Port assigned to the client.
+     */
     public SocketClient(String ip, int port) {
         try {
             while(this.socket==null){
@@ -29,7 +41,7 @@ public class SocketClient {
     
     /**
      * Sends a text message to the subscribed socket server. 
-     * @param message string containing the message to send
+     * @param message string containing the message to send.
      */
     public void send(String message){
         try {

@@ -15,29 +15,83 @@ import javax.swing.*;
  */
 public class FarmInfrastructure extends JFrame implements UiAndMainControlsFI{
 
-    private static SocketServer fiServer;
-    private static Thread serverThread;
+    /**
+     * Communication client to send messages to CC's server.
+     */
     private static SocketClient ccClient;
-
+    /**
+     * Communication server to receive messages from CC's client.
+     */
+    private static SocketServer fiServer;
+    /**
+     * Communication thread to process FI's server messages.
+     */
+    private static Thread serverThread;
+    
+    /**
+     * Instance of the metadata used for all farm areas.
+     */
     private static MonitorMetadata metadata;
+    
+    
+    /**
+     * Number of farmers available during the simulation.
+     */
     public static final int teamSize = 5;
+    /**
+     * Length/size of the path (number of positions farmers need to cross).
+     */
     public static final int pathSize = 10;
+    /**
+     * Maximum response delay.
+     */
     public static final int maxDelay = 100;
 
+    /**
+     * Instance of the storehouse area.
+     */
     private static Storehouse storeHouse;
+    /**
+     * Instance of the standing area.
+     */
     private static Standing standing;
+    /**
+     * Instance of the path area.
+     */
     private static Path path;
+    /**
+     * Instance of the granary area.
+     */
     private static Granary granary;
+    /**
+     * Auxiliary array containing the farmer instances.
+     */
     private static Farmer[] farmerTeam;
+    /**
+     * Instance of the message processor assigned to the FI.
+     */
     private static CCProxy messageProcessor;
 
+    /**
+     * Auxiliary array to manage swing interface text fields.
+     */
     private JTextField[] storehouseTextFields;
+    /**
+     * Auxiliary array to manage swing interface text fields.
+     */
     private JTextField[] standingAreaTextFields;
+    /**
+     * Auxiliary bidimensional array to manage swing interface text fields.
+     */
     private JTextField[][] pathTextFields;
+    /**
+     * Auxiliary array to manage swing interface text fields.
+     */
     private JTextField[] granaryTextFields;
 
+
     /**
-     * Creates new form NewJFrame
+     * Class construction. Initializes swing components and starts sockets, monitors and farmers.
      */
     public FarmInfrastructure() {
         this.setTitle("Farm Infrastructure");
@@ -706,6 +760,7 @@ public class FarmInfrastructure extends JFrame implements UiAndMainControlsFI{
     }// </editor-fold>//GEN-END:initComponents
 
     /**
+     * Main function responsible for enabling the Farm Infrastructure GUI.
      * @param args the command line arguments
      */
     public static void main(String args[]) {
@@ -824,6 +879,9 @@ public class FarmInfrastructure extends JFrame implements UiAndMainControlsFI{
     private javax.swing.JLabel titleLabel;
     // End of variables declaration//GEN-END:variables
 
+    /**
+     * Auxiliary method to organize the text fields (positions) of all areas.
+     */
     private void groupTextFields() {
         storehouseTextFields = new JTextField[teamSize];
         storehouseTextFields[0] = sh1;
@@ -902,7 +960,7 @@ public class FarmInfrastructure extends JFrame implements UiAndMainControlsFI{
     /**
      * Sends message through the created socket client.
      * Serves as passthrough to the entities that need to send a message to the control center.
-     * @param message string containing the message to send
+     * @param message string containing the message to send.
      */
     @Override
     public void sendMessage(String message) {
@@ -910,7 +968,7 @@ public class FarmInfrastructure extends JFrame implements UiAndMainControlsFI{
     }
     
     /**
-     * Closes the control center socket client
+     * Closes the control center socket client.
      */
     @Override
     public void closeSocketClient() {
@@ -930,8 +988,8 @@ public class FarmInfrastructure extends JFrame implements UiAndMainControlsFI{
 
     /**
      * Presents the farmer id in the respective position of the Storehouse.
-     * @param farmerId int identifying the farmer entering the position 
-     * @param position int identifying the Storehouse position
+     * @param farmerId int identifying the farmer entering the position. 
+     * @param position int identifying the Storehouse position.
      */
     @Override
     public void presentFarmerInStorehouse(int farmerId, int position) {
@@ -955,8 +1013,8 @@ public class FarmInfrastructure extends JFrame implements UiAndMainControlsFI{
 
     /**
      * Presents the farmer id in the respective position of the Standing Area.
-     * @param farmerId int identifying the farmer entering the position 
-     * @param position int identifying the Standing area position
+     * @param farmerId int identifying the farmer entering the position. 
+     * @param position int identifying the Standing area position.
      */
     @Override
     public void presentFarmerInStandingArea(int farmerId, int position) {
@@ -980,8 +1038,9 @@ public class FarmInfrastructure extends JFrame implements UiAndMainControlsFI{
 
     /**
      * Presents the farmer id in the respective position of the Path Area.
-     * @param farmerId int identifying the farmer entering the position 
-     * @param position int identifying the Path area position
+     * @param farmerId int identifying the farmer entering the position. 
+     * @param position int identifying the Path area line position.
+     * @param column int identifying the Path area column position.
      */
     @Override
     public void presentFarmerInPath(int farmerId, int position, int column) {
@@ -1012,8 +1071,8 @@ public class FarmInfrastructure extends JFrame implements UiAndMainControlsFI{
 
     /**
      * Presents the farmer id in the respective position of the Granary Area.
-     * @param farmerId int identifying the farmer entering the position 
-     * @param position int identifying the Granary area position
+     * @param farmerId int identifying the farmer entering the position. 
+     * @param position int identifying the Granary area position.
      */
     @Override
     public void presentFarmerInGranary(int farmerId, int position) {
@@ -1037,7 +1096,7 @@ public class FarmInfrastructure extends JFrame implements UiAndMainControlsFI{
 
     /**
      * Presents the farmer id in the respective position of the Collecting Area.
-     * @param farmerId int identifying the farmer entering the position 
+     * @param farmerId int identifying the farmer entering the position. 
      */
     @Override
     public void presentCollectingFarmer(int farmerId) {
@@ -1058,7 +1117,7 @@ public class FarmInfrastructure extends JFrame implements UiAndMainControlsFI{
     
     /**
      * Presents the farmer id in the respective position of the Storing Area.
-     * @param farmerId int identifying the farmer entering the position 
+     * @param farmerId int identifying the farmer entering the position. 
      */
     @Override
     public void presentStoringFarmer(int farmerId) {
@@ -1079,7 +1138,7 @@ public class FarmInfrastructure extends JFrame implements UiAndMainControlsFI{
 
     /**
      * Clears all the area of a specific farmer id.
-     * @param farmerId int identifying the farmer to clear all the areas
+     * @param farmerId int identifying the farmer to clear all the areas.
      */
     private void clearAll(int farmerId) {
         clearStorehouse(farmerId);

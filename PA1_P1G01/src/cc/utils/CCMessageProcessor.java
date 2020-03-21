@@ -8,9 +8,15 @@ import common.MessageProcessor;
  */
 public class CCMessageProcessor implements MessageProcessor{
     
+    /**
+     * Instance of the Control Center whose messages are to be processed.
+     */
     private UiAndMainControlsCC cc;
     
-
+    /**
+     * Class constructor where the Control Center whose messages are to be processed is defined.
+     * @param cc Instance of the Control Center whose messages are to be processed.
+     */
     public CCMessageProcessor(UiAndMainControlsCC cc) {
         this.cc=cc;
     }

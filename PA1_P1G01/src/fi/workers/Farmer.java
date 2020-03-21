@@ -15,14 +15,43 @@ import java.util.logging.Logger;
  */
 public class Farmer extends Thread {
     
+    /**
+     * Farmer's current state.
+     */
     private FarmerState state;
+    /**
+     * Instance of the storeHouse area.
+     */
     private StorehouseFarmerInt storeHouse;
+    /**
+     * Instance of the standing area.
+     */
     private StandingFarmerInt standing;
+    /**
+     * Instance of the path area.
+     */
     private PathFarmerInt path;
+    /**
+     * Instance of the granary area.
+     */
     private GranaryFarmerInt granary;
+    /**
+     * Farmer Identifier.
+     */
     private final int id;
+    /**
+     * Current amount of corn cobs held by the farmer.
+     */
     private int cornCobs=0;
 
+    /**
+     * Class constructor to define the farmer identifier and the farm areas where he will work.
+     * @param id Farmer Identifier.
+     * @param storeHouse Instance of the storeHouse area.
+     * @param standing Instance of the standing area.
+     * @param path Instance of the path area.
+     * @param granary Instance of the granary area.
+     */
     public Farmer(int id,StorehouseFarmerInt storeHouse,StandingFarmerInt standing,PathFarmerInt path,GranaryFarmerInt granary) {
         this.storeHouse=storeHouse;
         this.standing=standing;
@@ -32,7 +61,7 @@ public class Farmer extends Thread {
     }
     
     /**
-     * Function containing the life-cycle of the Farmer thread.
+     * Method containing the life-cycle of the Farmer thread.
      */
     @Override
     public void run() {
@@ -68,14 +97,26 @@ public class Farmer extends Thread {
         }
     }
     
+    /**
+     * Auxiliary method to retrieve farmer's identifier.
+     * @return Farmer Identifier.
+     */
     public int getID(){
         return this.id;
     }
 
+    /**
+     * Auxiliary method to retrieve farmer's corn cobs.
+     * @return Current amount of corn cobs held by the farmer.
+     */
     public int getCornCobs() {
         return cornCobs;
     }
 
+    /**
+     * Auxiliary method to update farmer's corn cobs.
+     * @param cornCobs Updated current amount of corn cobs held by the farmer.
+     */
     public void setCornCobs(int cornCobs) {
         this.cornCobs = cornCobs;
     }

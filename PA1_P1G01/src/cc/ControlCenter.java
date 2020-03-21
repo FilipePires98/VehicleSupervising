@@ -10,20 +10,52 @@ import javax.swing.JTextField;
  */
 public class ControlCenter extends javax.swing.JFrame implements UiAndMainControlsCC{
 
+    /**
+     * Communication client to send messages to FI's server.
+     */
     private SocketClient fiClient;
+    /**
+     * Communication server to receive messages from FI's client.
+     */
     private SocketServer ccServer;
+    /**
+     * Communication thread to process CC's server messages.
+     */
     private Thread serverThread;
 
+    /**
+     * Auxiliary array to manage swing interface text fields.
+     */
     private JTextField[] storehouseTextFields;
+    /**
+     * Auxiliary array to manage swing interface text fields.
+     */
     private JTextField[] standingAreaTextFields;
+    /**
+     * Auxiliary bidimensional array to manage swing interface text fields.
+     */
     private JTextField[][] pathTextFields;
+    /**
+     * Auxiliary array to manage swing interface text fields.
+     */
     private JTextField[] granaryTextFields;
 
+    /**
+     * Number of farmers available during the simulation.
+     */
     public static final int teamSize = 5;
+    /**
+     * Length/size of the path (number of positions farmers need to cross).
+     */
     public static final int pathSize = 10;
+    /**
+     * Maximum response delay.
+     */
     public static final int maxDelay = 100;
 
-    
+    /**
+     * Class construction. Initializes swing components and starts sockets.
+     */
     public ControlCenter() {
         this.setTitle("Control Center");
         initComponents();
@@ -943,7 +975,14 @@ public class ControlCenter extends javax.swing.JFrame implements UiAndMainContro
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+     * Event handler for the Prepare Button.
+     * @param evt event caught by swing (not used).
+     */
     private void prepareBtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_prepareBtnMouseClicked
+        if(!this.prepareBtn.isEnabled()) {
+            return;
+        }
         System.out.println("[CC] Preparation requested.");
 
         // Update UI
@@ -954,13 +993,19 @@ public class ControlCenter extends javax.swing.JFrame implements UiAndMainContro
         this.timeout.setEnabled(false);
         this.maxStep.setEnabled(false);
 
-
         // Send message to FI to place farmer IDs in respective Storehouse positions
         fiClient.send("prepareOrder;" + this.numFarmers.getValue() + ";" + this.numCornCobs.getValue() + ";"
                 + this.maxStep.getValue() + ";" + this.timeout.getValue());
     }//GEN-LAST:event_prepareBtnMouseClicked
 
+    /**
+     * Event handler for the Start Button.
+     * @param evt event caught by swing (not used).
+     */
     private void startBtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_startBtnMouseClicked
+        if(!this.startBtn.isEnabled()) {
+            return;
+        }
         System.out.println("[CC] Start requested.");
 
         // Update UI
@@ -970,7 +1015,14 @@ public class ControlCenter extends javax.swing.JFrame implements UiAndMainContro
         fiClient.send("startHarvestOrder");
     }//GEN-LAST:event_startBtnMouseClicked
 
+    /**
+     * Event handler for the Collect Button.
+     * @param evt event caught by swing (not used).
+     */
     private void collectBtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_collectBtnMouseClicked
+        if(!this.collectBtn.isEnabled()) {
+            return;
+        }
         System.out.println("[CC] Corn collection requested.");
 
         // Update UI
@@ -980,7 +1032,14 @@ public class ControlCenter extends javax.swing.JFrame implements UiAndMainContro
         fiClient.send("collectOrder");
     }//GEN-LAST:event_collectBtnMouseClicked
 
+    /**
+     * Event handler for the Return Button.
+     * @param evt event caught by swing (not used).
+     */
     private void returnBtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_returnBtnMouseClicked
+        if(!this.returnBtn.isEnabled()) {
+            return;
+        }
         System.out.println("[CC] Return to storehouse requested.");
 
         // Update UI
@@ -991,7 +1050,14 @@ public class ControlCenter extends javax.swing.JFrame implements UiAndMainContro
         fiClient.send("returnOrder");
     }//GEN-LAST:event_returnBtnMouseClicked
 
+    /**
+     * Event handler for the Stop Button.
+     * @param evt event caught by swing (not used).
+     */
     private void stopBtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_stopBtnMouseClicked
+        if(!this.stopBtn.isEnabled()) {
+            return;
+        }
         System.out.println("[CC] Work stop requested.");
 
         // Update UI
@@ -1006,7 +1072,14 @@ public class ControlCenter extends javax.swing.JFrame implements UiAndMainContro
         fiClient.send("stopHarvestOrder");
     }//GEN-LAST:event_stopBtnMouseClicked
 
+    /**
+     * Event handler for the Exit Button.
+     * @param evt event caught by swing (not used).
+     */
     private void exitBtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_exitBtnMouseClicked
+        if(!this.exitBtn.isEnabled()) {
+            return;
+        }
         System.out.println("[CC] Simulation shutdown requested.");
 
         // Send message to FI for farmers to kill themselves, close the sockets and end
@@ -1014,11 +1087,9 @@ public class ControlCenter extends javax.swing.JFrame implements UiAndMainContro
         fiClient.send("endSimulationOrder");
     }//GEN-LAST:event_exitBtnMouseClicked
 
-
-
     /**
      * Main function responsible for enabling the Control Center GUI.
-     * @param args the command line arguments
+     * @param args the command line arguments.
      */
     public static void main(String args[]) {
         try {
@@ -1149,6 +1220,9 @@ public class ControlCenter extends javax.swing.JFrame implements UiAndMainContro
     private javax.swing.JLabel titleLabel;
     // End of variables declaration//GEN-END:variables
 
+    /**
+     * Auxiliary method to organize the text fields (positions) of all areas.
+     */
     private void groupTextFields() {
         storehouseTextFields = new JTextField[teamSize];
         storehouseTextFields[0] = sh1;
@@ -1234,7 +1308,7 @@ public class ControlCenter extends javax.swing.JFrame implements UiAndMainContro
     }
     
     /**
-     * Closes the farm infrastructure socket client
+     * Closes the farm infrastructure socket client.
      */
     @Override
     public void closeSocketClient() {
@@ -1293,8 +1367,8 @@ public class ControlCenter extends javax.swing.JFrame implements UiAndMainContro
 
     /**
      * Presents the farmer id in the respective position of the Storehouse.
-     * @param farmerId int identifying the farmer entering the position 
-     * @param position int identifying the Storehouse position
+     * @param farmerId int identifying the farmer entering the position.
+     * @param position int identifying the Storehouse position.
      */
     @Override
     public void presentFarmerInStorehouse(int farmerId, int position) {
@@ -1318,8 +1392,8 @@ public class ControlCenter extends javax.swing.JFrame implements UiAndMainContro
 
     /**
      * Presents the farmer id in the respective position of the Standing Area.
-     * @param farmerId int identifying the farmer entering the position 
-     * @param position int identifying the Standing area position
+     * @param farmerId int identifying the farmer entering the position.
+     * @param position int identifying the Standing area position.
      */
     @Override
     public void presentFarmerInStandingArea(int farmerId, int position) {
@@ -1343,8 +1417,9 @@ public class ControlCenter extends javax.swing.JFrame implements UiAndMainContro
 
     /**
      * Presents the farmer id in the respective position of the Path Area.
-     * @param farmerId int identifying the farmer entering the position 
-     * @param position int identifying the Path area position
+     * @param farmerId int identifying the farmer entering the position.
+     * @param position int identifying the Path area line position.
+     * @param column int identifying the Path area column position.
      */
     @Override
     public void presentFarmerInPath(int farmerId, int position, int column) {
@@ -1400,7 +1475,7 @@ public class ControlCenter extends javax.swing.JFrame implements UiAndMainContro
 
     /**
      * Presents the farmer id in the respective position of the Collecting Area.
-     * @param farmerId int identifying the farmer entering the position 
+     * @param farmerId int identifying the farmer entering the position. 
      */
     @Override
     public void presentCollectingFarmer(int farmerId) {
@@ -1421,7 +1496,7 @@ public class ControlCenter extends javax.swing.JFrame implements UiAndMainContro
 
     /**
      * Presents the farmer id in the respective position of the Storing Area.
-     * @param farmerId int identifying the farmer entering the position 
+     * @param farmerId int identifying the farmer entering the position. 
      */
     @Override
     public void presentStoringFarmer(int farmerId) {
@@ -1442,7 +1517,7 @@ public class ControlCenter extends javax.swing.JFrame implements UiAndMainContro
 
     /**
      * Clears all the area of a specific farmer id.
-     * @param farmerId int identifying the farmer to clear all the areas
+     * @param farmerId int identifying the farmer to clear all the areas.
      */
     private void clearAll(int farmerId) {
         clearStorehouse(farmerId);

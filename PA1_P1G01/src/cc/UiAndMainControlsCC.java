@@ -1,7 +1,5 @@
 package cc;
 
-import fi.*;
-
 /**
  * Interface defining the service the Control Center provides to the exterior.
  * @author Filipe Pires (85122) and João Alegria (85048)

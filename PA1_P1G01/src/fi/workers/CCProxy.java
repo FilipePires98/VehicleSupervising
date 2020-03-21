@@ -24,8 +24,15 @@ public class CCProxy implements MessageProcessor {
      */
     private class ProcessingThread implements Runnable {
 
+        /**
+         * Message to be handled.
+         */
         private String message;
 
+        /**
+         * Constructor for the thread definition.
+         * @param message Message to be handled.
+         */
         public ProcessingThread(String message) {
             this.message = message;
         }
@@ -89,12 +96,40 @@ public class CCProxy implements MessageProcessor {
         }
     }
 
+    /**
+     * Instance of the storehouse area.
+     */
     private StorehouseCCInt storeHouse;
+    /**
+     * Instance of the standing area.
+     */
     private StandingCCInt standing;
+    /**
+     * Instance of the path area.
+     */
     private PathCCInt path;
+    /**
+     * Instance of the granary area.
+     */
     private GranaryCCInt granary;
+    
+    /**
+     * Instance of the Farm Infrastructure whose messages are to be processed.
+     */
     private UiAndMainControlsFI fi;
 
+    /**
+     * Class constructor where the Control Center whose messages are to be processed is defined.
+     * @param cc Instance of the Control Center whose messages are to be processed.
+     */
+    /**
+     * Class constructor where the Farm Infrastructure whose messages are to be processed and the respective Farm Areas are defined.
+     * @param fi Instance of the Farm Infrastructure whose messages are to be processed.
+     * @param storeHouse Instance of the storehouse area.
+     * @param standing Instance of the standing area.
+     * @param path Instance of the path area.
+     * @param granary Instance of the granary area.
+     */
     public CCProxy(UiAndMainControlsFI fi, StorehouseCCInt storeHouse, StandingCCInt standing, PathCCInt path,
             GranaryCCInt granary) {
         this.storeHouse = storeHouse;

@@ -13,9 +13,21 @@ import java.util.logging.Logger;
  */
 public class SocketServer implements Runnable{
     
+    /**
+     * Port assigned to the server.
+     */
     private int port;
+    
+    /**
+     * Instance of the message processor assigned to the server.
+     */
     private MessageProcessor mp;
 
+    /**
+     * Class constructor for the server definition.
+     * @param port IP address assigned to the server.
+     * @param mp Port assigned to the server.
+     */
     public SocketServer(int port, MessageProcessor mp) {
         this.port=port;
         this.mp = mp;
