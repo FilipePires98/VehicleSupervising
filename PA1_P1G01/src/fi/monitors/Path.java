@@ -361,7 +361,7 @@ public class Path implements PathFarmerInt, PathCCInt {
             farmersMetadata.get(farmerId).depth=newDepth;
             return;
         }
-        int randomIndex=(int)(Math.random()*(this.availablePositions.get(newDepth).size()-1));
+        int randomIndex = (int)(Math.random() * this.availablePositions.get(newDepth).size());
         int randomPosition=this.availablePositions.get(newDepth).get(randomIndex);
         if((this.farmersMetadata.get(farmerId).depth!=-1 && !reverse) || (this.farmersMetadata.get(farmerId).depth!=10 && reverse)){
             path[farmersMetadata.get(farmerId).depth][farmersMetadata.get(farmerId).position]=null;
