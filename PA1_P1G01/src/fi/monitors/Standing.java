@@ -211,7 +211,7 @@ public class Standing implements StandingFarmerInt, StandingCCInt {
      * @param farmerId int containing the farmer identifier
      */
     private void selectSpot(int farmerId){
-        int randomPosition=(int)(Math.random()*(this.availablePosition.size()-1));
+        int randomPosition=(int)(Math.random()*this.availablePosition.size());
         this.positions.put(farmerId, availablePosition.get(randomPosition));
         this.availablePosition.remove(randomPosition);
         this.fi.presentFarmerInStandingArea(farmerId,positions.get(farmerId));
