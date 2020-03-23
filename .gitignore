@@ -1,2 +1,4 @@
-/PA1_P1G01/dist/
-/PA1_P1G01/build/
+*/dist
+*/build
+*/build.xml
+*/manifest.mf

@@ -1332,6 +1332,9 @@ public class ControlCenter extends javax.swing.JFrame implements UiAndMainContro
     public void enablePrepareBtn() {
         this.stopBtn.setEnabled(false);
         this.prepareBtn.setEnabled(true);
+        this.startBtn.setEnabled(false);
+        this.collectBtn.setEnabled(false);
+        this.returnBtn.setEnabled(false);
         this.numFarmers.setEnabled(true);
         this.numCornCobs.setEnabled(true);
         this.timeout.setEnabled(true);
@@ -1345,6 +1348,9 @@ public class ControlCenter extends javax.swing.JFrame implements UiAndMainContro
     @Override
     public void enableStartBtn() {
         this.startBtn.setEnabled(true);
+        this.prepareBtn.setEnabled(false);
+        this.collectBtn.setEnabled(false);
+        this.returnBtn.setEnabled(false);
     }
 
     /**
@@ -1354,6 +1360,9 @@ public class ControlCenter extends javax.swing.JFrame implements UiAndMainContro
     @Override
     public void enableCollectBtn() {
         this.collectBtn.setEnabled(true);
+        this.startBtn.setEnabled(false);
+        this.prepareBtn.setEnabled(false);
+        this.returnBtn.setEnabled(false);
     }
 
     /**
@@ -1363,6 +1372,9 @@ public class ControlCenter extends javax.swing.JFrame implements UiAndMainContro
     @Override
     public void enableReturnBtn() {
         this.returnBtn.setEnabled(true);
+        this.startBtn.setEnabled(false);
+        this.collectBtn.setEnabled(false);
+        this.prepareBtn.setEnabled(false);
     }
 
     /**
