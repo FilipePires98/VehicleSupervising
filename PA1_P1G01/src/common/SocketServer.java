@@ -1,6 +1,7 @@
 package common;
 
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -43,11 +44,13 @@ public class SocketServer implements Runnable{
             ServerSocket socket = new ServerSocket(this.port);
             Socket inSocket = socket.accept();
             DataInputStream socketInputStream = new DataInputStream(inSocket.getInputStream());
+            DataOutputStream socketOutputStream = new DataOutputStream(inSocket.getOutputStream());
             String receivedMessage="a";
             while(!receivedMessage.equals("endSimulationOrder")){
                 receivedMessage=socketInputStream.readUTF();
                 System.out.println("Transmitted Message: "+receivedMessage);
                 this.mp.processMessage(receivedMessage);
+                socketOutputStream.writeUTF("Message Processed");
             }
             socket.close();
         } catch (IOException ex) {
