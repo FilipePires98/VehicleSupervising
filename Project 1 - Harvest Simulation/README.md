@@ -1,4 +1,4 @@
-# Software Architecture - Course Project
+# Software Architecture - Project 1: Harvest Simulation
 
 ## Contextualization
 
