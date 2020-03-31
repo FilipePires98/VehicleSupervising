@@ -1,4 +1,5 @@
 
+import entities.CollectEntity;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -17,8 +18,6 @@ public class Main {
      */
     public static void main(String[] args) {
         
-        System.out.println("Deploying system processes...");
-        
         /* Instantiate required variables */
         
         String[] entities = {"Collect", "Batch", "Alarm", "Report"};
@@ -29,11 +28,17 @@ public class Main {
         
         /* Execute kafka Initialization Script */
         
-        
+        try {
+            Runtime.getRuntime().exec(System.getProperty("user.dir") + "/src/scripts/initKafka.sh");
+            System.out.println("Kafka initialized.");
+        } catch (Exception e) {
+            System.err.println("Error: unable to execute Kafka initialization script.");
+            e.printStackTrace();
+            System.exit(1);
+        }
         
         /* Launch Collect Entity */
         
-        System.out.println("[" + entities[i] + "] Initializing " + entities[i] + " Entity...");
         CollectEntity collect = new CollectEntity(topics);
         collect.setVisible(true);
         
@@ -44,12 +49,30 @@ public class Main {
             topicNames += topics[i] + " ";
         }
         for(i=1; i<entities.length; i++) {
-            commands[i-1] = "java -cp " + System.getProperty("user.dir") + "/build/classes " + entities[i] + "Entity " + topicNames;
+            commands[i-1] = "java -cp " + System.getProperty("user.dir") + "/build/classes entities." + entities[i] + "Entity " + topicNames;
         }
         try {
-            runProcess(commands);
+            Thread[] ioThreads = runProcess(commands);
+            
+            System.out.println("System deployed.");
+            
+            for(Thread t: ioThreads) {
+                t.join();
+            }
+            
         } catch (Exception e) {
             System.err.println("Error: unable to assign process to an entity.");
+            e.printStackTrace();
+            System.exit(1);
+        }
+        
+        /* Execute kafka Termination Script */
+        
+        try {
+            Runtime.getRuntime().exec(System.getProperty("user.dir") + "/src/scripts/deleteKafka.sh");
+            System.out.println("Kafka terminated.");
+        } catch (Exception e) {
+            System.err.println("Error: unable to execute Kafka termination script.");
             e.printStackTrace();
             System.exit(1);
         }
@@ -61,7 +84,7 @@ public class Main {
      * @param commands array of strings with each containing the command line to execute
      * @throws Exception in case of some error occurs during the process execution phase and stream fetching
      */
-    private static void runProcess(String[] commands) throws Exception {
+    private static Thread[] runProcess(String[] commands) throws Exception {
         Process[] processes = new Process[commands.length];
         Thread[] ioThreads = new Thread[commands.length*2];
         for(int i=0; i<commands.length; i++) {
@@ -101,6 +124,7 @@ public class Main {
             ioThreads[i+commands.length].start();
             //processes[i].waitFor();
         }
+        return ioThreads;
     }
     
 }
