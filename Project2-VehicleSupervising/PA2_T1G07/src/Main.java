@@ -23,7 +23,7 @@ public class Main {
         String[] entities = {"Collect", "Batch", "Alarm", "Report"};
         String[] topics = {"BatchTopic", "ReportTopic", "AlarmTopic"};
         
-        String[] commands = new String[entities.length-1];
+        String[] commands = new String[entities.length];
         int i = 0;
         
         /* Execute kafka Initialization Script */
@@ -37,10 +37,10 @@ public class Main {
             System.exit(1);
         }
         
-        /* Launch Collect Entity */
-        
-        CollectEntity collect = new CollectEntity(topics);
-        collect.setVisible(true);
+//        /* Launch Collect Entity */
+//        
+//        CollectEntity collect = new CollectEntity(topics);
+//        collect.setVisible(true);
         
         /* Launch Remaining Entities */
         
@@ -48,8 +48,8 @@ public class Main {
         for(i=0; i<topics.length; i++) {
             topicNames += topics[i] + " ";
         }
-        for(i=1; i<entities.length; i++) {
-            commands[i-1] = "java -cp " + System.getProperty("user.dir") + "/build/classes entities." + entities[i] + "Entity " + topicNames;
+        for(i=0; i<entities.length; i++) {
+            commands[i] = "java -cp " + System.getProperty("user.dir") + "/build/classes entities." + entities[i] + "Entity " + topicNames;
         }
         try {
             Thread[] ioThreads = runProcess(commands);

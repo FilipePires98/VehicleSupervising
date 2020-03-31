@@ -58,24 +58,7 @@ public class BatchEntity extends JFrame {
         }
         
         System.out.println("[Batch] Running...");
-        /*
-        Properties props = new Properties();
-        props.put("bootstrap.servers", "localhost:9092");
-        props.put("group.id", "test");
-        props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
-        props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
 
-        Consumer<String, String> consumer = new KafkaConsumer<>(props);
-        consumer.subscribe(Arrays.asList(args[0]));
-
-        while (true) {
-            ConsumerRecords<String, String> records = consumer.poll(100);
-            for (ConsumerRecord<String, String> record : records) {
-                System.out.printf("[Batch] offset = %d, key = %s, value = %s\n", record.offset(), record.key(), record.value());
-            }
-        }
-        */
-        
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
@@ -105,6 +88,23 @@ public class BatchEntity extends JFrame {
                 new CollectEntity(args).setVisible(true);
             }
         });
+        
+        
+        Properties props = new Properties();
+        props.put("bootstrap.servers", "localhost:9092");
+        props.put("group.id", "test");
+        props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+        props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+
+        Consumer<String, String> consumer = new KafkaConsumer<>(props);
+        consumer.subscribe(Arrays.asList(args[0]));
+
+        while (true) {
+            ConsumerRecords<String, String> records = consumer.poll(100);
+            for (ConsumerRecord<String, String> record : records) {
+                System.out.printf("[Batch] offset = %d, key = %s, value = %s\n", record.offset(), record.key(), record.value());
+            }
+        }
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

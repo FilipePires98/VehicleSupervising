@@ -57,7 +57,6 @@ public class CollectEntity extends JFrame {
         }
         
         System.out.println("[Collect] Running...");
-        /*
         String[] topicName = {"BatchTopic", "ReportTopic", "AlarmTopic"};                           // define names for topics
         Properties props = new Properties();                                                        // create properties to access producer configs
         props.put("bootstrap.servers", "localhost:9092");                                           // assign localhost id
@@ -68,8 +67,7 @@ public class CollectEntity extends JFrame {
         ProducerRecord<String,String> record = new ProducerRecord<>(topicName[0],"k1","v1");
         producer.send(record);
         producer.close();
-        */
-        
+      
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
