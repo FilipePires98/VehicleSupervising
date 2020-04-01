@@ -42,14 +42,15 @@ public class Main {
 //        CollectEntity collect = new CollectEntity(topics);
 //        collect.setVisible(true);
         
-        /* Launch Remaining Entities */
+        /* Launch Remaining Entities */ 
         
         String topicNames = "";
         for(i=0; i<topics.length; i++) {
             topicNames += topics[i] + " ";
         }
         for(i=0; i<entities.length; i++) {
-            commands[i] = "java -cp " + System.getProperty("user.dir") + "/build/classes entities." + entities[i] + "Entity " + topicNames;
+            String jars = System.getProperty("user.dir") + "/dist/lib/*:";   
+            commands[i] = "java -cp " + jars + System.getProperty("user.dir") + "/build/classes entities." + entities[i] + "Entity " + topicNames;
         }
         try {
             Thread[] ioThreads = runProcess(commands);
@@ -90,7 +91,7 @@ public class Main {
         for(int i=0; i<commands.length; i++) {
             Process proc = Runtime.getRuntime().exec(commands[i]);
             processes[i] = proc;
-            ioThreads[i] = new Thread() {
+            ioThreads[i] = new Thread() { // https://stackoverflow.com/questions/15801069/printing-a-java-inputstream-from-a-process
                 @Override
                 public void run() {
                     try {

@@ -2,6 +2,7 @@ package entities;
 
 import java.util.Properties;
 import javax.swing.*;
+
 import org.apache.kafka.clients.producer.*;
 
 /**
@@ -57,11 +58,11 @@ public class CollectEntity extends JFrame {
         }
         
         System.out.println("[Collect] Running...");
-        String[] topicName = {"BatchTopic", "ReportTopic", "AlarmTopic"};                           // define names for topics
-        Properties props = new Properties();                                                        // create properties to access producer configs
-        props.put("bootstrap.servers", "localhost:9092");                                           // assign localhost id
-        props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");      // define serializer for keys
-        props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");    // define serializer for values
+        String[] topicName = {"BatchTopic", "ReportTopic", "AlarmTopic"};   // define names for topics
+        Properties props = new Properties();                                // create properties to access producer configs
+        props.put("bootstrap.servers", "localhost:9092");                   // assign localhost id
+        props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");                    // define serializer for keys
+        props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");                  // define serializer for values
 
         Producer<String,String> producer = new KafkaProducer<>(props);
         ProducerRecord<String,String> record = new ProducerRecord<>(topicName[0],"k1","v1");
