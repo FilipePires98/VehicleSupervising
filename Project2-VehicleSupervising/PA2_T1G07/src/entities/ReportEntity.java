@@ -1,6 +1,13 @@
 package entities;
 
+import java.time.Duration;
+import java.util.Arrays;
+import java.util.Properties;
 import javax.swing.*;
+import org.apache.kafka.clients.consumer.Consumer;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
 
 /**
  * Class for the Report Entity for the car supervising system.
@@ -15,6 +22,7 @@ public class ReportEntity extends JFrame {
      * Creates new form CollectEntity
      */
     public ReportEntity(String[] topicName) {
+        this.setTitle("Report Entiry");
         this.topicName = topicName;
         initComponents();
     }
@@ -82,9 +90,28 @@ public class ReportEntity extends JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new CollectEntity(args).setVisible(true);
+                new ReportEntity(args).setVisible(true);
             }
         });
+        
+        
+        Properties props = new Properties();
+        props.put("bootstrap.servers", "localhost:9092");
+        props.put("group.id", "test");
+        props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+        props.put("value.deserializer", "MessageDeserializer");
+
+        Consumer<String, String> consumer = new KafkaConsumer<>(props);
+        consumer.subscribe(Arrays.asList(args[0]));
+
+        boolean aux = true;
+        while (aux) {
+            ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(10));
+            for (ConsumerRecord<String, String> record : records) {
+                System.out.printf("[Batch] offset = %d, key = %s, value = %s\n", record.offset(), record.key(), record.value());
+                aux = false;
+            }
+        }
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

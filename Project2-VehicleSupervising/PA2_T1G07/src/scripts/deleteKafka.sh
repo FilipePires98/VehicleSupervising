@@ -3,7 +3,7 @@ while read p; do
   kill -9 $p
 done <pids
 
-rm -rf kafkaSrc/kafka-logs-1
-rm -rf kafkaSrc/kafka-logs-2
-rm -rf kafkaSrc/kafka-logs-3
-rm -rf kafkaSrc/zookeeper
+rm -rf configs/kafka-logs-1
+rm -rf configs/kafka-logs-2
+rm -rf configs/kafka-logs-3
+rm -rf configs/zookeeper

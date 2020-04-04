@@ -15,6 +15,7 @@ public class AlarmEntity extends JFrame {
      * Creates new form CollectEntity
      */
     public AlarmEntity(String[] topicName) {
+        this.setTitle("Alarm Entiry");
         this.topicName = topicName;
         initComponents();
     }
@@ -82,7 +83,7 @@ public class AlarmEntity extends JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new CollectEntity(args).setVisible(true);
+                new AlarmEntity(args).setVisible(true);
             }
         });
     }

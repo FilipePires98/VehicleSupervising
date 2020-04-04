@@ -18,6 +18,7 @@ public class CollectEntity extends JFrame {
      * Creates new form CollectEntity
      */
     public CollectEntity(String[] topicName) {
+        this.setTitle("Collect Entiry");
         this.topicName = topicName;
         initComponents();
     }
@@ -96,16 +97,6 @@ public class CollectEntity extends JFrame {
         }
         
         System.out.println("[Collect] Running...");
-        
-        Properties props = new Properties();                                // create properties to access producer configs
-        props.put("bootstrap.servers", "localhost:9092");                   // assign localhost id
-        props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");                    // define serializer for keys
-        props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");                  // define serializer for values
-
-        Producer<String,String> producer = new KafkaProducer<>(props);
-        ProducerRecord<String,String> record = new ProducerRecord<>(CollectEntity.topicName[0],"k1","v1");
-        producer.send(record);
-        producer.close();
       
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -136,6 +127,16 @@ public class CollectEntity extends JFrame {
                 new CollectEntity(args).setVisible(true);
             }
         });
+        
+        Properties props = new Properties();                                // create properties to access producer configs
+        props.put("bootstrap.servers", "localhost:9092");                   // assign localhost id
+        props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");                    // define serializer for keys
+        props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");                  // define serializer for values
+
+        Producer<String,String> producer = new KafkaProducer<>(props);
+        ProducerRecord<String,String> record = new ProducerRecord<>(CollectEntity.topicName[0],"k1","v1");
+        producer.send(record);
+        producer.close();
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

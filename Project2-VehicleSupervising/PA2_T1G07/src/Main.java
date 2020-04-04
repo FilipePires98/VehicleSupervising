@@ -35,7 +35,6 @@ public class Main {
         String jars = userDir + "/dist/lib/*:";   
         
         /* Execute kafka Initialization Script */
-        /*
         try {
             Process proc = Runtime.getRuntime().exec("./initKafka.sh "+topicNames, null, new File(userDir+"/src/scripts/"));
             proc.waitFor();
@@ -45,13 +44,9 @@ public class Main {
             e.printStackTrace();
             System.exit(1);
         }
-        */
+        
         
         /* Launch Remaining Entities */ 
-        
-        for(i=0; i<topics.length; i++) {
-            topicNames += topics[i] + " ";
-        }
         for(i=0; i<entities.length; i++) {
             commands[i] = "java -cp " + jars + userDir + "/build/classes entities." + entities[i] + "Entity " + topicNames;
         }
@@ -71,7 +66,6 @@ public class Main {
         }
         
         /* Execute kafka Termination Script */
-        /*
         try {
             Runtime.getRuntime().exec("./deleteKafka.sh", null, new File(userDir+"/src/scripts/"));
             System.out.println("Kafka terminated.");
@@ -80,7 +74,6 @@ public class Main {
             e.printStackTrace();
             System.exit(1);
         }
-        */
     }
     
     /**
