@@ -29,13 +29,6 @@ public class ReportEntity extends JFrame implements EntityAction{
         initComponents();
         
         try {
-            File file=new File("src/data/REPORT.TXT");
-            
-            // if file doesnt exists, then create it
-            if (!file.exists()) {
-                    file.createNewFile();
-            }
-            
             this.file = new FileWriter("src/data/REPORT.TXT");
         } catch (IOException ex) {
             Logger.getLogger(ReportEntity.class.getName()).log(Level.SEVERE, null, ex);

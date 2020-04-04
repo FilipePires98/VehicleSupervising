@@ -29,13 +29,6 @@ public class AlarmEntity extends JFrame implements EntityAction {
         initComponents();
         
         try {
-            File file=new File("src/data/ALARm.TXT");
-            
-            // if file doesnt exists, then create it
-            if (!file.exists()) {
-                    file.createNewFile();
-            }
-            
             this.file = new FileWriter("src/data/ALARM.TXT");
         } catch (IOException ex) {
             Logger.getLogger(AlarmEntity.class.getName()).log(Level.SEVERE, null, ex);
