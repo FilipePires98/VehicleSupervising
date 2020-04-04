@@ -25,7 +25,7 @@ public class ReportEntity extends JFrame implements EntityAction{
      * Creates new form CollectEntity
      */
     public ReportEntity() {
-        this.setTitle("Report Entiry");
+        this.setTitle("Report Entity");
         initComponents();
         
         try {

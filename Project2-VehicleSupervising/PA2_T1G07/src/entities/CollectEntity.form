@@ -23,59 +23,25 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" alignment="0" attributes="0">
+          <Group type="102" attributes="0">
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" attributes="0">
-                      <Component id="jScrollPane1" max="32767" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                  </Group>
-                  <Group type="102" attributes="0">
-                      <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="pathToCarDataLabel" alignment="0" min="-2" pref="494" max="-2" attributes="0"/>
+                  <Component id="startBtn" alignment="0" min="-2" max="-2" attributes="0"/>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Group type="103" groupAlignment="1" attributes="0">
+                          <Component id="jScrollPane1" alignment="0" max="32767" attributes="0"/>
+                          <Component id="topicsToIncludeLabel" alignment="0" min="-2" pref="467" max="-2" attributes="0"/>
                           <Group type="102" alignment="0" attributes="0">
-                              <Component id="titleLabel" pref="118" max="32767" attributes="0"/>
-                              <EmptySpace min="31" pref="31" max="-2" attributes="0"/>
+                              <Component id="batchTopicCheckbox" min="-2" pref="136" max="-2" attributes="0"/>
+                              <EmptySpace min="-2" max="-2" attributes="0"/>
+                              <Component id="reportTopicCheckbox" min="-2" pref="144" max="-2" attributes="0"/>
+                              <EmptySpace min="-2" max="-2" attributes="0"/>
+                              <Component id="alarmTopicCheckbox" min="-2" pref="136" max="-2" attributes="0"/>
                           </Group>
-                          <Component id="topicsToIncludeLabel" alignment="0" max="32767" attributes="0"/>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="batchTopicCheckbox" max="32767" attributes="0"/>
-                              <EmptySpace min="19" pref="19" max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="reportTopicCheckbox" max="32767" attributes="0"/>
-                              <EmptySpace min="11" pref="11" max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="alarmTopicCheckbox" max="32767" attributes="0"/>
-                              <EmptySpace min="-2" pref="19" max="-2" attributes="0"/>
-                          </Group>
+                          <Component id="filePath" alignment="0" max="32767" attributes="0"/>
                       </Group>
-                      <EmptySpace type="separate" min="-2" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="pathToCarDataLabel" max="32767" attributes="0"/>
-                              <EmptySpace max="32767" attributes="0"/>
-                          </Group>
-                          <Group type="102" attributes="0">
-                              <Group type="103" groupAlignment="1" attributes="0">
-                                  <Group type="102" alignment="0" attributes="0">
-                                      <Group type="103" groupAlignment="0" attributes="0">
-                                          <Group type="102" attributes="0">
-                                              <Component id="timeoutLabel" max="32767" attributes="0"/>
-                                              <EmptySpace min="-2" pref="92" max="-2" attributes="0"/>
-                                          </Group>
-                                          <Group type="102" attributes="0">
-                                              <Component id="timeout" min="-2" max="-2" attributes="0"/>
-                                              <EmptySpace max="32767" attributes="0"/>
-                                          </Group>
-                                      </Group>
-                                      <Component id="startBtn" min="-2" max="-2" attributes="0"/>
-                                  </Group>
-                                  <Component id="filePath" pref="303" max="32767" attributes="0"/>
-                              </Group>
-                              <EmptySpace pref="24" max="32767" attributes="0"/>
-                          </Group>
-                      </Group>
+                      <EmptySpace min="-2" pref="6" max="-2" attributes="0"/>
                   </Group>
               </Group>
           </Group>
@@ -85,41 +51,27 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace min="-2" max="-2" attributes="0"/>
-              <Component id="titleLabel" min="-2" pref="15" max="-2" attributes="0"/>
-              <EmptySpace type="separate" min="-2" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="topicsToIncludeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="pathToCarDataLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
+              <Component id="topicsToIncludeLabel" min="-2" max="-2" attributes="0"/>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="batchTopicCheckbox" alignment="3" min="-2" pref="24" max="-2" attributes="0"/>
-                  <Component id="filePath" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="reportTopicCheckbox" alignment="3" min="-2" pref="24" max="-2" attributes="0"/>
-                  <Component id="timeoutLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="alarmTopicCheckbox" alignment="3" min="-2" pref="24" max="-2" attributes="0"/>
-                  <Component id="timeout" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="startBtn" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
-              <Component id="jScrollPane1" pref="197" max="32767" attributes="0"/>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="pathToCarDataLabel" min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="filePath" min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="startBtn" min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="jScrollPane1" pref="210" max="32767" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
   </Layout>
   <SubComponents>
-    <Component class="javax.swing.JLabel" name="titleLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Collect Entity"/>
-      </Properties>
-    </Component>
     <Component class="javax.swing.JLabel" name="topicsToIncludeLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Topics to include:"/>
@@ -152,20 +104,7 @@
     <Component class="javax.swing.JTextField" name="filePath">
       <Properties>
         <Property name="horizontalAlignment" type="int" value="2"/>
-        <Property name="text" type="java.lang.String" value="(default path is &lt;ProjectLocation&gt;/src/data)"/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JLabel" name="timeoutLabel">
-      <Properties>
-        <Property name="horizontalAlignment" type="int" value="2"/>
-        <Property name="text" type="java.lang.String" value="Timeout (ms):"/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JSpinner" name="timeout">
-      <Properties>
-        <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
-          <SpinnerModel initial="1000" maximum="10000" minimum="100" numberType="java.lang.Integer" stepSize="100" type="number"/>
-        </Property>
+        <Property name="text" type="java.lang.String" value="(default path is ~/&lt;ProjectLocation&gt;/src/data)"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JButton" name="startBtn">

@@ -20,7 +20,7 @@ public class BatchEntity extends JFrame implements EntityAction{
      * Creates new form CollectEntity
      */
     public BatchEntity() {
-        this.setTitle("Batch Entiry");
+        this.setTitle("Batch Entity");
         initComponents();
         startConsumers();
     }
@@ -34,16 +34,12 @@ public class BatchEntity extends JFrame implements EntityAction{
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        titleLabel = new javax.swing.JLabel();
         heartbeatConsumersLabel = new javax.swing.JLabel();
         nConsumers = new javax.swing.JSpinner();
         jScrollPane1 = new javax.swing.JScrollPane();
         logs = new javax.swing.JTextArea();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setPreferredSize(new java.awt.Dimension(500, 360));
-
-        titleLabel.setText("Batch Entity");
 
         heartbeatConsumersLabel.setText("# of HEARTBEAT Consumers:");
 
@@ -62,12 +58,9 @@ public class BatchEntity extends JFrame implements EntityAction{
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane1)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(titleLabel)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(heartbeatConsumersLabel)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(nConsumers, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(heartbeatConsumersLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(nConsumers, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(0, 230, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -75,13 +68,11 @@ public class BatchEntity extends JFrame implements EntityAction{
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(titleLabel)
-                .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(heartbeatConsumersLabel)
                     .addComponent(nConsumers, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 283, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 316, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -142,7 +133,6 @@ public class BatchEntity extends JFrame implements EntityAction{
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextArea logs;
     private javax.swing.JSpinner nConsumers;
-    private javax.swing.JLabel titleLabel;
     // End of variables declaration//GEN-END:variables
 
     @Override

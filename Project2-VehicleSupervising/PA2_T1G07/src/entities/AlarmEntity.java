@@ -25,7 +25,7 @@ public class AlarmEntity extends JFrame implements EntityAction {
      * Creates new form CollectEntity
      */
     public AlarmEntity() {
-        this.setTitle("Alarm Entiry");
+        this.setTitle("Alarm Entity");
         initComponents();
         
         try {

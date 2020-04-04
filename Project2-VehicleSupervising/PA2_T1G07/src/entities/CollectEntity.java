@@ -1,5 +1,8 @@
 package entities;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Properties;
 import javax.swing.*;
 import kafkaUtils.Producer;
@@ -11,13 +14,14 @@ import kafkaUtils.Producer;
  */
 public class CollectEntity extends JFrame {
     
+    private BufferedReader CAR;
     private String[] topicNames = new String[]{"BatchTopic", "ReportTopic", "AlarmTopic"};
 
     /**
      * Creates new form CollectEntity
      */
     public CollectEntity() {
-        this.setTitle("Collect Entiry");
+        this.setTitle("Collect Entity");
         initComponents();
     }
 
@@ -30,22 +34,17 @@ public class CollectEntity extends JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        titleLabel = new javax.swing.JLabel();
         topicsToIncludeLabel = new javax.swing.JLabel();
         batchTopicCheckbox = new javax.swing.JCheckBox();
         reportTopicCheckbox = new javax.swing.JCheckBox();
         alarmTopicCheckbox = new javax.swing.JCheckBox();
         pathToCarDataLabel = new javax.swing.JLabel();
         filePath = new javax.swing.JTextField();
-        timeoutLabel = new javax.swing.JLabel();
-        timeout = new javax.swing.JSpinner();
         startBtn = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         logs = new javax.swing.JTextArea();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-
-        titleLabel.setText("Collect Entity");
 
         topicsToIncludeLabel.setText("Topics to include:");
 
@@ -62,12 +61,7 @@ public class CollectEntity extends JFrame {
         pathToCarDataLabel.setText("Path to Car Data (.txt):");
 
         filePath.setHorizontalAlignment(javax.swing.JTextField.LEFT);
-        filePath.setText("(default path is <ProjectLocation>/src/data)");
-
-        timeoutLabel.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        timeoutLabel.setText("Timeout (ms):");
-
-        timeout.setModel(new javax.swing.SpinnerNumberModel(1000, 100, 10000, 100));
+        filePath.setText("(default path is ~/<ProjectLocation>/src/data)");
 
         startBtn.setText("Start");
         startBtn.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -87,67 +81,39 @@ public class CollectEntity extends JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(pathToCarDataLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 494, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(startBtn)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jScrollPane1)
-                        .addContainerGap())
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(titleLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 118, Short.MAX_VALUE)
-                                .addGap(31, 31, 31))
-                            .addComponent(topicsToIncludeLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(batchTopicCheckbox, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addGap(19, 19, 19))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(reportTopicCheckbox, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addGap(11, 11, 11))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(alarmTopicCheckbox, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addGap(19, 19, 19)))
-                        .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(pathToCarDataLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addGroup(layout.createSequentialGroup()
-                                                .addComponent(timeoutLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                                .addGap(92, 92, 92))
-                                            .addGroup(layout.createSequentialGroup()
-                                                .addComponent(timeout, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                                        .addComponent(startBtn))
-                                    .addComponent(filePath, javax.swing.GroupLayout.DEFAULT_SIZE, 303, Short.MAX_VALUE))
-                                .addContainerGap(24, Short.MAX_VALUE))))))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(topicsToIncludeLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 467, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                .addComponent(batchTopicCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, 136, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(reportTopicCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(alarmTopicCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, 136, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(filePath, javax.swing.GroupLayout.Alignment.LEADING))
+                        .addGap(6, 6, 6))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(titleLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(topicsToIncludeLabel)
-                    .addComponent(pathToCarDataLabel))
+                .addComponent(topicsToIncludeLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(batchTopicCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(filePath, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(reportTopicCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(timeoutLabel))
+                    .addComponent(alarmTopicCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(alarmTopicCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(timeout, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(startBtn))
+                .addComponent(pathToCarDataLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 197, Short.MAX_VALUE)
+                .addComponent(filePath, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(startBtn)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 210, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -160,6 +126,52 @@ public class CollectEntity extends JFrame {
         props.put("bootstrap.servers", "localhost:9092");                                           // assign localhost id
         props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");      // define serializer for keys
         props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");    // define serializer for values
+        
+        //System.out.println("[Collect] User Dir: " + System.getProperty("user.dir"));
+        //System.out.println("[Collect] Path Input Field: " + filePath.getText());
+        
+        String file = filePath.getText();
+        if(file.equals("(default path is ~/<ProjectLocation>/src/data)")) {
+            file = System.getProperty("user.dir") + "/src/data/CAR.txt";
+        }
+        
+        try {
+            CAR = new BufferedReader(new FileReader(file));
+            this.logs.append("Data file successfully opened for reading.\n");
+            
+            String line = CAR.readLine();
+            String[] content;
+            String car_reg; Long timestamp; int msgType; int speed; String status;
+            while(line != null) {
+                //System.out.println(line);
+                
+                content = line.split("|");
+                car_reg = content[1].trim();
+                timestamp = Long.valueOf(content[2].trim());
+                msgType = Integer.valueOf(content[3].trim());
+                switch(msgType) {
+                    case 0:
+                        // ...
+                        break;
+                    case 1:
+                        speed = Integer.valueOf(content[4].trim());
+                        // ...
+                        break;
+                    case 2:
+                        status = content[4].trim();
+                        // ...
+                        break;
+                }
+                
+                line = CAR.readLine();
+            }
+        } catch (IOException e) {
+            //e.printStackTrace();
+            String errorMsg = "Unable to open file for reading. Please make sure you write the correct path to the data file.";
+            System.err.println("[Collect] " + errorMsg);
+            this.logs.append("Error: " + errorMsg + "\n");
+        }
+        
 
         Producer<String,String> producer = new Producer<>(props);
         producer.fireAndForget(this.topicNames[0],"k1","v1");
@@ -167,6 +179,10 @@ public class CollectEntity extends JFrame {
         
     }//GEN-LAST:event_startBtnMouseClicked
 
+    private void processLine(String line) {
+        
+    }
+    
     /**
      * @param args the command line arguments
      */
@@ -213,9 +229,6 @@ public class CollectEntity extends JFrame {
     private javax.swing.JLabel pathToCarDataLabel;
     private javax.swing.JCheckBox reportTopicCheckbox;
     private javax.swing.JButton startBtn;
-    private javax.swing.JSpinner timeout;
-    private javax.swing.JLabel timeoutLabel;
-    private javax.swing.JLabel titleLabel;
     private javax.swing.JLabel topicsToIncludeLabel;
     // End of variables declaration//GEN-END:variables
 
