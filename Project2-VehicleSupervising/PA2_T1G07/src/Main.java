@@ -21,7 +21,7 @@ public class Main {
         
         /* Instantiate required variables */
         
-        String[] entities = {"Collect", "Batch"}; //, "Alarm", "Report"};
+        String[] entities = {"Collect", "Batch", "Alarm", "Report"};
         String[] commands = new String[entities.length];
         
         String[] topics = {"BatchTopic", "ReportTopic", "AlarmTopic"};
@@ -48,7 +48,7 @@ public class Main {
         
         /* Launch Remaining Entities */ 
         for(i=0; i<entities.length; i++) {
-            commands[i] = "java -cp " + jars + userDir + "/build/classes entities." + entities[i] + "Entity " + topicNames;
+            commands[i] = "java -cp " + jars + userDir + "/build/classes entities." + entities[i] + "Entity";
         }
         try {
             Thread[] ioThreads = runProcess(commands);

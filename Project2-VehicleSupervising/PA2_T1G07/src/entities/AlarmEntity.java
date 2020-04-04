@@ -1,23 +1,36 @@
 package entities;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.*;
+import kafkaUtils.EntityAction;
+import message.Message;
 
 /**
  * Class for the Alarm Entity for the car supervising system.
  * 
  * @author Filipe Pires (85122) and João Alegria (85048)
  */
-public class AlarmEntity extends JFrame {
+public class AlarmEntity extends JFrame implements EntityAction {
     
-    private String[] topicName;
+    private String topicName="AlarmTopic";
+    private FileWriter file;
+    private boolean isAlarmOn=false;
 
     /**
      * Creates new form CollectEntity
      */
-    public AlarmEntity(String[] topicName) {
+    public AlarmEntity() {
         this.setTitle("Alarm Entiry");
-        this.topicName = topicName;
         initComponents();
+        
+        try {
+            this.file=new FileWriter("data/ALARM.TXT");
+        } catch (IOException ex) {
+            Logger.getLogger(ReportEntity.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     /**
@@ -49,12 +62,6 @@ public class AlarmEntity extends JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        
-        if(args.length == 0){
-            System.err.println("[Alarm] Kafka Topics not given.");
-            return;
-        }
-        
         System.out.println("[Alarm] Running...");
         
         /* Set the Nimbus look and feel */
@@ -83,9 +90,31 @@ public class AlarmEntity extends JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new AlarmEntity(args).setVisible(true);
+                new AlarmEntity().setVisible(true);
             }
         });
+    }
+
+    @Override
+    public void processMessage(String topic, Object key, Object value) {
+        try {
+            Message data = (Message)value;
+            if(data.getType()==1){//message is of type speed
+                String tmp="";
+                if(!isAlarmOn && data.getSpeed()>120){
+                    tmp=data.toString()+" | ON |";
+                }else if(isAlarmOn && data.getSpeed()<120){
+                    tmp=data.toString()+" | OFF |";
+                }
+                
+                if(tmp.length()>0){
+                    file.write(tmp);
+                    System.out.println("[ALARM] Processed message: "+tmp);
+                }
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(ReportEntity.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

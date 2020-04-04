@@ -1,30 +1,50 @@
 package entities;
 
-import java.time.Duration;
-import java.util.Arrays;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.*;
-import org.apache.kafka.clients.consumer.Consumer;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
+import kafkaUtils.EntityAction;
+import message.Message;
 
 /**
  * Class for the Report Entity for the car supervising system.
  * 
  * @author Filipe Pires (85122) and João Alegria (85048)
  */
-public class ReportEntity extends JFrame {
+public class ReportEntity extends JFrame implements EntityAction{
     
-    private String[] topicName;
+    private String topicName="ReportTopic";
+    private FileWriter file;
 
     /**
      * Creates new form CollectEntity
      */
-    public ReportEntity(String[] topicName) {
+    public ReportEntity() {
         this.setTitle("Report Entiry");
-        this.topicName = topicName;
         initComponents();
+        
+        try {
+            this.file=new FileWriter("data/REPORT.TXT");
+        } catch (IOException ex) {
+            Logger.getLogger(ReportEntity.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    private void startConsumers(){
+        String[] topics=new String[]{topicName};
+        
+        Properties props = new Properties();
+        props.put("bootstrap.servers", "localhost:9092");
+        props.put("group.id", "REPORTGROUP");
+        props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+        props.put("value.deserializer", "MessageDeserializer");
+        
+        kafkaUtils.Consumer<String, Message> consumer = new kafkaUtils.Consumer<>(props, topics, this);
+        Thread t = new Thread(consumer);
+        t.start();
     }
 
     /**
@@ -56,12 +76,6 @@ public class ReportEntity extends JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        
-        if(args.length == 0){
-            System.err.println("[Batch] Kafka Topics not given.");
-            return;
-        }
-        
         System.out.println("[Report] Running...");
         
         /* Set the Nimbus look and feel */
@@ -90,27 +104,20 @@ public class ReportEntity extends JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new ReportEntity(args).setVisible(true);
+                new ReportEntity().setVisible(true);
             }
         });
-        
-        
-        Properties props = new Properties();
-        props.put("bootstrap.servers", "localhost:9092");
-        props.put("group.id", "test");
-        props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
-        props.put("value.deserializer", "MessageDeserializer");
+    }
 
-        Consumer<String, String> consumer = new KafkaConsumer<>(props);
-        consumer.subscribe(Arrays.asList(args[0]));
-
-        boolean aux = true;
-        while (aux) {
-            ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(10));
-            for (ConsumerRecord<String, String> record : records) {
-                System.out.printf("[Batch] offset = %d, key = %s, value = %s\n", record.offset(), record.key(), record.value());
-                aux = false;
-            }
+    @Override
+    public void processMessage(String topic, Object key, Object value) {
+        try {
+            Message data=(Message)value;
+            String tmp  = data.toString();
+            file.write(tmp);
+            System.out.println("[REPORT] Processed message: "+tmp);
+        } catch (IOException ex) {
+            Logger.getLogger(ReportEntity.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 

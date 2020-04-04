@@ -50,6 +50,25 @@ public class Message {
     public String getCar_status() {
         return car_status;
     }
+
+    @Override
+    public String toString() {
+        String message="";
+        switch(type){
+            case 0:
+                message="| "+ car_reg + " | " + timestamp + " | " + type + " |";
+                break;
+            case 1:
+                message="| "+ car_reg + " | " + timestamp + " | " + type + " | " + speed + " |";
+                break;
+            case 2:
+                message="| "+ car_reg + " | " + timestamp + " | " + type + " | " + car_status + " |";
+                break;
+        }
+        return message;
+    }
+    
+    
     
     
 }

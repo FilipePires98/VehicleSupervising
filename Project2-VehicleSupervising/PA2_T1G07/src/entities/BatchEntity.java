@@ -14,14 +14,13 @@ import kafkaUtils.EntityAction;
  */
 public class BatchEntity extends JFrame implements EntityAction{
     
-    private String[] topicNames;
+    private String topicName="BatchTopic";
 
     /**
      * Creates new form CollectEntity
      */
-    public BatchEntity(String[] topicNames) {
+    public BatchEntity() {
         this.setTitle("Batch Entiry");
-        this.topicNames = topicNames;
         initComponents();
         startConsumers();
     }
@@ -95,7 +94,7 @@ public class BatchEntity extends JFrame implements EntityAction{
         props.put("group.id", "test");
         props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
-        String[] tmp = new String[]{topicNames[0]};
+        String[] tmp = new String[]{topicName};
         Consumer<String, String> consumer = new Consumer<>(props, tmp, this);
         Thread t = new Thread(consumer);
         t.start();
@@ -137,7 +136,7 @@ public class BatchEntity extends JFrame implements EntityAction{
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new BatchEntity(args).setVisible(true);
+                new BatchEntity().setVisible(true);
             }
         });
         

@@ -11,14 +11,13 @@ import kafkaUtils.Producer;
  */
 public class CollectEntity extends JFrame {
     
-    private String[] topicName;
+    private String[] topicNames = new String[]{"BatchTopic", "ReportTopic", "AlarmTopic"};
 
     /**
      * Creates new form CollectEntity
      */
-    public CollectEntity(String[] topicName) {
+    public CollectEntity() {
         this.setTitle("Collect Entiry");
-        this.topicName = topicName;
         initComponents();
     }
 
@@ -163,7 +162,7 @@ public class CollectEntity extends JFrame {
         props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");    // define serializer for values
 
         Producer<String,String> producer = new Producer<>(props);
-        producer.fireAndForget(this.topicName[0],"k1","v1");
+        producer.fireAndForget(this.topicNames[0],"k1","v1");
         producer.close();
         
     }//GEN-LAST:event_startBtnMouseClicked
@@ -207,7 +206,7 @@ public class CollectEntity extends JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new CollectEntity(args).setVisible(true);
+                new CollectEntity().setVisible(true);
             }
         });
     }
