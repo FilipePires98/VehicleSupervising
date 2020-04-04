@@ -25,7 +25,7 @@ public class Producer<K,V>{
     }
     
     private Properties properties;
-    private KafkaProducer producer;
+    private KafkaProducer<K,V> producer;
 
     public Producer(Properties properties) {
         this.properties = properties;
@@ -33,19 +33,25 @@ public class Producer<K,V>{
     }
     
     
-    public void fireAndForget(String topic, K key, V value){
-        ProducerRecord<K,V> record = new ProducerRecord<>(topic,key,value);
-        this.producer.send(record);
+    public void fireAndForget(String[] topics, K key, V value){
+        for(String topic:topics){
+            ProducerRecord<K,V> record = new ProducerRecord<K,V>(topic,key,value);
+            this.producer.send(record);
+        }
     }
     
-    public void sendAsync(String topic, K key, V value){
-        ProducerRecord<K,V> record = new ProducerRecord<>(topic,key,value);
-        this.producer.send(record).isDone();
+    public void sendAsync(String[] topics, K key, V value){
+        for(String topic:topics){
+            ProducerRecord<K,V> record = new ProducerRecord<K,V>(topic,key,value);
+            this.producer.send(record).isDone();
+        }
     }
     
-    public void senSync(String topic, K key, V value) throws InterruptedException, ExecutionException{
-        ProducerRecord<K,V> record = new ProducerRecord<>(topic,key,value);
-        this.producer.send(record, new ProducerCallback());
+    public void senSync(String[] topics, K key, V value) throws InterruptedException, ExecutionException{
+        for(String topic:topics){
+            ProducerRecord<K,V> record = new ProducerRecord<K,V>(topic,key,value);
+            this.producer.send(record, new ProducerCallback());
+        }
     }
     
     public void close(){

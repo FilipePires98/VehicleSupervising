@@ -4,18 +4,20 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.*;
 import kafkaUtils.EntityAction;
 import message.Message;
+import message.MessageDeserializer;
 
 /**
  * Class for the Alarm Entity for the car supervising system.
  * 
  * @author Filipe Pires (85122) and João Alegria (85048)
  */
-public class AlarmEntity extends JFrame implements EntityAction {
+public class AlarmEntity extends JFrame implements EntityAction<String, Message> {
     
     private String topicName="AlarmTopic";
     private FileWriter file;
@@ -33,6 +35,22 @@ public class AlarmEntity extends JFrame implements EntityAction {
         } catch (IOException ex) {
             Logger.getLogger(AlarmEntity.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
+        startConsumers();
+    }
+    
+    private void startConsumers(){
+        String[] topics=new String[]{topicName};
+        
+        Properties props = new Properties();
+        props.put("bootstrap.servers", "localhost:9092");
+        props.put("group.id", "ALARMGROUP");
+        props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+        props.put("value.deserializer", MessageDeserializer.class.getName());
+        
+        kafkaUtils.Consumer<String, Message> consumer = new kafkaUtils.Consumer<String, Message>(props, topics, this);
+        Thread t = new Thread(consumer);
+        t.start();
     }
 
     /**
@@ -98,19 +116,19 @@ public class AlarmEntity extends JFrame implements EntityAction {
     }
 
     @Override
-    public void processMessage(String topic, Object key, Object value) {
-        Message data = (Message)value;
-        if(data.getType()==1){//message is of type speed
+    public void processMessage(String topic, String key, Message value) {
+        if(value.getType()==1){//message is of type speed
             String tmp="";
-            if(!isAlarmOn && data.getSpeed()>120){
-                tmp=data.toString()+" | ON |";
-            }else if(isAlarmOn && data.getSpeed()<120){
-                tmp=data.toString()+" | OFF |";
+            if(!isAlarmOn && value.getSpeed()>120){
+                tmp=value.toString()+" | ON |";
+            }else if(isAlarmOn && value.getSpeed()<120){
+                tmp=value.toString()+" | OFF |";
             }
 
             if(tmp.length()>0){
                 try {
                     file.write(tmp);
+                    file.flush();
                     System.out.println("[ALARM] Processed message: "+tmp);
                 } catch (IOException ex) {
                     Logger.getLogger(AlarmEntity.class.getName()).log(Level.SEVERE, null, ex);

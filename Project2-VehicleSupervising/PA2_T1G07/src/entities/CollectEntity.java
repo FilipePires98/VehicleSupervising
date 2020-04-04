@@ -3,6 +3,8 @@ package entities;
 import java.util.Properties;
 import javax.swing.*;
 import kafkaUtils.Producer;
+import message.Message;
+import message.MessageSerializer;
 
 /**
  * Class for the Collect Entity for the car supervising system.
@@ -159,10 +161,11 @@ public class CollectEntity extends JFrame {
         Properties props = new Properties();                                                        // create properties to access producer configs
         props.put("bootstrap.servers", "localhost:9092");                                           // assign localhost id
         props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");      // define serializer for keys
-        props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");    // define serializer for values
+        props.put("value.serializer", MessageSerializer.class.getName());    // define serializer for values
 
-        Producer<String,String> producer = new Producer<>(props);
-        producer.fireAndForget(this.topicNames[0],"k1","v1");
+        Producer<String,Message> producer = new Producer<>(props);
+        Message m = new Message("banana",10,0);
+        producer.fireAndForget(this.topicNames,"k1",m);
         producer.close();
         
     }//GEN-LAST:event_startBtnMouseClicked
