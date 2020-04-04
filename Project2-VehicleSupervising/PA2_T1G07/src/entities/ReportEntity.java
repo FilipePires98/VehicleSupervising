@@ -1,5 +1,7 @@
 package entities;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Properties;
@@ -27,7 +29,14 @@ public class ReportEntity extends JFrame implements EntityAction{
         initComponents();
         
         try {
-            this.file=new FileWriter("data/REPORT.TXT");
+            File file=new File("src/data/REPORT.TXT");
+            
+            // if file doesnt exists, then create it
+            if (!file.exists()) {
+                    file.createNewFile();
+            }
+            
+            this.file = new FileWriter("src/data/REPORT.TXT");
         } catch (IOException ex) {
             Logger.getLogger(ReportEntity.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -119,6 +128,7 @@ public class ReportEntity extends JFrame implements EntityAction{
         } catch (IOException ex) {
             Logger.getLogger(ReportEntity.class.getName()).log(Level.SEVERE, null, ex);
         }
+
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

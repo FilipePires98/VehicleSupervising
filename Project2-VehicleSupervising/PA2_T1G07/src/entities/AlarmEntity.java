@@ -1,7 +1,9 @@
 package entities;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.*;
@@ -27,9 +29,16 @@ public class AlarmEntity extends JFrame implements EntityAction {
         initComponents();
         
         try {
-            this.file=new FileWriter("data/ALARM.TXT");
+            File file=new File("src/data/ALARm.TXT");
+            
+            // if file doesnt exists, then create it
+            if (!file.exists()) {
+                    file.createNewFile();
+            }
+            
+            this.file = new FileWriter("src/data/ALARM.TXT");
         } catch (IOException ex) {
-            Logger.getLogger(ReportEntity.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(AlarmEntity.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -97,23 +106,23 @@ public class AlarmEntity extends JFrame implements EntityAction {
 
     @Override
     public void processMessage(String topic, Object key, Object value) {
-        try {
-            Message data = (Message)value;
-            if(data.getType()==1){//message is of type speed
-                String tmp="";
-                if(!isAlarmOn && data.getSpeed()>120){
-                    tmp=data.toString()+" | ON |";
-                }else if(isAlarmOn && data.getSpeed()<120){
-                    tmp=data.toString()+" | OFF |";
-                }
-                
-                if(tmp.length()>0){
+        Message data = (Message)value;
+        if(data.getType()==1){//message is of type speed
+            String tmp="";
+            if(!isAlarmOn && data.getSpeed()>120){
+                tmp=data.toString()+" | ON |";
+            }else if(isAlarmOn && data.getSpeed()<120){
+                tmp=data.toString()+" | OFF |";
+            }
+
+            if(tmp.length()>0){
+                try {
                     file.write(tmp);
                     System.out.println("[ALARM] Processed message: "+tmp);
+                } catch (IOException ex) {
+                    Logger.getLogger(AlarmEntity.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
-        } catch (IOException ex) {
-            Logger.getLogger(ReportEntity.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 

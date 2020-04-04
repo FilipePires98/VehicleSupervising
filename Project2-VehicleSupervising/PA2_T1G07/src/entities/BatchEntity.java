@@ -104,11 +104,6 @@ public class BatchEntity extends JFrame implements EntityAction{
      */
     public static void main(String args[]) {
         
-        if(args.length == 0){
-            System.err.println("[Batch] Kafka Topics not given.");
-            return;
-        }
-        
         System.out.println("[Batch] Running...");
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
