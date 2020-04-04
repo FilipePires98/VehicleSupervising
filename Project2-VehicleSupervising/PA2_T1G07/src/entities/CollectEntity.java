@@ -172,13 +172,6 @@ public class CollectEntity extends JFrame {
      */
     public static void main(String args[]) {
         
-        /* Validate arguments */
-        
-        if(args.length == 0){
-            System.err.println("[Collect] Kafka Topics not given.");
-            return;
-        }
-        
         System.out.println("[Collect] Running...");
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
