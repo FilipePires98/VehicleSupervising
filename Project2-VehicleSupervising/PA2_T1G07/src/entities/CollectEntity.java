@@ -12,7 +12,7 @@ import org.apache.kafka.clients.producer.*;
  */
 public class CollectEntity extends JFrame {
     
-    private static String[] topicName;
+    private String[] topicName;
 
     /**
      * Creates new form CollectEntity
@@ -36,6 +36,13 @@ public class CollectEntity extends JFrame {
         batchTopicCheckbox = new javax.swing.JCheckBox();
         reportTopicCheckbox = new javax.swing.JCheckBox();
         alarmTopicCheckbox = new javax.swing.JCheckBox();
+        pathToCarDataLabel = new javax.swing.JLabel();
+        filePath = new javax.swing.JTextField();
+        timeoutLabel = new javax.swing.JLabel();
+        timeout = new javax.swing.JSpinner();
+        startBtn = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        logs = new javax.swing.JTextArea();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -52,6 +59,28 @@ public class CollectEntity extends JFrame {
         alarmTopicCheckbox.setSelected(true);
         alarmTopicCheckbox.setText("AlarmTopic");
 
+        pathToCarDataLabel.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        pathToCarDataLabel.setText("Path to Car Data (.txt):");
+
+        filePath.setHorizontalAlignment(javax.swing.JTextField.LEFT);
+        filePath.setText("(default path is <ProjectLocation>/src/data)");
+
+        timeoutLabel.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        timeoutLabel.setText("Timeout (ms):");
+
+        timeout.setModel(new javax.swing.SpinnerNumberModel(1000, 100, 10000, 100));
+
+        startBtn.setText("Start");
+        startBtn.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                startBtnMouseClicked(evt);
+            }
+        });
+
+        logs.setColumns(20);
+        logs.setRows(5);
+        jScrollPane1.setViewportView(logs);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -59,36 +88,93 @@ public class CollectEntity extends JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(titleLabel)
-                    .addComponent(topicsToIncludeLabel)
-                    .addComponent(batchTopicCheckbox)
-                    .addComponent(reportTopicCheckbox)
-                    .addComponent(alarmTopicCheckbox))
-                .addContainerGap(473, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jScrollPane1)
+                        .addContainerGap())
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(titleLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 118, Short.MAX_VALUE)
+                                .addGap(31, 31, 31))
+                            .addComponent(topicsToIncludeLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(batchTopicCheckbox, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addGap(19, 19, 19))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(reportTopicCheckbox, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addGap(11, 11, 11))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(alarmTopicCheckbox, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addGap(19, 19, 19)))
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(pathToCarDataLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addGroup(layout.createSequentialGroup()
+                                                .addComponent(timeoutLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                .addGap(92, 92, 92))
+                                            .addGroup(layout.createSequentialGroup()
+                                                .addComponent(timeout, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                                        .addComponent(startBtn))
+                                    .addComponent(filePath, javax.swing.GroupLayout.DEFAULT_SIZE, 303, Short.MAX_VALUE))
+                                .addContainerGap(24, Short.MAX_VALUE))))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(titleLabel)
+                .addComponent(titleLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addComponent(topicsToIncludeLabel)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(topicsToIncludeLabel)
+                    .addComponent(pathToCarDataLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(batchTopicCheckbox)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(batchTopicCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(filePath, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(reportTopicCheckbox)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(reportTopicCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(timeoutLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(alarmTopicCheckbox)
-                .addContainerGap(216, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(alarmTopicCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(timeout, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(startBtn))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 197, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void startBtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_startBtnMouseClicked
+        
+        Properties props = new Properties();                                                        // create properties to access producer configs
+        props.put("bootstrap.servers", "localhost:9092");                                           // assign localhost id
+        props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");      // define serializer for keys
+        props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");    // define serializer for values
+
+        Producer<String,String> producer = new KafkaProducer<>(props);
+        ProducerRecord<String,String> record = new ProducerRecord<>(this.topicName[0],"k1","v1");
+        producer.send(record);
+        producer.close();
+        
+    }//GEN-LAST:event_startBtnMouseClicked
+
     /**
      * @param args the command line arguments
      */
     public static void main(String args[]) {
+        
+        /* Validate arguments */
         
         if(args.length == 0){
             System.err.println("[Collect] Kafka Topics not given.");
@@ -97,16 +183,6 @@ public class CollectEntity extends JFrame {
         
         System.out.println("[Collect] Running...");
         
-        Properties props = new Properties();                                // create properties to access producer configs
-        props.put("bootstrap.servers", "localhost:9092");                   // assign localhost id
-        props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");                    // define serializer for keys
-        props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");                  // define serializer for values
-
-        Producer<String,String> producer = new KafkaProducer<>(props);
-        ProducerRecord<String,String> record = new ProducerRecord<>(CollectEntity.topicName[0],"k1","v1");
-        producer.send(record);
-        producer.close();
-      
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
@@ -141,8 +217,18 @@ public class CollectEntity extends JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JCheckBox alarmTopicCheckbox;
     private javax.swing.JCheckBox batchTopicCheckbox;
+    private javax.swing.JTextField filePath;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTextArea logs;
+    private javax.swing.JLabel pathToCarDataLabel;
     private javax.swing.JCheckBox reportTopicCheckbox;
+    private javax.swing.JButton startBtn;
+    private javax.swing.JSpinner timeout;
+    private javax.swing.JLabel timeoutLabel;
     private javax.swing.JLabel titleLabel;
     private javax.swing.JLabel topicsToIncludeLabel;
     // End of variables declaration//GEN-END:variables
+
+    
+
 }

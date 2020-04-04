@@ -21,7 +21,7 @@ public class Main {
         
         /* Instantiate required variables */
         
-        String[] entities = {"Collect", "Batch", "Alarm", "Report"};
+        String[] entities = {"Collect", "Batch"}; //, "Alarm", "Report"};
         String[] commands = new String[entities.length];
         
         String[] topics = {"BatchTopic", "ReportTopic", "AlarmTopic"};

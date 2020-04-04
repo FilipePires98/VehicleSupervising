@@ -21,6 +21,7 @@ public class BatchEntity extends JFrame {
     public BatchEntity(String[] topicName) {
         this.topicName = topicName;
         initComponents();
+        startConsumers();
     }
 
     /**
@@ -32,22 +33,85 @@ public class BatchEntity extends JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        titleLabel = new javax.swing.JLabel();
+        heartbeatConsumersLabel = new javax.swing.JLabel();
+        nConsumers = new javax.swing.JSpinner();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        logs = new javax.swing.JTextArea();
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setPreferredSize(new java.awt.Dimension(500, 360));
+
+        titleLabel.setText("Batch Entity");
+
+        heartbeatConsumersLabel.setText("# of HEARTBEAT Consumers:");
+
+        nConsumers.setModel(new javax.swing.SpinnerNumberModel(3, 1, 10, 1));
+
+        logs.setColumns(20);
+        logs.setRows(5);
+        jScrollPane1.setViewportView(logs);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(titleLabel)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(heartbeatConsumersLabel)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(nConsumers, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(0, 230, Short.MAX_VALUE)))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(titleLabel)
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(heartbeatConsumersLabel)
+                    .addComponent(nConsumers, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 283, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void startConsumers() {                                      
+        
+        Properties props = new Properties();
+        props.put("bootstrap.servers", "localhost:9092");
+        props.put("group.id", "test");
+        props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+        props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+        
+        Consumer<String, String> consumer = new KafkaConsumer<>(props);
+        consumer.subscribe(Arrays.asList(this.topicName[0]));
+        this.logs.append("Consumers listening to " + this.topicName[0] + ".\n");
+        
+        boolean aux = true;
+        while (aux) {
+            ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(1000));
+            for (ConsumerRecord<String, String> record : records) {
+                String rec = "offset = " + record.offset() + ", key = " + record.key() + ", value = " + record.value() + "\n";
+                System.out.printf("[Batch] " + rec);
+                this.logs.append(rec);
+                aux = false;
+            }
+        }
+        
+    } 
+    
     /**
      * @param args the command line arguments
      */
@@ -59,24 +123,6 @@ public class BatchEntity extends JFrame {
         }
         
         System.out.println("[Batch] Running...");
-        
-        Properties props = new Properties();
-        props.put("bootstrap.servers", "localhost:9092");
-        props.put("group.id", "test");
-        props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
-        props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
-
-        Consumer<String, String> consumer = new KafkaConsumer<>(props);
-        consumer.subscribe(Arrays.asList(args[0]));
-
-        boolean aux = true;
-        while (aux) {
-            ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(10)); //consumer.poll(100);
-            for (ConsumerRecord<String, String> record : records) {
-                System.out.printf("[Batch] offset = %d, key = %s, value = %s\n", record.offset(), record.key(), record.value());
-                aux = false;
-            }
-        }
 
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -104,11 +150,16 @@ public class BatchEntity extends JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new CollectEntity(args).setVisible(true);
+                new BatchEntity(args).setVisible(true);
             }
         });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel heartbeatConsumersLabel;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTextArea logs;
+    private javax.swing.JSpinner nConsumers;
+    private javax.swing.JLabel titleLabel;
     // End of variables declaration//GEN-END:variables
 }
