@@ -1,5 +1,6 @@
 package message;
 
+import java.nio.ByteBuffer;
 import org.apache.kafka.common.serialization.Deserializer;
 
 /**
@@ -11,7 +12,7 @@ public class MessageDeserializer implements Deserializer<Message> {
     @Override
     public Message deserialize(String topic, byte[] data) {
         String car_reg;
-        int timestamp;
+        long timestamp;
         int type;
         int speed;
         String car_status;
@@ -23,10 +24,18 @@ public class MessageDeserializer implements Deserializer<Message> {
             tmpBytes[index-1]=data[index];
         }
         car_reg=new String(tmpBytes);
-        timestamp=data[index];
+        
+        byte[] tmpLong = new byte[2];
+        tmpLong[0]=data[index];
         index++;
+        tmpLong[1]=data[index];
+        index++;
+        ByteBuffer bb = ByteBuffer.wrap(tmpLong);
+        timestamp=bb.getLong();
+        
         type=data[index];
         index++;
+        
         
         Message m;
         switch(type){

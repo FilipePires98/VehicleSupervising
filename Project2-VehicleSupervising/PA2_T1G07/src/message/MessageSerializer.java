@@ -37,25 +37,25 @@ public class MessageSerializer implements Serializer<Message> {
             
             switch(data.getType()){
                 case 0:
-                    buf = ByteBuffer.allocate(4+ser_car_reg_size+4+4);
+                    buf = ByteBuffer.allocate(4+ser_car_reg_size+8+4);
                     buf.putInt(ser_car_reg_size);
                     buf.put(ser_car_reg);
-                    buf.putInt(data.getTimestamp());
+                    buf.putLong(data.getTimestamp());
                     buf.putInt(data.getType());
                     break;
                 case 1:
-                    buf = ByteBuffer.allocate(4+ser_car_reg_size+4+4+4);
+                    buf = ByteBuffer.allocate(4+ser_car_reg_size+8+4+4);
                     buf.putInt(ser_car_reg_size);
                     buf.put(ser_car_reg);
-                    buf.putInt(data.getTimestamp());
+                    buf.putLong(data.getTimestamp());
                     buf.putInt(data.getType());
                     buf.putInt(data.getSpeed());
                     break;
                 case 2:
-                    buf = ByteBuffer.allocate(4+ser_car_reg_size+4+4+4+ser_car_status_size);
+                    buf = ByteBuffer.allocate(4+ser_car_reg_size+8+4+4+ser_car_status_size);
                     buf.putInt(ser_car_reg_size);
                     buf.put(ser_car_reg);
-                    buf.putInt(data.getTimestamp());
+                    buf.putLong(data.getTimestamp());
                     buf.putInt(data.getType());
                     buf.putInt(ser_car_status_size);
                     buf.put(ser_car_status);

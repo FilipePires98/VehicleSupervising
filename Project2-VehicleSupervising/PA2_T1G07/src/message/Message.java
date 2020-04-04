@@ -6,25 +6,25 @@ package message;
  */
 public class Message {
     private String car_reg;
-    private int timestamp;
+    private long timestamp;
     private int type;
     private int speed;
     private String car_status;
 
-    public Message(String car_reg, int timestamp, int type) {
+    public Message(String car_reg, long timestamp, int type) {
         this.car_reg = car_reg;
         this.timestamp = timestamp;
         this.type = type;
     }
 
-    public Message(String car_reg, int timestamp, int type, int speed) {
+    public Message(String car_reg, long timestamp, int type, int speed) {
         this.car_reg = car_reg;
         this.timestamp = timestamp;
         this.type = type;
         this.speed = speed;
     }
 
-    public Message(String car_reg, int timestamp, int type, String car_status) {
+    public Message(String car_reg, long timestamp, int type, String car_status) {
         this.car_reg = car_reg;
         this.timestamp = timestamp;
         this.type = type;
@@ -35,7 +35,7 @@ public class Message {
         return car_reg;
     }
 
-    public int getTimestamp() {
+    public long getTimestamp() {
         return timestamp;
     }
 
