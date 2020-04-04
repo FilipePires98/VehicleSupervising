@@ -6,13 +6,15 @@ import java.util.Properties;
 import javax.swing.*;
 import kafkaUtils.Consumer;
 import kafkaUtils.EntityAction;
+import message.Message;
+import message.MessageDeserializer;
 
 /**
  * Class for the Batch Entity for the car supervising system.
  * 
  * @author Filipe Pires (85122) and João Alegria (85048)
  */
-public class BatchEntity extends JFrame implements EntityAction{
+public class BatchEntity extends JFrame implements EntityAction<String, Message>{
     
     private String topicName="BatchTopic";
 
@@ -84,9 +86,9 @@ public class BatchEntity extends JFrame implements EntityAction{
         props.put("bootstrap.servers", "localhost:9092");
         props.put("group.id", "test");
         props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
-        props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+        props.put("value.deserializer", MessageDeserializer.class.getName());
         String[] tmp = new String[]{topicName};
-        Consumer<String, String> consumer = new Consumer<>(props, tmp, this);
+        Consumer<String, Message> consumer = new Consumer<String,Message>(props, tmp, this);
         Thread t = new Thread(consumer);
         t.start();
     } 
@@ -136,7 +138,7 @@ public class BatchEntity extends JFrame implements EntityAction{
     // End of variables declaration//GEN-END:variables
 
     @Override
-    public void processMessage(String topic, Object key, Object value) {
+    public void processMessage(String topic, String key, Message value) {
         String rec = "key = " + key + ", value = " + value+ "\n";
         System.out.printf("[Batch] " + rec);
         this.logs.append(rec);

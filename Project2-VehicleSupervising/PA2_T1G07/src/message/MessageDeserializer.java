@@ -19,36 +19,65 @@ public class MessageDeserializer implements Deserializer<Message> {
         
         int index=0;
         
-        byte[] tmpBytes = new byte[data[index]];
-        for(index=1; index<data[0]; index++){
-            tmpBytes[index-1]=data[index];
+        
+        byte[] tmp = new byte[Integer.BYTES];
+        for(int i=0; i<Integer.BYTES; i++){
+            tmp[i]=data[i+index];
         }
-        car_reg=new String(tmpBytes);
+        ByteBuffer bb = ByteBuffer.wrap(tmp);
+        int idx1=bb.getInt();
+        index=index+Integer.BYTES;
         
-        byte[] tmpLong = new byte[2];
-        tmpLong[0]=data[index];
-        index++;
-        tmpLong[1]=data[index];
-        index++;
-        ByteBuffer bb = ByteBuffer.wrap(tmpLong);
+        tmp = new byte[idx1];
+        for(int i=0; i<idx1; i++){
+            tmp[i]=data[i+index];
+        }
+        car_reg=new String(tmp);
+        index=index+idx1;
+        
+        tmp = new byte[Long.BYTES];
+        for(int i=0; i<Long.BYTES; i++){
+            tmp[i]=data[i+index];
+        }
+        bb = ByteBuffer.wrap(tmp);
         timestamp=bb.getLong();
+        index=index+Long.BYTES;
         
-        type=data[index];
-        index++;
         
+        tmp = new byte[Integer.BYTES];
+        for(int i=0; i<Integer.BYTES; i++){
+            tmp[i]=data[i+index];
+        }
+        bb = ByteBuffer.wrap(tmp);
+        type=bb.getInt();
+        index=index+Integer.BYTES;
         
         Message m;
         switch(type){
             case 1:
-                speed=data[index];
+                tmp = new byte[Integer.BYTES];
+                for(int i=0; i<Integer.BYTES; i++){
+                    tmp[i]=data[i+index];
+                }
+                bb = ByteBuffer.wrap(tmp);
+                speed=bb.getInt();
+                index=index+Integer.BYTES;
                 m=new Message(car_reg, timestamp, type, speed);
                 break;
             case 2:
-                tmpBytes = new byte[data[index]];
-                for(index=index+1; index<data[index]; index++){
-                    tmpBytes[index-1]=data[index];
+                tmp = new byte[Integer.BYTES];
+                for(int i=0; i<Integer.BYTES; i++){
+                    tmp[i]=data[i+index];
                 }
-                car_status=new String(tmpBytes);
+                bb = ByteBuffer.wrap(tmp);
+                int idx2=bb.getInt();
+                index=index+Integer.BYTES;
+                
+                tmp = new byte[idx2];
+                for(int i=0; i<idx2; i++){
+                    tmp[i]=data[index+i];
+                }
+                car_status=new String(tmp);
                 m=new Message(car_reg, timestamp, type, car_status);
                 break;
             default:

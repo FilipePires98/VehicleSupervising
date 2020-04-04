@@ -3,9 +3,12 @@ package entities;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Properties;
 import javax.swing.*;
 import kafkaUtils.Producer;
+import message.Message;
+import message.MessageSerializer;
 
 /**
  * Class for the Collect Entity for the car supervising system.
@@ -125,7 +128,7 @@ public class CollectEntity extends JFrame {
         Properties props = new Properties();                                                        // create properties to access producer configs
         props.put("bootstrap.servers", "localhost:9092");                                           // assign localhost id
         props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");      // define serializer for keys
-        props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");    // define serializer for values
+        props.put("value.serializer", MessageSerializer.class.getName());
         
         //System.out.println("[Collect] User Dir: " + System.getProperty("user.dir"));
         //System.out.println("[Collect] Path Input Field: " + filePath.getText());
@@ -139,49 +142,46 @@ public class CollectEntity extends JFrame {
             CAR = new BufferedReader(new FileReader(file));
             this.logs.append("Data file successfully opened for reading.\n");
             
+            Producer<String,Message> producer = new Producer<>(props);
+            
             String line = CAR.readLine();
             String[] content;
+            
             String car_reg; Long timestamp; int msgType; int speed; String status;
+            int tmpCtr = 1;
             while(line != null) {
-                //System.out.println(line);
-                
-                content = line.split("|");
+                Message msg;
+                content = line.split("\\|");
                 car_reg = content[1].trim();
                 timestamp = Long.valueOf(content[2].trim());
                 msgType = Integer.valueOf(content[3].trim());
                 switch(msgType) {
                     case 0:
-                        // ...
+                        msg = new Message(car_reg,timestamp,msgType);
+                        producer.fireAndForget(this.topicNames,""+tmpCtr,msg);
                         break;
                     case 1:
                         speed = Integer.valueOf(content[4].trim());
-                        // ...
+                        msg = new Message(car_reg,timestamp,msgType,speed);
                         break;
                     case 2:
                         status = content[4].trim();
-                        // ...
+                        msg = new Message(car_reg,timestamp,msgType,status);
                         break;
                 }
                 
                 line = CAR.readLine();
+                tmpCtr++;
             }
+            producer.close();
+            
         } catch (IOException e) {
             //e.printStackTrace();
             String errorMsg = "Unable to open file for reading. Please make sure you write the correct path to the data file.";
             System.err.println("[Collect] " + errorMsg);
             this.logs.append("Error: " + errorMsg + "\n");
-        }
-        
-
-        Producer<String,String> producer = new Producer<>(props);
-        producer.fireAndForget(this.topicNames[0],"k1","v1");
-        producer.close();
-        
+        }        
     }//GEN-LAST:event_startBtnMouseClicked
-
-    private void processLine(String line) {
-        
-    }
     
     /**
      * @param args the command line arguments

@@ -10,13 +10,14 @@ import java.util.logging.Logger;
 import javax.swing.*;
 import kafkaUtils.EntityAction;
 import message.Message;
+import message.MessageDeserializer;
 
 /**
  * Class for the Report Entity for the car supervising system.
  * 
  * @author Filipe Pires (85122) and João Alegria (85048)
  */
-public class ReportEntity extends JFrame implements EntityAction{
+public class ReportEntity extends JFrame implements EntityAction<String,Message>{
     
     private String topicName="ReportTopic";
     private FileWriter file;
@@ -33,6 +34,8 @@ public class ReportEntity extends JFrame implements EntityAction{
         } catch (IOException ex) {
             Logger.getLogger(ReportEntity.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
+        startConsumers();
     }
     
     private void startConsumers(){
@@ -42,9 +45,9 @@ public class ReportEntity extends JFrame implements EntityAction{
         props.put("bootstrap.servers", "localhost:9092");
         props.put("group.id", "REPORTGROUP");
         props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
-        props.put("value.deserializer", "MessageDeserializer");
+        props.put("value.deserializer", MessageDeserializer.class.getName());
         
-        kafkaUtils.Consumer<String, Message> consumer = new kafkaUtils.Consumer<>(props, topics, this);
+        kafkaUtils.Consumer<String, Message> consumer = new kafkaUtils.Consumer<String, Message>(props, topics, this);
         Thread t = new Thread(consumer);
         t.start();
     }
@@ -112,11 +115,11 @@ public class ReportEntity extends JFrame implements EntityAction{
     }
 
     @Override
-    public void processMessage(String topic, Object key, Object value) {
+    public void processMessage(String topic, String key, Message value) {
         try {
-            Message data=(Message)value;
-            String tmp  = data.toString();
+            String tmp  = value.toString();
             file.write(tmp);
+            file.flush();
             System.out.println("[REPORT] Processed message: "+tmp);
         } catch (IOException ex) {
             Logger.getLogger(ReportEntity.class.getName()).log(Level.SEVERE, null, ex);

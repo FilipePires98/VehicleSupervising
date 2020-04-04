@@ -14,10 +14,10 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 public class Consumer<K,V> implements Runnable{
     
     private Properties properties;
-    private KafkaConsumer consumer;
-    private EntityAction entity;
+    private KafkaConsumer<K,V> consumer;
+    private EntityAction<K,V> entity;
 
-    public Consumer(Properties properties, String[] topics, EntityAction entity) {
+    public Consumer(Properties properties, String[] topics, EntityAction<K,V> entity) {
         this.properties = properties;
         this.consumer = new KafkaConsumer<K,V>(properties);
         this.consumer.subscribe(Arrays.asList(topics));
