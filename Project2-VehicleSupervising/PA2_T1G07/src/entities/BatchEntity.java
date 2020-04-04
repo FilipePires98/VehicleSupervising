@@ -71,9 +71,10 @@ public class BatchEntity extends JFrame {
 
         boolean aux = true;
         while (aux) {
-            ConsumerRecords<String, String> records = consumer.poll(Duration.ZERO); //consumer.poll(100);
+            ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(10)); //consumer.poll(100);
             for (ConsumerRecord<String, String> record : records) {
                 System.out.printf("[Batch] offset = %d, key = %s, value = %s\n", record.offset(), record.key(), record.value());
+                aux = false;
             }
         }
 

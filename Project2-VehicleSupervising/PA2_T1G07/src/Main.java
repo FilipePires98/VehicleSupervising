@@ -1,6 +1,7 @@
 
 import entities.CollectEntity;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
@@ -21,36 +22,38 @@ public class Main {
         /* Instantiate required variables */
         
         String[] entities = {"Collect", "Batch", "Alarm", "Report"};
-        String[] topics = {"BatchTopic", "ReportTopic", "AlarmTopic"};
-        
         String[] commands = new String[entities.length];
+        
+        String[] topics = {"BatchTopic", "ReportTopic", "AlarmTopic"};
+        String topicNames = "";
         int i = 0;
+        for(i=0; i<topics.length; i++) {
+            topicNames += topics[i] + " ";
+        }
+        
+        String userDir = System.getProperty("user.dir");
+        String jars = userDir + "/dist/lib/*:";   
         
         /* Execute kafka Initialization Script */
-        
+        /*
         try {
-            Runtime.getRuntime().exec(System.getProperty("user.dir") + "/src/scripts/initKafka.sh");
+            Process proc = Runtime.getRuntime().exec("./initKafka.sh "+topicNames, null, new File(userDir+"/src/scripts/"));
+            proc.waitFor();
             System.out.println("Kafka initialized.");
         } catch (Exception e) {
             System.err.println("Error: unable to execute Kafka initialization script.");
             e.printStackTrace();
             System.exit(1);
         }
-        
-//        /* Launch Collect Entity */
-//        
-//        CollectEntity collect = new CollectEntity(topics);
-//        collect.setVisible(true);
+        */
         
         /* Launch Remaining Entities */ 
         
-        String topicNames = "";
         for(i=0; i<topics.length; i++) {
             topicNames += topics[i] + " ";
         }
         for(i=0; i<entities.length; i++) {
-            String jars = System.getProperty("user.dir") + "/dist/lib/*:";   
-            commands[i] = "java -cp " + jars + System.getProperty("user.dir") + "/build/classes entities." + entities[i] + "Entity " + topicNames;
+            commands[i] = "java -cp " + jars + userDir + "/build/classes entities." + entities[i] + "Entity " + topicNames;
         }
         try {
             Thread[] ioThreads = runProcess(commands);
@@ -68,16 +71,16 @@ public class Main {
         }
         
         /* Execute kafka Termination Script */
-        
+        /*
         try {
-            Runtime.getRuntime().exec(System.getProperty("user.dir") + "/src/scripts/deleteKafka.sh");
+            Runtime.getRuntime().exec("./deleteKafka.sh", null, new File(userDir+"/src/scripts/"));
             System.out.println("Kafka terminated.");
         } catch (Exception e) {
             System.err.println("Error: unable to execute Kafka termination script.");
             e.printStackTrace();
             System.exit(1);
         }
-        
+        */
     }
     
     /**

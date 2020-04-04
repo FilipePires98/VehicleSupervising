@@ -12,7 +12,7 @@ import org.apache.kafka.clients.producer.*;
  */
 public class CollectEntity extends JFrame {
     
-    private String[] topicName;
+    private static String[] topicName;
 
     /**
      * Creates new form CollectEntity
@@ -31,17 +31,55 @@ public class CollectEntity extends JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        titleLabel = new javax.swing.JLabel();
+        topicsToIncludeLabel = new javax.swing.JLabel();
+        batchTopicCheckbox = new javax.swing.JCheckBox();
+        reportTopicCheckbox = new javax.swing.JCheckBox();
+        alarmTopicCheckbox = new javax.swing.JCheckBox();
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        titleLabel.setText("Collect Entity");
+
+        topicsToIncludeLabel.setText("Topics to include:");
+
+        batchTopicCheckbox.setSelected(true);
+        batchTopicCheckbox.setText("BatchTopic");
+
+        reportTopicCheckbox.setSelected(true);
+        reportTopicCheckbox.setText("ReportTopic");
+
+        alarmTopicCheckbox.setSelected(true);
+        alarmTopicCheckbox.setText("AlarmTopic");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(titleLabel)
+                    .addComponent(topicsToIncludeLabel)
+                    .addComponent(batchTopicCheckbox)
+                    .addComponent(reportTopicCheckbox)
+                    .addComponent(alarmTopicCheckbox))
+                .addContainerGap(473, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(titleLabel)
+                .addGap(18, 18, 18)
+                .addComponent(topicsToIncludeLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(batchTopicCheckbox)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(reportTopicCheckbox)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(alarmTopicCheckbox)
+                .addContainerGap(216, Short.MAX_VALUE))
         );
 
         pack();
@@ -58,14 +96,14 @@ public class CollectEntity extends JFrame {
         }
         
         System.out.println("[Collect] Running...");
-        String[] topicName = {"BatchTopic", "ReportTopic", "AlarmTopic"};   // define names for topics
+        
         Properties props = new Properties();                                // create properties to access producer configs
         props.put("bootstrap.servers", "localhost:9092");                   // assign localhost id
         props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");                    // define serializer for keys
         props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");                  // define serializer for values
 
         Producer<String,String> producer = new KafkaProducer<>(props);
-        ProducerRecord<String,String> record = new ProducerRecord<>(topicName[0],"k1","v1");
+        ProducerRecord<String,String> record = new ProducerRecord<>(CollectEntity.topicName[0],"k1","v1");
         producer.send(record);
         producer.close();
       
@@ -101,5 +139,10 @@ public class CollectEntity extends JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JCheckBox alarmTopicCheckbox;
+    private javax.swing.JCheckBox batchTopicCheckbox;
+    private javax.swing.JCheckBox reportTopicCheckbox;
+    private javax.swing.JLabel titleLabel;
+    private javax.swing.JLabel topicsToIncludeLabel;
     // End of variables declaration//GEN-END:variables
 }
