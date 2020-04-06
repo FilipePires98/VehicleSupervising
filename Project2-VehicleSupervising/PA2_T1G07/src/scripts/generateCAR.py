@@ -37,9 +37,9 @@ def getCarStatus():
         status = "KO"   # (2/10 prob)
     return status
 
-def createMsg(car_reg, type, info):
+def createMsg(car_reg, type, info, t):
     timestamp = int(time.time()*1000)
-    time.sleep(random.randint(1,5))
+    time.sleep(random.randint(1,t))
     msg = "| " + car_reg + " | " + str(timestamp) + " | " + type + " |"
     if(info):
         msg += " " + info + " |"
@@ -52,6 +52,7 @@ def createMsg(car_reg, type, info):
 
 nCars = 10
 nLines = 100
+maxT = 5
 if(len(sys.argv)>1):
     new_nLines = 0
     try:
@@ -79,13 +80,13 @@ while(len(cars)<nCars):
 
 # Generate messages and write them
 
-file = open("../data/CAR.txt", "w")
+file = open("../data/CAR2.txt", "w")
 for i in range(0,nLines):
     type = getMsgType()
     if type == "01":
-        file.write(createMsg(selectCar(cars), type, getCarSpeed()))
+        file.write(createMsg(selectCar(cars), type, getCarSpeed(), maxT))
     elif type == "02":
-        file.write(createMsg(selectCar(cars), type, getCarStatus()))
+        file.write(createMsg(selectCar(cars), type, getCarStatus(), maxT))
     else:
-        file.write(createMsg(selectCar(cars), type, None))
+        file.write(createMsg(selectCar(cars), type, None, maxT))
 file.close()
