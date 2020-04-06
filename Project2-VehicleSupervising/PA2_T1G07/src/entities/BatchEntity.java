@@ -56,6 +56,7 @@ public class BatchEntity extends JFrame implements EntityAction<String, Message>
         logs = new javax.swing.JTextArea();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setSize(new java.awt.Dimension(500, 360));
 
         consumersLabel.setText("# of Consumers:");
 

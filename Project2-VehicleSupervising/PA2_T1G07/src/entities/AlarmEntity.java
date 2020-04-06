@@ -8,6 +8,7 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.*;
+import kafkaUtils.Consumer;
 import kafkaUtils.EntityAction;
 import message.Message;
 import message.MessageDeserializer;
@@ -19,9 +20,18 @@ import message.MessageDeserializer;
  */
 public class AlarmEntity extends JFrame implements EntityAction<String, Message> {
     
+    private final int MINGROUPSIZE = 1;
+    private final int MAXGROUPSIZE = 10;
     private String topicName="AlarmTopic";
+    private Properties props = new Properties();
+    
     private FileWriter file;
     private boolean isAlarmOn=false;
+    private Consumer[] consumers = new Consumer[MAXGROUPSIZE];
+    private Thread[] consumerThreads = new Thread[MAXGROUPSIZE];
+    private int activeConsumers = 3;
+    private int printedLines = 0;
+
 
     /**
      * Creates new form CollectEntity
@@ -42,7 +52,7 @@ public class AlarmEntity extends JFrame implements EntityAction<String, Message>
     private void startConsumers(){
         String[] topics=new String[]{topicName};
         
-        Properties props = new Properties();
+        props = new Properties();
         props.put("bootstrap.servers", "localhost:9092");
         props.put("group.id", "ALARMGROUP");
         props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
@@ -62,21 +72,81 @@ public class AlarmEntity extends JFrame implements EntityAction<String, Message>
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        consumersLabel = new javax.swing.JLabel();
+        nConsumers = new javax.swing.JSpinner();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        logs = new javax.swing.JTextArea();
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setPreferredSize(new java.awt.Dimension(500, 360));
+        setSize(new java.awt.Dimension(500, 360));
+
+        consumersLabel.setText("# of Consumers:");
+
+        nConsumers.setModel(new SpinnerNumberModel(activeConsumers,MINGROUPSIZE,MAXGROUPSIZE,1));
+        nConsumers.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                nConsumersStateChanged(evt);
+            }
+        });
+
+        logs.setColumns(20);
+        logs.setRows(5);
+        jScrollPane1.setViewportView(logs);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(consumersLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(nConsumers, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 212, Short.MAX_VALUE)))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(consumersLabel)
+                    .addComponent(nConsumers, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 256, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void nConsumersStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_nConsumersStateChanged
+
+        if((Integer)nConsumers.getValue() == activeConsumers) {
+            return;
+        }
+
+        if((Integer)nConsumers.getValue() > activeConsumers) {
+            String[] tmp = new String[]{topicName};
+            Consumer<String, Message> consumer = new Consumer<String,Message>(props, tmp, this);
+            Thread t = new Thread(consumer);
+            t.start();
+            consumers[activeConsumers] = consumer;
+            consumerThreads[activeConsumers] = t;
+        } else {
+            consumers[(Integer)nConsumers.getValue()].shutdown();
+        }
+        activeConsumers = (Integer)nConsumers.getValue();
+
+        printedLines++;
+        String line = " consumers are listening to " + topicName;
+        System.out.println("[Batch] " + activeConsumers + line);
+        this.logs.append("[" + printedLines + "] " + activeConsumers + line + "\n");
+    }//GEN-LAST:event_nConsumersStateChanged
 
     /**
      * @param args the command line arguments
@@ -120,15 +190,17 @@ public class AlarmEntity extends JFrame implements EntityAction<String, Message>
         if(value.getType()==1){//message is of type speed
             String tmp="";
             if(!isAlarmOn && value.getSpeed()>120){
-                tmp=value.toString()+" | ON |";
+                tmp=value.toString()+" ON |";
             }else if(isAlarmOn && value.getSpeed()<120){
-                tmp=value.toString()+" | OFF |";
+                tmp=value.toString()+" OFF |";
             }
 
             if(tmp.length()>0){
                 try {
-                    file.write(tmp);
+                    file.write(tmp+"\n");
                     file.flush();
+                    printedLines++;
+                    this.logs.append("[" + printedLines + "] " + tmp + "\n");
                     System.out.println("[ALARM] Processed message: "+tmp);
                 } catch (IOException ex) {
                     Logger.getLogger(AlarmEntity.class.getName()).log(Level.SEVERE, null, ex);
@@ -138,5 +210,9 @@ public class AlarmEntity extends JFrame implements EntityAction<String, Message>
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel consumersLabel;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTextArea logs;
+    private javax.swing.JSpinner nConsumers;
     // End of variables declaration//GEN-END:variables
 }

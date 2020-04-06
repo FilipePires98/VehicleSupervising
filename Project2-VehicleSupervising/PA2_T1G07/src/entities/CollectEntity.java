@@ -51,6 +51,7 @@ public class CollectEntity extends JFrame {
         logs = new javax.swing.JTextArea();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setSize(new java.awt.Dimension(500, 360));
 
         topicsToIncludeLabel.setText("Topics to include:");
 
