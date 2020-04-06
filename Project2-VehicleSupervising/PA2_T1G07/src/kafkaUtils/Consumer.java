@@ -16,7 +16,9 @@ public class Consumer<K,V> implements Runnable{
     private Properties properties;
     private KafkaConsumer<K,V> consumer;
     private EntityAction<K,V> entity;
-
+    
+    private volatile boolean done = false;
+    
     public Consumer(Properties properties, String[] topics, EntityAction<K,V> entity) {
         this.properties = properties;
         this.consumer = new KafkaConsumer<K,V>(properties);
@@ -26,13 +28,18 @@ public class Consumer<K,V> implements Runnable{
 
     @Override
     public void run() {
-        while (true) {
+        // while (true) {
+        while(!done) {
             ConsumerRecords<K, V> records = consumer.poll(Duration.ofMillis(1000));
             for (ConsumerRecord<K,V> record : records) {
                 this.entity.processMessage(record.topic(), record.key(), record.value());
             }
         }
+        consumer.close();
     }
 
+    public void shutdown() {
+        done = true;
+    }
     
 }

@@ -47,7 +47,7 @@ public class Producer<K,V>{
         }
     }
     
-    public void senSync(String[] topics, K key, V value) throws InterruptedException, ExecutionException{
+    public void sendSync(String[] topics, K key, V value) throws InterruptedException, ExecutionException{
         for(String topic:topics){
             ProducerRecord<K,V> record = new ProducerRecord<K,V>(topic,key,value);
             this.producer.send(record, new ProducerCallback());

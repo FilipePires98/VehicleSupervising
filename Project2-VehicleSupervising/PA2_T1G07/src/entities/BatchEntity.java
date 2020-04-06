@@ -2,6 +2,8 @@ package entities;
 
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import javax.swing.*;
 import kafkaUtils.Consumer;
@@ -17,6 +19,18 @@ import message.MessageDeserializer;
 public class BatchEntity extends JFrame implements EntityAction<String, Message>{
     
     private String topicName="BatchTopic";
+    private Properties props = new Properties();
+    
+    private final int MINGROUPSIZE = 1;
+    private final int MAXGROUPSIZE = 10;
+    private String groupName="BatchTopicGroup";
+    private Consumer[] consumers = new Consumer[MAXGROUPSIZE];
+    private Thread[] consumerThreads = new Thread[MAXGROUPSIZE];
+    private int activeConsumers = 3;
+    
+    private boolean firstMsg = true;
+    private Map<Integer,Integer> processedMsgs = new HashMap<>();
+    private int printedLines = 0;
 
     /**
      * Creates new form CollectEntity
@@ -36,16 +50,21 @@ public class BatchEntity extends JFrame implements EntityAction<String, Message>
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        heartbeatConsumersLabel = new javax.swing.JLabel();
+        consumersLabel = new javax.swing.JLabel();
         nConsumers = new javax.swing.JSpinner();
         jScrollPane1 = new javax.swing.JScrollPane();
         logs = new javax.swing.JTextArea();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        heartbeatConsumersLabel.setText("# of HEARTBEAT Consumers:");
+        consumersLabel.setText("# of Consumers:");
 
-        nConsumers.setModel(new javax.swing.SpinnerNumberModel(3, 1, 10, 1));
+        nConsumers.setModel(new SpinnerNumberModel(activeConsumers,MINGROUPSIZE,MAXGROUPSIZE,1));
+        nConsumers.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                nConsumersStateChanged(evt);
+            }
+        });
 
         logs.setColumns(20);
         logs.setRows(5);
@@ -60,10 +79,10 @@ public class BatchEntity extends JFrame implements EntityAction<String, Message>
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane1)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(heartbeatConsumersLabel)
+                        .addComponent(consumersLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(nConsumers, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 230, Short.MAX_VALUE)))
+                        .addGap(0, 312, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -71,7 +90,7 @@ public class BatchEntity extends JFrame implements EntityAction<String, Message>
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(heartbeatConsumersLabel)
+                    .addComponent(consumersLabel)
                     .addComponent(nConsumers, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 316, Short.MAX_VALUE)
@@ -81,16 +100,44 @@ public class BatchEntity extends JFrame implements EntityAction<String, Message>
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void nConsumersStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_nConsumersStateChanged
+        
+        if((Integer)nConsumers.getValue() == activeConsumers) {
+            return;
+        }
+        
+        if((Integer)nConsumers.getValue() > activeConsumers) {
+            String[] tmp = new String[]{topicName};
+            Consumer<String, Message> consumer = new Consumer<String,Message>(props, tmp, this);
+            Thread t = new Thread(consumer);
+            t.start();
+            consumers[activeConsumers] = consumer;
+            consumerThreads[activeConsumers] = t;
+        } else {
+            consumers[(Integer)nConsumers.getValue()].shutdown();
+        }
+        activeConsumers = (Integer)nConsumers.getValue();
+        
+        printedLines++;
+        String line = " consumers are listening to " + topicName;
+        System.out.println("[Batch] " + activeConsumers + line);
+        this.logs.append("[" + printedLines + "] " + activeConsumers + line + "\n");
+    }//GEN-LAST:event_nConsumersStateChanged
+
     private void startConsumers() {                                      
-        Properties props = new Properties();
         props.put("bootstrap.servers", "localhost:9092");
-        props.put("group.id", "test");
+        props.put("group.id", groupName);
         props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         props.put("value.deserializer", MessageDeserializer.class.getName());
         String[] tmp = new String[]{topicName};
-        Consumer<String, Message> consumer = new Consumer<String,Message>(props, tmp, this);
-        Thread t = new Thread(consumer);
-        t.start();
+        Consumer<String, Message> consumer;
+        for(int i=0; i<(Integer)nConsumers.getValue(); i++) {
+            consumer = new Consumer<String,Message>(props, tmp, this);
+            Thread t = new Thread(consumer);
+            t.start();
+            consumers[i] = consumer;
+            consumerThreads[i] = t;
+        }
     } 
     /**
      * @param args the command line arguments
@@ -131,7 +178,7 @@ public class BatchEntity extends JFrame implements EntityAction<String, Message>
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel heartbeatConsumersLabel;
+    private javax.swing.JLabel consumersLabel;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextArea logs;
     private javax.swing.JSpinner nConsumers;
@@ -139,8 +186,49 @@ public class BatchEntity extends JFrame implements EntityAction<String, Message>
 
     @Override
     public void processMessage(String topic, String key, Message value) {
-        String rec = "key = " + key + ", value = " + value+ "\n";
-        System.out.printf("[Batch] " + rec);
-        this.logs.append(rec);
+        
+        // Check if the topic has just started to work (to disable updates on the number of consumers)
+        if(firstMsg) {
+            firstMsg = false;
+            nConsumers.setEnabled(firstMsg);
+        }
+        
+        // Check if the message has already been processed by a consumer
+        int k = Integer.valueOf(key);
+        if(processedMsgs.containsKey(k)) {
+            
+            // Keep track of how many consumers have read the message and delete those that are save to remove
+            processedMsgs.put(k, processedMsgs.get(k)+1);
+            if(processedMsgs.get(k)==(Integer)nConsumers.getValue()) {
+                processedMsgs.remove(k);
+            }
+            
+        } else {
+            // Keep track of how many consumers have read the message (if applicable)
+            if((Integer)nConsumers.getValue() > 1) {
+                processedMsgs.put(k, 1);
+            }
+            
+            // Process message
+            int msgType = Integer.valueOf(value.toString().split("\\|")[3].trim());
+            /*
+            if(msgType==0) {
+                printedLines++;
+                System.out.println("[Batch] " + value.toString());
+                this.logs.append("[" + printedLines + "] " + value.toString() + "\n");
+            }
+            */
+            if(msgType!=4) {
+                printedLines++;
+                System.out.println("[Batch] " + value.toString());
+                this.logs.append("[" + printedLines + "] " + value.toString() + "\n");
+            } else {
+                firstMsg = true;
+                nConsumers.setEnabled(firstMsg);
+                processedMsgs = new HashMap<>();
+            }
+        }
+        
+        
     }
 }

@@ -5,6 +5,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Properties;
+import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.*;
 import kafkaUtils.Producer;
 import message.Message;
@@ -163,22 +166,36 @@ public class CollectEntity extends JFrame {
                     case 1:
                         speed = Integer.valueOf(content[4].trim());
                         msg = new Message(car_reg,timestamp,msgType,speed);
+                        producer.sendSync(this.topicNames,""+tmpCtr,msg);
                         break;
                     case 2:
                         status = content[4].trim();
                         msg = new Message(car_reg,timestamp,msgType,status);
+                        producer.sendAsync(this.topicNames,""+tmpCtr,msg);
                         break;
                 }
                 
                 line = CAR.readLine();
                 tmpCtr++;
             }
+            producer.sendSync(this.topicNames,""+tmpCtr, new Message("",0l,4));
             producer.close();
             
-        } catch (IOException e) {
-            //e.printStackTrace();
+        } catch (IOException ex) {
+            //ex.printStackTrace();
             String errorMsg = "Unable to open file for reading. Please make sure you write the correct path to the data file.";
             System.err.println("[Collect] " + errorMsg);
+            System.err.println("[Collect] " + ex);
+            this.logs.append("Error: " + errorMsg + "\n");
+        } catch (InterruptedException ex) {        
+            String errorMsg = "Unable to send synchronous message of type SPEED due to an unexpected interruption.";
+            System.err.println("[Collect] " + errorMsg);
+            System.err.println("[Collect] " + ex);
+            this.logs.append("Error: " + errorMsg + "\n");
+        } catch (ExecutionException ex) {
+            String errorMsg = "Unable to send synchronous message of type SPEED due to an execution failure.";
+            System.err.println("[Collect] " + errorMsg);
+            System.err.println("[Collect] " + ex);
             this.logs.append("Error: " + errorMsg + "\n");
         }        
     }//GEN-LAST:event_startBtnMouseClicked

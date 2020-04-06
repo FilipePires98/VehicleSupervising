@@ -39,6 +39,7 @@ def getCarStatus():
 
 def createMsg(car_reg, type, info):
     timestamp = int(time.time()*1000)
+    time.sleep(random.randint(1,5))
     msg = "| " + car_reg + " | " + str(timestamp) + " | " + type + " |"
     if(info):
         msg += " " + info + " |"
