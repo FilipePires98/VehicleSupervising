@@ -1,10 +1,14 @@
 package entities;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.*;
 import kafkaUtils.Consumer;
 import kafkaUtils.EntityAction;
@@ -16,7 +20,7 @@ import message.MessageDeserializer;
  * 
  * @author Filipe Pires (85122) and João Alegria (85048)
  */
-public class BatchEntity extends JFrame implements EntityAction<String, Message>{
+public class BatchEntity extends JFrame implements EntityAction<Integer, Message>{
     
     private String topicName="BatchTopic";
     private Properties props = new Properties();
@@ -28,9 +32,9 @@ public class BatchEntity extends JFrame implements EntityAction<String, Message>
     private Thread[] consumerThreads = new Thread[MAXGROUPSIZE];
     private int activeConsumers = 3;
     
-    private boolean firstMsg = true;
-    private Map<Integer,Integer> processedMsgs = new HashMap<>();
-    private int printedLines = 0;
+    private FileWriter file;
+//    private boolean firstMsg = true;
+    private Map<Integer,Integer> processedMessages = new HashMap<Integer, Integer>();
 
     /**
      * Creates new form CollectEntity
@@ -38,6 +42,13 @@ public class BatchEntity extends JFrame implements EntityAction<String, Message>
     public BatchEntity() {
         this.setTitle("Batch Entity");
         initComponents();
+        
+        try {
+            this.file = new FileWriter("src/data/BATCH.TXT");
+        } catch (IOException ex) {
+            Logger.getLogger(AlarmEntity.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
         startConsumers();
     }
 
@@ -54,6 +65,7 @@ public class BatchEntity extends JFrame implements EntityAction<String, Message>
         nConsumers = new javax.swing.JSpinner();
         jScrollPane1 = new javax.swing.JScrollPane();
         logs = new javax.swing.JTextArea();
+        reportAndReset = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setSize(new java.awt.Dimension(500, 360));
@@ -71,6 +83,14 @@ public class BatchEntity extends JFrame implements EntityAction<String, Message>
         logs.setRows(5);
         jScrollPane1.setViewportView(logs);
 
+        reportAndReset.setText("ReportAndReset");
+        reportAndReset.setAutoscrolls(true);
+        reportAndReset.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                reportAndResetMouseClicked(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -78,12 +98,13 @@ public class BatchEntity extends JFrame implements EntityAction<String, Message>
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 488, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(consumersLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(nConsumers, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 312, Short.MAX_VALUE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(reportAndReset)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -92,9 +113,10 @@ public class BatchEntity extends JFrame implements EntityAction<String, Message>
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(consumersLabel)
-                    .addComponent(nConsumers, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(nConsumers, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(reportAndReset))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 316, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 311, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -109,7 +131,7 @@ public class BatchEntity extends JFrame implements EntityAction<String, Message>
         
         if((Integer)nConsumers.getValue() > activeConsumers) {
             String[] tmp = new String[]{topicName};
-            Consumer<String, Message> consumer = new Consumer<String,Message>(props, tmp, this);
+            Consumer<Integer, Message> consumer = new Consumer<Integer,Message>(consumers.length,props, tmp, this);
             Thread t = new Thread(consumer);
             t.start();
             consumers[activeConsumers] = consumer;
@@ -119,21 +141,45 @@ public class BatchEntity extends JFrame implements EntityAction<String, Message>
         }
         activeConsumers = (Integer)nConsumers.getValue();
         
-        printedLines++;
         String line = " consumers are listening to " + topicName;
         System.out.println("[Batch] " + activeConsumers + line);
-        this.logs.append("[" + printedLines + "] " + activeConsumers + line + "\n");
+        this.logs.append(activeConsumers + line + "\n");
     }//GEN-LAST:event_nConsumersStateChanged
+
+    private void reportAndResetMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_reportAndResetMouseClicked
+        String tmp ="";
+        int total=0;
+        for(int key : processedMessages.keySet()){
+            total+=processedMessages.get(key);
+            switch(key){
+                case 0:
+                    tmp+="Heartbeat: "+processedMessages.get(key)+"; ";
+                    break;
+                case 1:
+                    tmp+="Speed: "+processedMessages.get(key)+"; ";
+                    break;
+                case 2:
+                    tmp+="Status: "+processedMessages.get(key)+"; ";
+                    break;
+            }
+        }
+        tmp+="Total: "+total+"\n";
+        
+        processedMessages.clear();
+        
+        logs.append(tmp);
+        logs.setCaretPosition(logs.getDocument().getLength());
+    }//GEN-LAST:event_reportAndResetMouseClicked
 
     private void startConsumers() {                                      
         props.put("bootstrap.servers", "localhost:9092");
         props.put("group.id", groupName);
-        props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+        props.put("key.deserializer", "org.apache.kafka.common.serialization.IntegerDeserializer");
         props.put("value.deserializer", MessageDeserializer.class.getName());
         String[] tmp = new String[]{topicName};
-        Consumer<String, Message> consumer;
+        Consumer<Integer, Message> consumer;
         for(int i=0; i<(Integer)nConsumers.getValue(); i++) {
-            consumer = new Consumer<String,Message>(props, tmp, this);
+            consumer = new Consumer<Integer,Message>(i, props, tmp, this);
             Thread t = new Thread(consumer);
             t.start();
             consumers[i] = consumer;
@@ -183,53 +229,73 @@ public class BatchEntity extends JFrame implements EntityAction<String, Message>
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextArea logs;
     private javax.swing.JSpinner nConsumers;
+    private javax.swing.JButton reportAndReset;
     // End of variables declaration//GEN-END:variables
 
     @Override
-    public void processMessage(String topic, String key, Message value) {
+    public void processMessage(int consumerId, String topic, Integer key, Message value) {
         
-        // Check if the topic has just started to work (to disable updates on the number of consumers)
-        if(firstMsg) {
-            firstMsg = false;
-            nConsumers.setEnabled(firstMsg);
+//        // Check if the topic has just started to work (to disable updates on the number of consumers)
+//        if(firstMsg) {
+//            firstMsg = false;
+//            nConsumers.setEnabled(firstMsg);
+//        }
+//        
+//        // Check if the message has already been processed by a consumer
+//        if(processedMsgs.containsKey(key)) {
+//            
+//            // Keep track of how many consumers have read the message and delete those that are save to remove
+//            processedMsgs.put(key, processedMsgs.get(key)+1);
+//            if(processedMsgs.get(key)==(Integer)nConsumers.getValue()) {
+//                processedMsgs.remove(key);
+//            }
+//            
+//        } else {
+//            // Keep track of how many consumers have read the message (if applicable)
+//            if((Integer)nConsumers.getValue() > 1) {
+//                processedMsgs.put(key, 1);
+//            }
+//            
+//            // Process message
+//            int msgType = Integer.valueOf(value.toString().split("\\|")[3].trim());
+//            /*
+//            if(msgType==0) {
+//                printedLines++;
+//                System.out.println("[Batch] " + value.toString());
+//                this.logs.append("[" + printedLines + "] " + value.toString() + "\n");
+//            }
+//            */
+//            if(msgType!=4) {
+////                printedLines++;
+//                System.out.println("[Batch] " + value.toString());
+//                this.logs.append("[" + key + "][Consumer: "+consumerId+"] " + value.toString() + "\n");
+//            } else {
+//                firstMsg = true;
+//                nConsumers.setEnabled(firstMsg);
+//                processedMsgs = new HashMap<>();
+//            }
+//        }
+        
+        
+        try {
+            String tmp  = value.toString();
+            file.write(tmp+"\n");
+            file.flush();
+//            printedLines++;
+            this.logs.append("["+key+"][Consumer: "+consumerId+"] "+ tmp + "\n");
+            logs.setCaretPosition(logs.getDocument().getLength());
+            System.out.println("[Batch] Processed message: "+tmp);
+            
+            if(processedMessages.containsKey(value.getType())){
+                processedMessages.put(value.getType(), processedMessages.get(value.getType())+1);
+            }else{
+                processedMessages.put(value.getType(), 1);
+            }
+            
+        } catch (IOException ex) {
+            Logger.getLogger(BatchEntity.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
-        // Check if the message has already been processed by a consumer
-        int k = Integer.valueOf(key);
-        if(processedMsgs.containsKey(k)) {
-            
-            // Keep track of how many consumers have read the message and delete those that are save to remove
-            processedMsgs.put(k, processedMsgs.get(k)+1);
-            if(processedMsgs.get(k)==(Integer)nConsumers.getValue()) {
-                processedMsgs.remove(k);
-            }
-            
-        } else {
-            // Keep track of how many consumers have read the message (if applicable)
-            if((Integer)nConsumers.getValue() > 1) {
-                processedMsgs.put(k, 1);
-            }
-            
-            // Process message
-            int msgType = Integer.valueOf(value.toString().split("\\|")[3].trim());
-            /*
-            if(msgType==0) {
-                printedLines++;
-                System.out.println("[Batch] " + value.toString());
-                this.logs.append("[" + printedLines + "] " + value.toString() + "\n");
-            }
-            */
-            if(msgType!=4) {
-                printedLines++;
-                System.out.println("[Batch] " + value.toString());
-                this.logs.append("[" + printedLines + "] " + value.toString() + "\n");
-            } else {
-                firstMsg = true;
-                nConsumers.setEnabled(firstMsg);
-                processedMsgs = new HashMap<>();
-            }
-        }
-        
+
         
     }
 }

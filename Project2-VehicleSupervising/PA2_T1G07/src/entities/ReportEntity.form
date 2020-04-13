@@ -37,7 +37,8 @@
                       <Component id="consumersLabel" min="-2" max="-2" attributes="0"/>
                       <EmptySpace min="-2" max="-2" attributes="0"/>
                       <Component id="nConsumers" min="-2" pref="54" max="-2" attributes="0"/>
-                      <EmptySpace min="0" pref="212" max="32767" attributes="0"/>
+                      <EmptySpace pref="166" max="32767" attributes="0"/>
+                      <Component id="reportAndReset" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
@@ -51,9 +52,10 @@
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="consumersLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="nConsumers" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="reportAndReset" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="jScrollPane1" pref="256" max="32767" attributes="0"/>
+              <Component id="jScrollPane1" pref="311" max="32767" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
@@ -90,5 +92,14 @@
         </Component>
       </SubComponents>
     </Container>
+    <Component class="javax.swing.JButton" name="reportAndReset">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="ReportAndReset"/>
+        <Property name="autoscrolls" type="boolean" value="true"/>
+      </Properties>
+      <Events>
+        <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="reportAndResetMouseClicked"/>
+      </Events>
+    </Component>
   </SubComponents>
 </Form>

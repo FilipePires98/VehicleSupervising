@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
@@ -129,24 +131,49 @@ public class CollectEntity extends JFrame {
 
     private void startBtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_startBtnMouseClicked
         
-        Properties props = new Properties();                                                        // create properties to access producer configs
-        props.put("bootstrap.servers", "localhost:9092");                                           // assign localhost id
-        props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");      // define serializer for keys
-        props.put("value.serializer", MessageSerializer.class.getName());
+        Map<Integer, Integer> processedMessages = new HashMap<Integer, Integer>();
+        processedMessages.put(0,0);
+        processedMessages.put(1,0);
+        processedMessages.put(2,0);
+        
+        int total=0;
+        
+        Properties heartbeatProps = new Properties();
+        heartbeatProps.put("bootstrap.servers", "localhost:9092");
+        heartbeatProps.put("key.serializer", "org.apache.kafka.common.serialization.IntegerSerializer");
+        heartbeatProps.put("value.serializer", MessageSerializer.class.getName());
+        heartbeatProps.put("max.in.flight.requests.per.connection", 10);
+        
+        Properties speedProps = new Properties();
+        speedProps.put("bootstrap.servers", "localhost:9092");
+        speedProps.put("key.serializer", "org.apache.kafka.common.serialization.IntegerSerializer");
+        speedProps.put("value.serializer", MessageSerializer.class.getName());
+        speedProps.put("max.in.flight.requests.per.connection", 1);
+        speedProps.put("enable.idempotence", true);
+        
+        Properties statusProps = new Properties();
+        statusProps.put("bootstrap.servers", "localhost:9092");
+        statusProps.put("key.serializer", "org.apache.kafka.common.serialization.IntegerSerializer");
+        statusProps.put("value.serializer", MessageSerializer.class.getName());
+        statusProps.put("max.in.flight.requests.per.connection", 1);
+        
+        Producer<Integer,Message> heartbeatProducer = new Producer<>(heartbeatProps);
+        
+        Producer<Integer,Message> speedProducer = new Producer<>(speedProps);
+        
+        Producer<Integer,Message> statusProducer = new Producer<>(statusProps);
         
         //System.out.println("[Collect] User Dir: " + System.getProperty("user.dir"));
         //System.out.println("[Collect] Path Input Field: " + filePath.getText());
         
         String file = filePath.getText();
         if(file.equals("(default path is ~/<ProjectLocation>/src/data)")) {
-            file = System.getProperty("user.dir") + "/src/data/CAR.txt";
+            file = System.getProperty("user.dir") + "/src/data/CAR.TXT";
         }
         
         try {
             CAR = new BufferedReader(new FileReader(file));
             this.logs.append("Data file successfully opened for reading.\n");
-            
-            Producer<String,Message> producer = new Producer<>(props);
             
             String line = CAR.readLine();
             String[] content;
@@ -162,25 +189,42 @@ public class CollectEntity extends JFrame {
                 switch(msgType) {
                     case 0:
                         msg = new Message(car_reg,timestamp,msgType);
-                        producer.fireAndForget(this.topicNames,""+tmpCtr,msg);
+                        for(String topic : this.topicNames){
+                            heartbeatProducer.fireAndForget(topic,tmpCtr,msg);
+                        }
+                        processedMessages.put(0, processedMessages.get(0)+1);
+                        total++;
                         break;
                     case 1:
                         speed = Integer.valueOf(content[4].trim());
                         msg = new Message(car_reg,timestamp,msgType,speed);
-                        producer.sendSync(this.topicNames,""+tmpCtr,msg);
+                        for(String topic : this.topicNames){
+                            speedProducer.sendSync(topic,tmpCtr,msg);
+                        }
+                        processedMessages.put(1, processedMessages.get(1)+1);
+                        total++;
                         break;
                     case 2:
                         status = content[4].trim();
                         msg = new Message(car_reg,timestamp,msgType,status);
-                        producer.sendAsync(this.topicNames,""+tmpCtr,msg);
+                        for(String topic : this.topicNames){
+                            statusProducer.sendAsync(topic,tmpCtr,msg);
+                        }
+                        processedMessages.put(2, processedMessages.get(2)+1);
+                        total++;
                         break;
                 }
                 
                 line = CAR.readLine();
                 tmpCtr++;
             }
-            producer.sendSync(this.topicNames,""+tmpCtr, new Message("",0l,4));
-            producer.close();
+//            heartbeatProducer.sendSync(this.topicNames,""+tmpCtr, new Message("",0l,4));
+            heartbeatProducer.close();
+            speedProducer.close();
+            statusProducer.close();
+            
+            String tmp ="Heartbeat: "+processedMessages.get(0)+"; Speed: "+processedMessages.get(1)+"; Status: "+processedMessages.get(2)+"; Total: "+total+"\n";
+            logs.append(tmp);
             
         } catch (IOException ex) {
             //ex.printStackTrace();

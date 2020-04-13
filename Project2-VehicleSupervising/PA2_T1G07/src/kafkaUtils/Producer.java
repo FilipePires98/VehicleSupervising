@@ -2,6 +2,7 @@ package kafkaUtils;
 
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
+import message.Message;
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -33,30 +34,23 @@ public class Producer<K,V>{
     }
     
     
-    public void fireAndForget(String[] topics, K key, V value){
-        for(String topic:topics){
-            ProducerRecord<K,V> record = new ProducerRecord<K,V>(topic,key,value);
-            this.producer.send(record);
-        }
+    public void fireAndForget(String topic, K key, V value){
+        ProducerRecord<K,V> record = new ProducerRecord<K,V>(topic,key,value);
+        this.producer.send(record);
     }
     
-    public void sendAsync(String[] topics, K key, V value){
-        for(String topic:topics){
-            ProducerRecord<K,V> record = new ProducerRecord<K,V>(topic,key,value);
-            this.producer.send(record).isDone();
-        }
+    public void sendAsync(String topic, K key, V value){
+        ProducerRecord<K,V> record = new ProducerRecord<K,V>(topic,key,value);
+        this.producer.send(record).isDone();
     }
     
-    public void sendSync(String[] topics, K key, V value) throws InterruptedException, ExecutionException{
-        for(String topic:topics){
-            ProducerRecord<K,V> record = new ProducerRecord<K,V>(topic,key,value);
-            this.producer.send(record, new ProducerCallback());
-        }
+    public void sendSync(String topic, K key, V value) throws InterruptedException, ExecutionException{
+        ProducerRecord<K,V> record = new ProducerRecord<K,V>(topic,key,value);
+        this.producer.send(record, new ProducerCallback());
     }
     
     public void close(){
         this.producer.close();
     }
-    
 
 }

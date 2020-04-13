@@ -1,5 +1,5 @@
 #
-# Python script for automatic generation of 'CAR.txt'.
+# Python script for automatic generation of 'CAR.TXT'.
 # Run this script inside the scripts package so that it stores the resulting file in the data package.
 #
 # @author Filipe Pires (85122) and João Alegria (85048)
@@ -80,7 +80,7 @@ while(len(cars)<nCars):
 
 # Generate messages and write them
 
-file = open("../data/CAR2.txt", "w")
+file = open("../data/CAR2.TXT", "w")
 for i in range(0,nLines):
     type = getMsgType()
     if type == "01":

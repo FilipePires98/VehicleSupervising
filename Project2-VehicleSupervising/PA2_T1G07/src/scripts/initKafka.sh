@@ -1,3 +1,5 @@
+./deleteKafka.sh
+
 if [ "$#" -le 0 ]
 then
   echo "Pass the name of the topics!"
@@ -21,6 +23,6 @@ echo $! >> pids
 for var in "$@"
 do
 
-../../kafka_2.12-2.4.1/bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 3 --partitions 1 --topic $var
+../../kafka_2.12-2.4.1/bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 3 --partitions 3 --topic $var
 
 done

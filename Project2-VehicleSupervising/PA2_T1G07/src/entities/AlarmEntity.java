@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -18,11 +20,12 @@ import message.MessageDeserializer;
  * 
  * @author Filipe Pires (85122) and João Alegria (85048)
  */
-public class AlarmEntity extends JFrame implements EntityAction<String, Message> {
+public class AlarmEntity extends JFrame implements EntityAction<Integer, Message> {
     
     private final int MINGROUPSIZE = 1;
     private final int MAXGROUPSIZE = 10;
     private String topicName="AlarmTopic";
+    private String groupName="AlarmTopicGroup";
     private Properties props = new Properties();
     
     private FileWriter file;
@@ -30,7 +33,10 @@ public class AlarmEntity extends JFrame implements EntityAction<String, Message>
     private Consumer[] consumers = new Consumer[MAXGROUPSIZE];
     private Thread[] consumerThreads = new Thread[MAXGROUPSIZE];
     private int activeConsumers = 3;
-    private int printedLines = 0;
+//    private int printedLines = 0;
+    
+    private Map<Integer,Integer> processedMessages = new HashMap<Integer, Integer>();
+
 
 
     /**
@@ -49,20 +55,21 @@ public class AlarmEntity extends JFrame implements EntityAction<String, Message>
         startConsumers();
     }
     
-    private void startConsumers(){
-        String[] topics=new String[]{topicName};
-        
-        props = new Properties();
+    private void startConsumers() {                                      
         props.put("bootstrap.servers", "localhost:9092");
-        props.put("group.id", "ALARMGROUP");
-        props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+        props.put("group.id", groupName);
+        props.put("key.deserializer", "org.apache.kafka.common.serialization.IntegerDeserializer");
         props.put("value.deserializer", MessageDeserializer.class.getName());
-        
-        kafkaUtils.Consumer<String, Message> consumer = new kafkaUtils.Consumer<String, Message>(props, topics, this);
-        Thread t = new Thread(consumer);
-        t.start();
-    }
-
+        String[] tmp = new String[]{topicName};
+        Consumer<Integer, Message> consumer;
+        for(int i=0; i<(Integer)nConsumers.getValue(); i++) {
+            consumer = new Consumer<Integer,Message>(i,props, tmp, this);
+            Thread t = new Thread(consumer);
+            t.start();
+            consumers[i] = consumer;
+            consumerThreads[i] = t;
+        }
+    } 
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -76,6 +83,7 @@ public class AlarmEntity extends JFrame implements EntityAction<String, Message>
         nConsumers = new javax.swing.JSpinner();
         jScrollPane1 = new javax.swing.JScrollPane();
         logs = new javax.swing.JTextArea();
+        reportAndReset = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setPreferredSize(new java.awt.Dimension(500, 360));
@@ -94,6 +102,14 @@ public class AlarmEntity extends JFrame implements EntityAction<String, Message>
         logs.setRows(5);
         jScrollPane1.setViewportView(logs);
 
+        reportAndReset.setText("ReportAndReset");
+        reportAndReset.setAutoscrolls(true);
+        reportAndReset.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                reportAndResetMouseClicked(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -106,7 +122,8 @@ public class AlarmEntity extends JFrame implements EntityAction<String, Message>
                         .addComponent(consumersLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(nConsumers, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 212, Short.MAX_VALUE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 66, Short.MAX_VALUE)
+                        .addComponent(reportAndReset)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -115,9 +132,10 @@ public class AlarmEntity extends JFrame implements EntityAction<String, Message>
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(consumersLabel)
-                    .addComponent(nConsumers, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(nConsumers, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(reportAndReset))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 256, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 251, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -132,7 +150,7 @@ public class AlarmEntity extends JFrame implements EntityAction<String, Message>
 
         if((Integer)nConsumers.getValue() > activeConsumers) {
             String[] tmp = new String[]{topicName};
-            Consumer<String, Message> consumer = new Consumer<String,Message>(props, tmp, this);
+            Consumer<Integer, Message> consumer = new Consumer<Integer,Message>(consumers.length,props, tmp, this);
             Thread t = new Thread(consumer);
             t.start();
             consumers[activeConsumers] = consumer;
@@ -142,11 +160,36 @@ public class AlarmEntity extends JFrame implements EntityAction<String, Message>
         }
         activeConsumers = (Integer)nConsumers.getValue();
 
-        printedLines++;
         String line = " consumers are listening to " + topicName;
         System.out.println("[Batch] " + activeConsumers + line);
-        this.logs.append("[" + printedLines + "] " + activeConsumers + line + "\n");
+        this.logs.append(activeConsumers + line + "\n");
+        logs.setCaretPosition(logs.getDocument().getLength());
     }//GEN-LAST:event_nConsumersStateChanged
+
+    private void reportAndResetMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_reportAndResetMouseClicked
+        String tmp ="";
+        int total=0;
+        for(int key : processedMessages.keySet()){
+            total+=processedMessages.get(key);
+            switch(key){
+                case 0:
+                tmp+="Heartbeat: "+processedMessages.get(key)+"; ";
+                break;
+                case 1:
+                tmp+="Speed: "+processedMessages.get(key)+"; ";
+                break;
+                case 2:
+                tmp+="Status: "+processedMessages.get(key)+"; ";
+                break;
+            }
+        }
+        tmp+="Total: "+total+"\n";
+
+        processedMessages.clear();
+
+        logs.append(tmp);
+        logs.setCaretPosition(logs.getDocument().getLength());
+    }//GEN-LAST:event_reportAndResetMouseClicked
 
     /**
      * @param args the command line arguments
@@ -186,7 +229,7 @@ public class AlarmEntity extends JFrame implements EntityAction<String, Message>
     }
 
     @Override
-    public void processMessage(String topic, String key, Message value) {
+    public void processMessage(int consumerId, String topic, Integer key, Message value) {
         if(value.getType()==1){//message is of type speed
             String tmp="";
             if(!isAlarmOn && value.getSpeed()>120){
@@ -199,9 +242,15 @@ public class AlarmEntity extends JFrame implements EntityAction<String, Message>
                 try {
                     file.write(tmp+"\n");
                     file.flush();
-                    printedLines++;
-                    this.logs.append("[" + printedLines + "] " + tmp + "\n");
+//                    printedLines++;
+                    this.logs.append("[" + key + "][Consumer: "+consumerId+"] "  + tmp + "\n");
                     System.out.println("[ALARM] Processed message: "+tmp);
+                    
+                    if(processedMessages.containsKey(value.getType())){
+                        processedMessages.put(value.getType(), processedMessages.get(value.getType())+1);
+                    }else{
+                        processedMessages.put(value.getType(), 1);
+                    }
                 } catch (IOException ex) {
                     Logger.getLogger(AlarmEntity.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -214,5 +263,6 @@ public class AlarmEntity extends JFrame implements EntityAction<String, Message>
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextArea logs;
     private javax.swing.JSpinner nConsumers;
+    private javax.swing.JButton reportAndReset;
     // End of variables declaration//GEN-END:variables
 }
