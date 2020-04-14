@@ -7,13 +7,26 @@ import java.util.logging.Logger;
 import org.apache.kafka.common.serialization.Serializer;
 
 /**
- *
- * @author joaoalegria
+ * Custom message serializer for the car supervising system.
+ * This class allows the serialization of messages for Kafka communications.
+ * 
+ * @author Filipe Pires (85122) and João Alegria (85048)
  */
 public class MessageSerializer implements Serializer<Message> {
     
+    /**
+     * Encoding used in serialization. 
+     * Deserializer must have knowledge of the encoding used in serialization.
+     */
     private String encoding="UTF8";
 
+    /**
+     * Serializes a message of any of the three types supported by the system.
+     * 
+     * @param topic topic where the message is sent
+     * @param data actual content of the message
+     * @return returns byte array containing the message serialized
+     */
     @Override
     public byte[] serialize(String topic, Message data) {
         

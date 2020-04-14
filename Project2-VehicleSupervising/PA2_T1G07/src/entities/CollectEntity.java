@@ -17,16 +17,23 @@ import message.MessageSerializer;
 
 /**
  * Class for the Collect Entity for the car supervising system.
+ * This entity reads data from the file CAR.TXT and produces messages of different types from that data to the BatchTopic, ReportTopic and AlarmTopic.
  * 
  * @author Filipe Pires (85122) and João Alegria (85048)
  */
 public class CollectEntity extends JFrame {
     
+    /**
+     * Reader responsible for IO interactions with the file CAR.TXT.
+     */
     private BufferedReader CAR;
+    /**
+     * Names of the topics where the entity sends messages to.
+     */
     private String[] topicNames = new String[]{"BatchTopic", "ReportTopic", "AlarmTopic"};
 
     /**
-     * Creates new form CollectEntity
+     * Creates new form CollectEntity.
      */
     public CollectEntity() {
         this.setTitle("Collect Entity");
@@ -129,6 +136,11 @@ public class CollectEntity extends JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+     * Creates the Kafka producers and sends messages to each topic according to the data it reads from the CAR.TXT. 
+     * 
+     * @param evt mouse event triggered, not used in our context
+     */
     private void startBtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_startBtnMouseClicked
         
         Map<Integer, Integer> processedMessages = new HashMap<Integer, Integer>();
@@ -246,6 +258,9 @@ public class CollectEntity extends JFrame {
     }//GEN-LAST:event_startBtnMouseClicked
     
     /**
+     * Collect entity's main method, responsible for creating and displaying the GUI.
+     * Arguments are not needed.
+     * 
      * @param args the command line arguments
      */
     public static void main(String args[]) {

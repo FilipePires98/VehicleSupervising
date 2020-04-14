@@ -17,30 +17,59 @@ import message.MessageDeserializer;
 
 /**
  * Class for the Report Entity for the car supervising system.
+ * This entity reads data from the ReportTopic, presents the received messages in its GUI and writes them to REPORT.TXT.
  * 
  * @author Filipe Pires (85122) and João Alegria (85048)
  */
 public class ReportEntity extends JFrame implements EntityAction<Integer,Message>{
     
+    /**
+     * Minimum size of the consumer group definable by the user.
+     */
     private final int MINGROUPSIZE = 1;
+    /**
+     * Maximum size of the consumer group definable by the user.
+     */
     private final int MAXGROUPSIZE = 10;
+    /**
+     * Name of the topic that the entity reads data from.
+     */
     private String topicName="ReportTopic";
+    /**
+     * Name of the consumer group.
+     */
     private String groupName="ReportTopicGroup";
-    private FileWriter file;
+    /**
+     * Consumer properties (bootstrap.servers, group.id, key.deserializer, value.deserializer, etc.).
+     */
     private Properties props = new Properties();
     
-    private boolean isAlarmOn=false;
+    /**
+     * Writer responsible for IO interactions with the file REPORT.TXT.
+     */
+    private FileWriter file;
+    /**
+     * Array of consumers dedicated to this entity (of size MAXGROUPSIZE).
+     */
     private Consumer[] consumers = new Consumer[MAXGROUPSIZE];
+    /**
+     * Array of consumer threads, each dedicated to a consumer instance, (of size MAXGROUPSIZE).
+     */
     private Thread[] consumerThreads = new Thread[MAXGROUPSIZE];
+    /**
+     * Number of active consumers working for the entity, definable by the user.
+     */
     private int activeConsumers = 3;
-//    private int printedLines = 0;
     
+    /**
+     * Cache containing the number of times each message has been processed (to allow consumer coordination).
+     */
     private Map<Integer,Integer> processedMessages = new HashMap<Integer, Integer>();
 
-    
+//    private int printedLines = 0;
 
     /**
-     * Creates new form CollectEntity
+     * Creates new form ReportEntity and requests consumer initialization.
      */
     public ReportEntity() {
         this.setTitle("Report Entity");
@@ -55,6 +84,9 @@ public class ReportEntity extends JFrame implements EntityAction<Integer,Message
         startConsumers();
     }
     
+    /**
+     * Initializes consumers.
+     */
     private void startConsumers() {                                      
         props.put("bootstrap.servers", "localhost:9092");
         props.put("group.id", groupName);
@@ -87,7 +119,6 @@ public class ReportEntity extends JFrame implements EntityAction<Integer,Message
         reportAndReset = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setPreferredSize(new java.awt.Dimension(500, 360));
         setSize(new java.awt.Dimension(500, 360));
 
         consumersLabel.setText("# of Consumers:");
@@ -143,6 +174,11 @@ public class ReportEntity extends JFrame implements EntityAction<Integer,Message
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+     * Method through which the user defines the number of active consumers.
+     * 
+     * @param evt change event triggered, not used in our context
+     */
     private void nConsumersStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_nConsumersStateChanged
 
         if((Integer)nConsumers.getValue() == activeConsumers) {
@@ -166,6 +202,11 @@ public class ReportEntity extends JFrame implements EntityAction<Integer,Message
         this.logs.append(activeConsumers + line + "\n");
     }//GEN-LAST:event_nConsumersStateChanged
 
+    /**
+     * Prints to the GUI's console the total number of processed messages of each type and resets the respective counters.
+     * 
+     * @param evt mouse event triggered, not used in our context
+     */
     private void reportAndResetMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_reportAndResetMouseClicked
         String tmp ="";
         int total=0;
@@ -192,6 +233,9 @@ public class ReportEntity extends JFrame implements EntityAction<Integer,Message
     }//GEN-LAST:event_reportAndResetMouseClicked
 
     /**
+     * Report entity's main method, responsible for creating and displaying the GUI.
+     * Arguments are not needed.
+     * 
      * @param args the command line arguments
      */
     public static void main(String args[]) {
@@ -228,6 +272,14 @@ public class ReportEntity extends JFrame implements EntityAction<Integer,Message
         });
     }
 
+    /**
+     * Processes messages from the ReportTopic.
+     * 
+     * @param consumerId identifier of the consumer processing the current message
+     * @param topic Kafka topic to which the message belongs to
+     * @param key message unique key
+     * @param value message value, actual message content with a format defined a priori
+     */
     @Override
     public void processMessage(int consumerId,String topic, Integer key, Message value) {
         try {

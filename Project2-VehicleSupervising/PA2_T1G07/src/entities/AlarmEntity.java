@@ -17,30 +17,64 @@ import message.MessageDeserializer;
 
 /**
  * Class for the Alarm Entity for the car supervising system.
+ * This entity reads data from the AlarmTopic, processes it and activates and deactivates alarms according to car speeds.
+ * All alarms are stored in a ALARM.TXT file.
  * 
  * @author Filipe Pires (85122) and João Alegria (85048)
  */
 public class AlarmEntity extends JFrame implements EntityAction<Integer, Message> {
     
+    /**
+     * Minimum size of the consumer group definable by the user.
+     */
     private final int MINGROUPSIZE = 1;
+    /**
+     * Maximum size of the consumer group definable by the user.
+     */
     private final int MAXGROUPSIZE = 10;
+    /**
+     * Name of the topic that the entity reads data from.
+     */
     private String topicName="AlarmTopic";
+    /**
+     * Name of the consumer group.
+     */
     private String groupName="AlarmTopicGroup";
+    /**
+     * Consumer properties (bootstrap.servers, group.id, key.deserializer, value.deserializer, etc.).
+     */
     private Properties props = new Properties();
     
+    /**
+     * Writer responsible for IO interactions with the file ALARM.TXT.
+     */
     private FileWriter file;
-    private boolean isAlarmOn=false;
+    /**
+     * Array of consumers dedicated to this entity (of size MAXGROUPSIZE).
+     */
     private Consumer[] consumers = new Consumer[MAXGROUPSIZE];
+    /**
+     * Array of consumer threads, each dedicated to a consumer instance, (of size MAXGROUPSIZE).
+     */
     private Thread[] consumerThreads = new Thread[MAXGROUPSIZE];
+    /**
+     * Number of active consumers working for the entity, definable by the user.
+     */
     private int activeConsumers = 3;
-//    private int printedLines = 0;
     
+    /**
+     * Cache containing the number of times each message has been processed (to allow consumer coordination).
+     */
     private Map<Integer,Integer> processedMessages = new HashMap<Integer, Integer>();
-
-
+    
+    /**
+     * Tells wether an alarm is currently active or not.
+     */
+    private boolean isAlarmOn=false;
+//    private int printedLines = 0;
 
     /**
-     * Creates new form CollectEntity
+     * Creates new form CollectEntity and requests consumer initialization.
      */
     public AlarmEntity() {
         this.setTitle("Alarm Entity");
@@ -55,6 +89,9 @@ public class AlarmEntity extends JFrame implements EntityAction<Integer, Message
         startConsumers();
     }
     
+    /**
+     * Initializes consumers.
+     */
     private void startConsumers() {                                      
         props.put("bootstrap.servers", "localhost:9092");
         props.put("group.id", groupName);
@@ -122,7 +159,7 @@ public class AlarmEntity extends JFrame implements EntityAction<Integer, Message
                         .addComponent(consumersLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(nConsumers, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 66, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 166, Short.MAX_VALUE)
                         .addComponent(reportAndReset)))
                 .addContainerGap())
         );
@@ -135,13 +172,18 @@ public class AlarmEntity extends JFrame implements EntityAction<Integer, Message
                     .addComponent(nConsumers, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(reportAndReset))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 251, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 311, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+     * Method through which the user defines the number of active consumers.
+     * 
+     * @param evt change event triggered, not used in our context
+     */
     private void nConsumersStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_nConsumersStateChanged
 
         if((Integer)nConsumers.getValue() == activeConsumers) {
@@ -166,6 +208,11 @@ public class AlarmEntity extends JFrame implements EntityAction<Integer, Message
         logs.setCaretPosition(logs.getDocument().getLength());
     }//GEN-LAST:event_nConsumersStateChanged
 
+    /**
+     * Prints to the GUI's console the total number of processed messages of each type and resets the respective counters.
+     * 
+     * @param evt mouse event triggered, not used in our context
+     */
     private void reportAndResetMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_reportAndResetMouseClicked
         String tmp ="";
         int total=0;
@@ -192,6 +239,9 @@ public class AlarmEntity extends JFrame implements EntityAction<Integer, Message
     }//GEN-LAST:event_reportAndResetMouseClicked
 
     /**
+     * Alarm entity's main method, responsible for creating and displaying the GUI.
+     * Arguments are not needed.
+     * 
      * @param args the command line arguments
      */
     public static void main(String args[]) {
@@ -228,6 +278,14 @@ public class AlarmEntity extends JFrame implements EntityAction<Integer, Message
         });
     }
 
+    /**
+     * Processes messages from the AlarmTopic in order to detect alarms.
+     * 
+     * @param consumerId identifier of the consumer processing the current message
+     * @param topic Kafka topic to which the message belongs to
+     * @param key message unique key
+     * @param value message value, actual message content with a format defined a priori
+     */
     @Override
     public void processMessage(int consumerId, String topic, Integer key, Message value) {
         if(value.getType()==1){//message is of type speed
