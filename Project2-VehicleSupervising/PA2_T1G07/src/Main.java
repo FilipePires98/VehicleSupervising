@@ -8,13 +8,17 @@ import java.io.InputStreamReader;
 
 /**
  * Main class for the vehicle supervising system.
+ * When executed, it runs Kafka's initialization script with predefined configurations, and launches independent java processes with a GUI each for entity interaction.
+ * Once the GUIs are closed and the program is shutdown, this main function is released and runs Kafka's termination script.
  * 
  * @author Filipe Pires (85122) and João Alegria (85048)
  */
 public class Main {
 
    /**
-     * Function responsible for initializing all system entities.
+     * Initializes Kafka and all system entities.
+     * Arguments are not needed.
+     * 
      * @param args the command line arguments
      */
     public static void main(String[] args) {
@@ -47,6 +51,7 @@ public class Main {
         
         
         /* Launch Remaining Entities */ 
+        
         for(i=0; i<entities.length; i++) {
             commands[i] = "java -cp " + jars + userDir + "/build/classes entities." + entities[i] + "Entity";
         }
@@ -66,6 +71,7 @@ public class Main {
         }
         
         /* Execute kafka Termination Script */
+        
         try {
             Runtime.getRuntime().exec("./deleteKafka.sh", null, new File(userDir+"/src/scripts/"));
             System.out.println("Kafka terminated.");
@@ -78,7 +84,9 @@ public class Main {
     
     /**
      * Executes other independent processes. 
+     * 
      * @param commands array of strings with each containing the command line to execute
+     * @return array of threads responsible for listening to the outputs of each process created
      * @throws Exception in case of some error occurs during the process execution phase and stream fetching
      */
     private static Thread[] runProcess(String[] commands) throws Exception {

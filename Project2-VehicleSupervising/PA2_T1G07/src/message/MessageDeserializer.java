@@ -4,11 +4,21 @@ import java.nio.ByteBuffer;
 import org.apache.kafka.common.serialization.Deserializer;
 
 /**
- *
- * @author joaoalegria
+ * Custom message deserializer for the car supervising system.
+ * This class allows the deserialization of serialized messages for Kafka communications.
+ * 
+ * @author Filipe Pires (85122) and João Alegria (85048)
  */
 public class MessageDeserializer implements Deserializer<Message> {
     
+    
+    /**
+     * Desrializes a message of any of the three types supported by the system.
+     * 
+     * @param topic topic where the message is sent
+     * @param data serialized content of the message
+     * @return returns deserialized message as an instance of the Message class
+     */
     @Override
     public Message deserialize(String topic, byte[] data) {
         String car_reg;
@@ -18,7 +28,6 @@ public class MessageDeserializer implements Deserializer<Message> {
         String car_status;
         
         int index=0;
-        
         
         byte[] tmp = new byte[Integer.BYTES];
         for(int i=0; i<Integer.BYTES; i++){

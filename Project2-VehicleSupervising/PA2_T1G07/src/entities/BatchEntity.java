@@ -19,31 +19,61 @@ import message.MessageDeserializer;
 
 /**
  * Class for the Batch Entity for the car supervising system.
+ * This entity reads data from the BatchTopic, presents the received messages in its GUI and writes them to BATCH.TXT.
  * 
  * @author Filipe Pires (85122) and João Alegria (85048)
  */
 public class BatchEntity extends JFrame implements EntityAction<Integer, Message>{
-    
+       
+    /**
+     * Minimum size of the consumer group definable by the user.
+     */
+    private final int MINGROUPSIZE = 1;
+    /**
+     * Maximum size of the consumer group definable by the user.
+     */
+    private final int MAXGROUPSIZE = 10;
+    /**
+     * Name of the topic that the entity reads data from.
+     */
     private String topicName="BatchTopic";
+    /**
+     * Name of the consumer group.
+     */
+    private String groupName="BatchTopicGroup";
+    /**
+     * Consumer properties (bootstrap.servers, group.id, key.deserializer, value.deserializer, etc.).
+     */
     private Properties props = new Properties();
     
-    private final int MINGROUPSIZE = 1;
-    private final int MAXGROUPSIZE = 10;
-    private String groupName="BatchTopicGroup";
+    /**
+     * Writer responsible for IO interactions with the file BATCH.TXT.
+     */
+    private FileWriter file;
+    /**
+     * Array of consumers dedicated to this entity (of size MAXGROUPSIZE).
+     */
     private Consumer[] consumers = new Consumer[MAXGROUPSIZE];
+    /**
+     * Array of consumer threads, each dedicated to a consumer instance, (of size MAXGROUPSIZE).
+     */
     private Thread[] consumerThreads = new Thread[MAXGROUPSIZE];
+    /**
+     * Number of active consumers working for the entity, definable by the user.
+     */
     private int activeConsumers = 3;
     
-    private FileWriter file;
-//    private boolean firstMsg = true;
+    /**
+     * Cache containing the number of times each message has been processed (to allow consumer coordination).
+     */
     private Map<Integer,Integer> processedMessages = new HashMap<Integer, Integer>();
-    
     
     private int reprocessed=0;
     private List<Integer> knownMessages=new ArrayList<Integer>();
 
+
     /**
-     * Creates new form CollectEntity
+     * Creates new form BatchEntity and requests consumer initialization.
      */
     public BatchEntity() {
         this.setTitle("Batch Entity");
@@ -129,6 +159,11 @@ public class BatchEntity extends JFrame implements EntityAction<Integer, Message
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+     * Method through which the user defines the number of active consumers.
+     * 
+     * @param evt change event triggered, not used in our context
+     */
     private void nConsumersStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_nConsumersStateChanged
         
         if((Integer)nConsumers.getValue() == activeConsumers) {
@@ -152,6 +187,11 @@ public class BatchEntity extends JFrame implements EntityAction<Integer, Message
         this.logs.append(activeConsumers + line + "\n");
     }//GEN-LAST:event_nConsumersStateChanged
 
+    /**
+     * Prints to the GUI's console the total number of processed messages of each type and resets the respective counters.
+     * 
+     * @param evt mouse event triggered, not used in our context
+     */
     private void reportAndResetMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_reportAndResetMouseClicked
         String tmp ="";
         int total=0;
@@ -182,6 +222,9 @@ public class BatchEntity extends JFrame implements EntityAction<Integer, Message
         logs.setCaretPosition(logs.getDocument().getLength());
     }//GEN-LAST:event_reportAndResetMouseClicked
 
+    /**
+     * Initializes consumers.
+     */
     private void startConsumers() {                                      
         props.put("bootstrap.servers", "localhost:9092,localhost:9093,localhost:9094");
         props.put("group.id", groupName);
@@ -199,6 +242,9 @@ public class BatchEntity extends JFrame implements EntityAction<Integer, Message
         }
     } 
     /**
+     * Batch entity's main method, responsible for creating and displaying the GUI.
+     * Arguments are not needed.
+     * 
      * @param args the command line arguments
      */
     public static void main(String args[]) {
@@ -235,15 +281,15 @@ public class BatchEntity extends JFrame implements EntityAction<Integer, Message
         });
         
     }
-
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel consumersLabel;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTextArea logs;
-    private javax.swing.JSpinner nConsumers;
-    private javax.swing.JButton reportAndReset;
-    // End of variables declaration//GEN-END:variables
-
+    
+    /**
+     * Processes messages from the BatchTopic.
+     * 
+     * @param consumerId identifier of the consumer processing the current message
+     * @param topic Kafka topic to which the message belongs to
+     * @param key message unique key
+     * @param value message value, actual message content with a format defined a priori
+     */
     @Override
     public void processMessage(int consumerId, String topic, Integer key, Message value) {
         
@@ -288,7 +334,6 @@ public class BatchEntity extends JFrame implements EntityAction<Integer, Message
 //            }
 //        }
         
-        
         try {
             String tmp  = value.toString();
             file.write(tmp+"\n");
@@ -316,4 +361,13 @@ public class BatchEntity extends JFrame implements EntityAction<Integer, Message
 
         
     }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel consumersLabel;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTextArea logs;
+    private javax.swing.JSpinner nConsumers;
+    private javax.swing.JButton reportAndReset;
+    // End of variables declaration//GEN-END:variables
+
 }
