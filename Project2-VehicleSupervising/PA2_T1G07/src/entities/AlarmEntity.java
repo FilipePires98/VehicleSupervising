@@ -1,9 +1,7 @@
 package entities;
 
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -313,7 +311,6 @@ public class AlarmEntity extends JFrame implements EntityAction<Integer, Message
         }else{
             knownMessages.add(key);
         }
-        
         
         if(value.getType()==1){//message is of type speed 
             String tmp="";

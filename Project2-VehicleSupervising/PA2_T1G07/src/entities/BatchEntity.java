@@ -2,9 +2,7 @@ package entities;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -70,7 +68,6 @@ public class BatchEntity extends JFrame implements EntityAction<Integer, Message
     
     private int reprocessed=0;
     private List<Integer> knownMessages=new ArrayList<Integer>();
-
 
     /**
      * Creates new form BatchEntity and requests consumer initialization.
