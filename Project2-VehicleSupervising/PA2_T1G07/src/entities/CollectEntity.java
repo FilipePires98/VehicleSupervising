@@ -139,23 +139,25 @@ public class CollectEntity extends JFrame {
         int total=0;
         
         Properties heartbeatProps = new Properties();
-        heartbeatProps.put("bootstrap.servers", "localhost:9092");
+        heartbeatProps.put("bootstrap.servers", "localhost:9092, localhost:9093 ,localhost:9094");
         heartbeatProps.put("key.serializer", "org.apache.kafka.common.serialization.IntegerSerializer");
         heartbeatProps.put("value.serializer", MessageSerializer.class.getName());
         heartbeatProps.put("max.in.flight.requests.per.connection", 10);
+        heartbeatProps.put("ack", "0");
         
         Properties speedProps = new Properties();
-        speedProps.put("bootstrap.servers", "localhost:9092");
+        speedProps.put("bootstrap.servers", "localhost:9092,localhost:9093,localhost:9094");
         speedProps.put("key.serializer", "org.apache.kafka.common.serialization.IntegerSerializer");
         speedProps.put("value.serializer", MessageSerializer.class.getName());
-        speedProps.put("max.in.flight.requests.per.connection", 1);
         speedProps.put("enable.idempotence", true);
+        speedProps.put("acks", "all");
         
         Properties statusProps = new Properties();
-        statusProps.put("bootstrap.servers", "localhost:9092");
+        statusProps.put("bootstrap.servers", "localhost:9092, localhost:9093 ,localhost:9094");
         statusProps.put("key.serializer", "org.apache.kafka.common.serialization.IntegerSerializer");
         statusProps.put("value.serializer", MessageSerializer.class.getName());
-        statusProps.put("max.in.flight.requests.per.connection", 1);
+        statusProps.put("acks", "all");
+        statusProps.put("retries", 0);
         
         Producer<Integer,Message> heartbeatProducer = new Producer<>(heartbeatProps);
         
@@ -171,13 +173,11 @@ public class CollectEntity extends JFrame {
             file = System.getProperty("user.dir") + "/src/data/CAR.TXT";
         }
         
-        try {
+        try{
             CAR = new BufferedReader(new FileReader(file));
             this.logs.append("Data file successfully opened for reading.\n");
-            
             String line = CAR.readLine();
             String[] content;
-            
             String car_reg; Long timestamp; int msgType; int speed; String status;
             int tmpCtr = 1;
             while(line != null) {
@@ -190,7 +190,7 @@ public class CollectEntity extends JFrame {
                     case 0:
                         msg = new Message(car_reg,timestamp,msgType);
                         for(String topic : this.topicNames){
-                            heartbeatProducer.fireAndForget(topic,tmpCtr,msg);
+                            heartbeatProducer.fireAndForget(topic, null,tmpCtr,msg);
                         }
                         processedMessages.put(0, processedMessages.get(0)+1);
                         total++;
@@ -199,7 +199,7 @@ public class CollectEntity extends JFrame {
                         speed = Integer.valueOf(content[4].trim());
                         msg = new Message(car_reg,timestamp,msgType,speed);
                         for(String topic : this.topicNames){
-                            speedProducer.sendSync(topic,tmpCtr,msg);
+                            speedProducer.fireAndForget(topic,0,tmpCtr,msg);
                         }
                         processedMessages.put(1, processedMessages.get(1)+1);
                         total++;
@@ -208,13 +208,23 @@ public class CollectEntity extends JFrame {
                         status = content[4].trim();
                         msg = new Message(car_reg,timestamp,msgType,status);
                         for(String topic : this.topicNames){
-                            statusProducer.sendAsync(topic,tmpCtr,msg);
+//                            boolean send=true;
+//                            while(send){
+//                                try {
+//                                    send=false;
+//                                    statusProducer.sendSync(topic,tmpCtr,msg);
+//                                } catch (InterruptedException ex) {
+//                                    send=true;
+//                                } catch (ExecutionException ex) {
+//                                    send=true;
+//                                }
+//                            }
+                            statusProducer.fireAndForget(topic,0,tmpCtr,msg);
                         }
                         processedMessages.put(2, processedMessages.get(2)+1);
                         total++;
                         break;
                 }
-                
                 line = CAR.readLine();
                 tmpCtr++;
             }
@@ -232,17 +242,7 @@ public class CollectEntity extends JFrame {
             System.err.println("[Collect] " + errorMsg);
             System.err.println("[Collect] " + ex);
             this.logs.append("Error: " + errorMsg + "\n");
-        } catch (InterruptedException ex) {        
-            String errorMsg = "Unable to send synchronous message of type SPEED due to an unexpected interruption.";
-            System.err.println("[Collect] " + errorMsg);
-            System.err.println("[Collect] " + ex);
-            this.logs.append("Error: " + errorMsg + "\n");
-        } catch (ExecutionException ex) {
-            String errorMsg = "Unable to send synchronous message of type SPEED due to an execution failure.";
-            System.err.println("[Collect] " + errorMsg);
-            System.err.println("[Collect] " + ex);
-            this.logs.append("Error: " + errorMsg + "\n");
-        }        
+        } 
     }//GEN-LAST:event_startBtnMouseClicked
     
     /**

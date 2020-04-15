@@ -3,8 +3,10 @@ package entities;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -35,6 +37,10 @@ public class BatchEntity extends JFrame implements EntityAction<Integer, Message
     private FileWriter file;
 //    private boolean firstMsg = true;
     private Map<Integer,Integer> processedMessages = new HashMap<Integer, Integer>();
+    
+    
+    private int reprocessed=0;
+    private List<Integer> knownMessages=new ArrayList<Integer>();
 
     /**
      * Creates new form CollectEntity
@@ -163,7 +169,12 @@ public class BatchEntity extends JFrame implements EntityAction<Integer, Message
                     break;
             }
         }
+        tmp+="Reprocessed: "+reprocessed+"; ";
         tmp+="Total: "+total+"\n";
+
+        processedMessages.clear();
+        reprocessed=0;
+        knownMessages.clear();
         
         processedMessages.clear();
         
@@ -172,10 +183,11 @@ public class BatchEntity extends JFrame implements EntityAction<Integer, Message
     }//GEN-LAST:event_reportAndResetMouseClicked
 
     private void startConsumers() {                                      
-        props.put("bootstrap.servers", "localhost:9092");
+        props.put("bootstrap.servers", "localhost:9092,localhost:9093,localhost:9094");
         props.put("group.id", groupName);
         props.put("key.deserializer", "org.apache.kafka.common.serialization.IntegerDeserializer");
         props.put("value.deserializer", MessageDeserializer.class.getName());
+        props.put("enable.auto-commit", false);
         String[] tmp = new String[]{topicName};
         Consumer<Integer, Message> consumer;
         for(int i=0; i<(Integer)nConsumers.getValue(); i++) {
@@ -284,12 +296,18 @@ public class BatchEntity extends JFrame implements EntityAction<Integer, Message
 //            printedLines++;
             this.logs.append("["+key+"][Consumer: "+consumerId+"] "+ tmp + "\n");
             logs.setCaretPosition(logs.getDocument().getLength());
-            System.out.println("[Batch] Processed message: "+tmp);
+//            System.out.println("[Batch] Processed message: "+tmp);
             
             if(processedMessages.containsKey(value.getType())){
                 processedMessages.put(value.getType(), processedMessages.get(value.getType())+1);
             }else{
                 processedMessages.put(value.getType(), 1);
+            }
+            
+            if(knownMessages.contains(key)){
+                reprocessed++;
+            }else{
+                knownMessages.add(key);
             }
             
         } catch (IOException ex) {

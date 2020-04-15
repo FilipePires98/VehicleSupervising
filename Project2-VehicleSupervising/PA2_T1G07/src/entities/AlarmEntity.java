@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -37,7 +39,8 @@ public class AlarmEntity extends JFrame implements EntityAction<Integer, Message
     
     private Map<Integer,Integer> processedMessages = new HashMap<Integer, Integer>();
 
-
+    private int reprocessed=0;
+    private List<Integer> knownMessages=new ArrayList<Integer>();
 
     /**
      * Creates new form CollectEntity
@@ -56,10 +59,11 @@ public class AlarmEntity extends JFrame implements EntityAction<Integer, Message
     }
     
     private void startConsumers() {                                      
-        props.put("bootstrap.servers", "localhost:9092");
+        props.put("bootstrap.servers", "localhost:9092,localhost:9093,localhost:9094");
         props.put("group.id", groupName);
         props.put("key.deserializer", "org.apache.kafka.common.serialization.IntegerDeserializer");
         props.put("value.deserializer", MessageDeserializer.class.getName());
+        props.put("enable.auto-commit", false);
         String[] tmp = new String[]{topicName};
         Consumer<Integer, Message> consumer;
         for(int i=0; i<(Integer)nConsumers.getValue(); i++) {
@@ -183,7 +187,12 @@ public class AlarmEntity extends JFrame implements EntityAction<Integer, Message
                 break;
             }
         }
+        tmp+="Reprocessed: "+reprocessed+"; ";
         tmp+="Total: "+total+"\n";
+
+        processedMessages.clear();
+        reprocessed=0;
+        knownMessages.clear();
 
         processedMessages.clear();
 
@@ -230,12 +239,31 @@ public class AlarmEntity extends JFrame implements EntityAction<Integer, Message
 
     @Override
     public void processMessage(int consumerId, String topic, Integer key, Message value) {
-        if(value.getType()==1){//message is of type speed
+        this.logs.append("[" + key + "][Consumer: "+consumerId+"] "  + value.toString() + "\n");
+        logs.setCaretPosition(logs.getDocument().getLength());
+//        System.out.println("[ALARM] Processed message: "+tmp);
+
+        if(processedMessages.containsKey(value.getType())){
+            processedMessages.put(value.getType(), processedMessages.get(value.getType())+1);
+        }else{
+            processedMessages.put(value.getType(), 1);
+        }
+
+        if(knownMessages.contains(key)){
+            reprocessed++;
+        }else{
+            knownMessages.add(key);
+        }
+        
+        
+        if(value.getType()==1){//message is of type speed 
             String tmp="";
             if(!isAlarmOn && value.getSpeed()>120){
                 tmp=value.toString()+" ON |";
+                isAlarmOn=true;
             }else if(isAlarmOn && value.getSpeed()<120){
                 tmp=value.toString()+" OFF |";
+                isAlarmOn=false;
             }
 
             if(tmp.length()>0){
@@ -243,14 +271,9 @@ public class AlarmEntity extends JFrame implements EntityAction<Integer, Message
                     file.write(tmp+"\n");
                     file.flush();
 //                    printedLines++;
-                    this.logs.append("[" + key + "][Consumer: "+consumerId+"] "  + tmp + "\n");
-                    System.out.println("[ALARM] Processed message: "+tmp);
+                    this.logs.append("ALARM -> "  + tmp + "\n");
+                    logs.setCaretPosition(logs.getDocument().getLength());
                     
-                    if(processedMessages.containsKey(value.getType())){
-                        processedMessages.put(value.getType(), processedMessages.get(value.getType())+1);
-                    }else{
-                        processedMessages.put(value.getType(), 1);
-                    }
                 } catch (IOException ex) {
                     Logger.getLogger(AlarmEntity.class.getName()).log(Level.SEVERE, null, ex);
                 }

@@ -34,19 +34,37 @@ public class Producer<K,V>{
     }
     
     
-    public void fireAndForget(String topic, K key, V value){
-        ProducerRecord<K,V> record = new ProducerRecord<K,V>(topic,key,value);
+    public void fireAndForget(String topic, Integer partition, K key, V value){
+        ProducerRecord<K,V> record;
+        if(partition==null){
+            record = new ProducerRecord<K,V>(topic,key,value);
+        }else{
+            record = new ProducerRecord<K,V>(topic,partition,key,value);
+        }
         this.producer.send(record);
+        producer.flush();
     }
     
-    public void sendAsync(String topic, K key, V value){
-        ProducerRecord<K,V> record = new ProducerRecord<K,V>(topic,key,value);
-        this.producer.send(record).isDone();
-    }
-    
-    public void sendSync(String topic, K key, V value) throws InterruptedException, ExecutionException{
-        ProducerRecord<K,V> record = new ProducerRecord<K,V>(topic,key,value);
+    public void sendAsync(String topic, Integer partition, K key, V value){
+        ProducerRecord<K,V> record;
+        if(partition==null){
+            record = new ProducerRecord<K,V>(topic,key,value);
+        }else{
+            record = new ProducerRecord<K,V>(topic,partition,key,value);
+        }
         this.producer.send(record, new ProducerCallback());
+        producer.flush();
+    }
+    
+    public void sendSync(String topic, Integer partition, K key, V value) throws InterruptedException, ExecutionException{
+        ProducerRecord<K,V> record;
+        if(partition==null){
+            record = new ProducerRecord<K,V>(topic,key,value);
+        }else{
+            record = new ProducerRecord<K,V>(topic,partition,key,value);
+        }
+        RecordMetadata meta = this.producer.send(record).get();
+        producer.flush();
     }
     
     public void close(){
