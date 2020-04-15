@@ -18,8 +18,8 @@ João Alegria, nmec. 85048
 ## Description
 
 The project is about a centralized platform for vehicle supervision.
-There are five entities: Collect, Digestion, Report, Batch and Alarm.
-Each entity has its own main method and is held accountable for a set of responsibilities around four kafka topics.
+There are four entities: Collect, Report, Batch and Alarm.
+Each entity has its own main method and is held accountable for a set of responsibilities around three kafka topics.
 For further details, read the project's report or contact us.
 
 ## Instructions on how to run the code
