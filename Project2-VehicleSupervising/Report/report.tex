@@ -5,6 +5,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage{enumitem}
 \usepackage{booktabs}
+\usepackage{multicol}
 
 \topmargin -1.0cm
 \oddsidemargin 0.0cm
@@ -278,7 +279,7 @@ In order to more easily visualize interactions between entities, we designed an 
 
 \subsection{User Interface} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-In any management platform there needs to be 
+In any management platform there needs to be  
 
 \newpage
 \section{Kafka Infrastructure} \label{infrastructure} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -341,7 +342,35 @@ To establish constraints to the infrastructure consequently to the project, we h
 
 For this project it was established that there should only exist 3 topics, the \textit{BatchTopic}, \textit{ReportTopic} and the \textit{AlarmTopic}, each one with the objective of establishing communication between the \textit{CollectEntity} and the \textit{BatchEntity}, \textit{ReportEntity} and \textit{AlarmEntity}, respectively.
 
-.......
+As already mentioned, there are three different types of messages, and all types should be sent to every one of the topics. This condition is quite relevant since this means that the properties and conditions assured in shared resources across message types, such as the topics, will be dictated by the most restricting message type. The higher restrictions on a given constraint can be defined by different message types, since each message type as a different set of constraints. Those constrains are:
+
+\begin{multicols}{3}
+  \begin{itemize}
+    \item HEARTBEAT
+    \newline - can be lost
+    \newline - can be reordered
+    \newline - can be reprocessed
+  \end{itemize}
+
+  \columnbreak
+
+  \begin{itemize}
+    \item SPEED
+    \newline - can be lost
+    \newline - cannot be reordered
+    \newline - cannot be reprocessed
+  \end{itemize}
+
+  \columnbreak
+
+  \begin{itemize}
+    \item STATUS
+    \newline - cannot be lost
+    \newline - cannot be reordered
+    \newline - can be reprocessed
+  \end{itemize}
+\end{multicols}
+
 
 \newpage
 \section{Additional Remarks} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

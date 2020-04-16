@@ -70,6 +70,7 @@ public class Consumer<K,V> implements Runnable{
                 rebalanceListener.addOffset(record.topic(), record.partition(), record.offset());
             }
             consumer.commitSync(rebalanceListener.getCurrentOffsets());
+            
         }
         consumer.close();
     }

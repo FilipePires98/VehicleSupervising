@@ -27,6 +27,8 @@ public class CollectEntity extends JFrame {
      * Names of the topics where the entity sends messages to.
      */
     private String[] topicNames = new String[]{"BatchTopic", "ReportTopic", "AlarmTopic"};
+    
+    private boolean processFile;
 
     /**
      * Creates new form CollectEntity.
@@ -54,6 +56,9 @@ public class CollectEntity extends JFrame {
         startBtn = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         logs = new javax.swing.JTextArea();
+        stopBtn = new javax.swing.JButton();
+        timeoutLabel = new javax.swing.JLabel();
+        timeout = new javax.swing.JSpinner();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setSize(new java.awt.Dimension(500, 360));
@@ -86,6 +91,20 @@ public class CollectEntity extends JFrame {
         logs.setRows(5);
         jScrollPane1.setViewportView(logs);
 
+        stopBtn.setText("Stop");
+        stopBtn.setToolTipText("");
+        stopBtn.setEnabled(false);
+        stopBtn.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                stopBtnMouseClicked(evt);
+            }
+        });
+
+        timeoutLabel.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        timeoutLabel.setText("Timeout(s):");
+
+        timeout.setModel(new javax.swing.SpinnerNumberModel(0, 0, 2, 1));
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -93,8 +112,18 @@ public class CollectEntity extends JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(pathToCarDataLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 494, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(startBtn)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(pathToCarDataLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 494, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 6, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(startBtn)
+                        .addGap(18, 18, 18)
+                        .addComponent(timeoutLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(timeout, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(stopBtn)
+                        .addContainerGap())
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING)
@@ -123,7 +152,11 @@ public class CollectEntity extends JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(filePath, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(startBtn)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(startBtn)
+                    .addComponent(stopBtn)
+                    .addComponent(timeoutLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(timeout, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 210, Short.MAX_VALUE)
                 .addContainerGap())
@@ -139,119 +172,24 @@ public class CollectEntity extends JFrame {
      */
     private void startBtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_startBtnMouseClicked
         
-        Map<Integer, Integer> processedMessages = new HashMap<Integer, Integer>();
-        processedMessages.put(0,0);
-        processedMessages.put(1,0);
-        processedMessages.put(2,0);
+        this.processFile=true;
+        stopBtn.setEnabled(true);
+        startBtn.setEnabled(false);
+        timeout.setEnabled(false);
         
-        int total=0;
+        Thread p = new Thread(new ProcessFile());
+        p.start();
         
-        Properties heartbeatProps = new Properties();
-        heartbeatProps.put("bootstrap.servers", "localhost:9092, localhost:9093 ,localhost:9094");
-        heartbeatProps.put("key.serializer", "org.apache.kafka.common.serialization.IntegerSerializer");
-        heartbeatProps.put("value.serializer", MessageSerializer.class.getName());
-        heartbeatProps.put("max.in.flight.requests.per.connection", 10);
-        heartbeatProps.put("ack", "0");
         
-        Properties speedProps = new Properties();
-        speedProps.put("bootstrap.servers", "localhost:9092,localhost:9093,localhost:9094");
-        speedProps.put("key.serializer", "org.apache.kafka.common.serialization.IntegerSerializer");
-        speedProps.put("value.serializer", MessageSerializer.class.getName());
-        speedProps.put("enable.idempotence", true);
-        speedProps.put("acks", "all");
-        
-        Properties statusProps = new Properties();
-        statusProps.put("bootstrap.servers", "localhost:9092, localhost:9093 ,localhost:9094");
-        statusProps.put("key.serializer", "org.apache.kafka.common.serialization.IntegerSerializer");
-        statusProps.put("value.serializer", MessageSerializer.class.getName());
-        statusProps.put("acks", "all");
-        statusProps.put("retries", 0);
-        
-        Producer<Integer,Message> heartbeatProducer = new Producer<>(heartbeatProps);
-        
-        Producer<Integer,Message> speedProducer = new Producer<>(speedProps);
-        
-        Producer<Integer,Message> statusProducer = new Producer<>(statusProps);
-        
-        //System.out.println("[Collect] User Dir: " + System.getProperty("user.dir"));
-        //System.out.println("[Collect] Path Input Field: " + filePath.getText());
-        
-        String file = filePath.getText();
-        if(file.equals("(default path is ~/<ProjectLocation>/src/data)")) {
-            file = System.getProperty("user.dir") + "/src/data/CAR.TXT";
-        }
-        
-        try{
-            CAR = new BufferedReader(new FileReader(file));
-            this.logs.append("Data file successfully opened for reading.\n");
-            String line = CAR.readLine();
-            String[] content;
-            String car_reg; Long timestamp; int msgType; int speed; String status;
-            int tmpCtr = 1;
-            while(line != null) {
-                Message msg;
-                content = line.split("\\|");
-                car_reg = content[1].trim();
-                timestamp = Long.valueOf(content[2].trim());
-                msgType = Integer.valueOf(content[3].trim());
-                switch(msgType) {
-                    case 0:
-                        msg = new Message(car_reg,timestamp,msgType);
-                        for(String topic : this.topicNames){
-                            heartbeatProducer.fireAndForget(topic, null,tmpCtr,msg);
-                        }
-                        processedMessages.put(0, processedMessages.get(0)+1);
-                        total++;
-                        break;
-                    case 1:
-                        speed = Integer.valueOf(content[4].trim());
-                        msg = new Message(car_reg,timestamp,msgType,speed);
-                        for(String topic : this.topicNames){
-                            speedProducer.fireAndForget(topic,0,tmpCtr,msg);
-                        }
-                        processedMessages.put(1, processedMessages.get(1)+1);
-                        total++;
-                        break;
-                    case 2:
-                        status = content[4].trim();
-                        msg = new Message(car_reg,timestamp,msgType,status);
-                        for(String topic : this.topicNames){
-//                            boolean send=true;
-//                            while(send){
-//                                try {
-//                                    send=false;
-//                                    statusProducer.sendSync(topic,tmpCtr,msg);
-//                                } catch (InterruptedException ex) {
-//                                    send=true;
-//                                } catch (ExecutionException ex) {
-//                                    send=true;
-//                                }
-//                            }
-                            statusProducer.fireAndForget(topic,0,tmpCtr,msg);
-                        }
-                        processedMessages.put(2, processedMessages.get(2)+1);
-                        total++;
-                        break;
-                }
-                line = CAR.readLine();
-                tmpCtr++;
-            }
-//            heartbeatProducer.sendSync(this.topicNames,""+tmpCtr, new Message("",0l,4));
-            heartbeatProducer.close();
-            speedProducer.close();
-            statusProducer.close();
-            
-            String tmp ="Heartbeat: "+processedMessages.get(0)+"; Speed: "+processedMessages.get(1)+"; Status: "+processedMessages.get(2)+"; Total: "+total+"\n";
-            logs.append(tmp);
-            
-        } catch (IOException ex) {
-            //ex.printStackTrace();
-            String errorMsg = "Unable to open file for reading. Please make sure you write the correct path to the data file.";
-            System.err.println("[Collect] " + errorMsg);
-            System.err.println("[Collect] " + ex);
-            this.logs.append("Error: " + errorMsg + "\n");
-        } 
     }//GEN-LAST:event_startBtnMouseClicked
+
+    private void stopBtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_stopBtnMouseClicked
+        stopBtn.setEnabled(false);
+        startBtn.setEnabled(true);
+        timeout.setEnabled(true);
+        
+        this.processFile=false;
+    }//GEN-LAST:event_stopBtnMouseClicked
     
     /**
      * Collect entity's main method, responsible for creating and displaying the GUI.
@@ -302,9 +240,139 @@ public class CollectEntity extends JFrame {
     private javax.swing.JLabel pathToCarDataLabel;
     private javax.swing.JCheckBox reportTopicCheckbox;
     private javax.swing.JButton startBtn;
+    private javax.swing.JButton stopBtn;
+    private javax.swing.JSpinner timeout;
+    private javax.swing.JLabel timeoutLabel;
     private javax.swing.JLabel topicsToIncludeLabel;
     // End of variables declaration//GEN-END:variables
 
+ 
     
+    private class ProcessFile implements Runnable{
+
+        @Override
+        public void run() {
+            Map<Integer, Integer> processedMessages = new HashMap<Integer, Integer>();
+            processedMessages.put(0,0);
+            processedMessages.put(1,0);
+            processedMessages.put(2,0);
+
+            int total=0;
+
+            Properties heartbeatProps = new Properties();
+            heartbeatProps.put("bootstrap.servers", "localhost:9092, localhost:9093 ,localhost:9094");
+            heartbeatProps.put("key.serializer", "org.apache.kafka.common.serialization.IntegerSerializer");
+            heartbeatProps.put("value.serializer", MessageSerializer.class.getName());
+            heartbeatProps.put("max.in.flight.requests.per.connection", 10);
+            heartbeatProps.put("ack", "0");
+
+            Properties speedProps = new Properties();
+            speedProps.put("bootstrap.servers", "localhost:9092,localhost:9093,localhost:9094");
+            speedProps.put("key.serializer", "org.apache.kafka.common.serialization.IntegerSerializer");
+            speedProps.put("value.serializer", MessageSerializer.class.getName());
+            speedProps.put("max.in.flight.requests.per.connection", 1);
+            speedProps.put("acks", "0 ");
+
+            Properties statusProps = new Properties();
+            statusProps.put("bootstrap.servers", "localhost:9092, localhost:9093 ,localhost:9094");
+            statusProps.put("key.serializer", "org.apache.kafka.common.serialization.IntegerSerializer");
+            statusProps.put("value.serializer", MessageSerializer.class.getName());
+            statusProps.put("max.in.flight.requests.per.connection", 1);
+            statusProps.put("acks", "all");
+
+            Producer<Integer,Message> heartbeatProducer = new Producer<>(heartbeatProps);
+
+            Producer<Integer,Message> speedProducer = new Producer<>(speedProps);
+
+            Producer<Integer,Message> statusProducer = new Producer<>(statusProps);
+
+            //System.out.println("[Collect] User Dir: " + System.getProperty("user.dir"));
+            //System.out.println("[Collect] Path Input Field: " + filePath.getText());
+
+            String file = filePath.getText();
+            if(file.equals("(default path is ~/<ProjectLocation>/src/data)")) {
+                file = System.getProperty("user.dir") + "/src/data/CAR.TXT";
+            }
+            
+            try{
+                CAR = new BufferedReader(new FileReader(file));
+                logs.append("Data file successfully opened for reading.\n");
+                String line = CAR.readLine();
+                String[] content;
+                String car_reg; Long timestamp; int msgType; int speed; String status;
+                int tmpCtr = 1;
+                while(line != null && processFile) {
+                    Message msg;
+                    content = line.split("\\|");
+                    car_reg = content[1].trim();
+                    timestamp = Long.valueOf(content[2].trim());
+                    msgType = Integer.valueOf(content[3].trim());
+                    switch(msgType) {
+                        case 0:
+                            msg = new Message(car_reg,timestamp,msgType);
+                            for(String topic : topicNames){
+                                heartbeatProducer.fireAndForget(topic, null,tmpCtr,msg);
+                            }
+                            processedMessages.put(0, processedMessages.get(0)+1);
+                            total++;
+                            break;
+                        case 1:
+                            speed = Integer.valueOf(content[4].trim());
+                            msg = new Message(car_reg,timestamp,msgType,speed);
+                            for(String topic : topicNames){
+                                speedProducer.fireAndForget(topic,0,tmpCtr,msg);
+                            }
+                            processedMessages.put(1, processedMessages.get(1)+1);
+                            total++;
+                            break;
+                        case 2:
+                            status = content[4].trim();
+                            msg = new Message(car_reg,timestamp,msgType,status);
+                            for(String topic : topicNames){
+                                boolean send=true;
+                                while(send){
+                                    try {
+                                        send=false;
+                                        statusProducer.sendSync(topic,0,tmpCtr,msg);
+                                    } catch (InterruptedException ex) {
+                                        send=true;
+                                    } catch (ExecutionException ex) {
+                                        send=true;
+                                    }
+                                }
+    //                            statusProducer.fireAndForget(topic,0,tmpCtr,msg);
+                            }
+                            processedMessages.put(2, processedMessages.get(2)+1);
+                            total++;
+                            break;
+                    }
+                    Thread.sleep(((Integer)timeout.getValue())*1000);
+                    line = CAR.readLine();
+                    tmpCtr++;
+                }
+    //            heartbeatProducer.sendSync(this.topicNames,""+tmpCtr, new Message("",0l,4));
+                heartbeatProducer.close();
+                speedProducer.close();
+                statusProducer.close();
+
+                stopBtn.setEnabled(false);
+                startBtn.setEnabled(true);
+                timeout.setEnabled(true);
+
+                String tmp ="Heartbeat: "+processedMessages.get(0)+"; Speed: "+processedMessages.get(1)+"; Status: "+processedMessages.get(2)+"; Total: "+total+"\n";
+                logs.append(tmp);
+
+            } catch (IOException ex) {
+                //ex.printStackTrace();
+                String errorMsg = "Unable to open file for reading. Please make sure you write the correct path to the data file.";
+                System.err.println("[Collect] " + errorMsg);
+                System.err.println("[Collect] " + ex);
+                logs.append("Error: " + errorMsg + "\n");
+            } catch (InterruptedException ex) {
+                Logger.getLogger(CollectEntity.class.getName()).log(Level.SEVERE, null, ex);
+            } 
+        }
+        
+    }
 
 }

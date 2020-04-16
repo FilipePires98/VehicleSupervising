@@ -26,24 +26,26 @@ public class RebalanceListener<K,V> implements ConsumerRebalanceListener{
     }
     
     public Map<TopicPartition, OffsetAndMetadata> getCurrentOffsets() {
-        return currentOffsets;
+         Map<TopicPartition, OffsetAndMetadata> tmp = currentOffsets;
+         currentOffsets.clear();
+         return tmp;
     }
 
     public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
-        System.out.println("Following Partitions Assigned ....");
-        for (TopicPartition partition : partitions)
-            System.out.println(partition.partition() + ",");
+//        System.out.println("Following Partitions Assigned ....");
+//        for (TopicPartition partition : partitions)
+//            System.out.println(partition.partition() + ",");
     }
 
     public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
-        System.out.println("Following Partitions Revoked ....");
-        for (TopicPartition partition : partitions)
-            System.out.println(partition.partition() + ",");
-
-
-        System.out.println("Following Partitions commited ....");
-        for (TopicPartition tp : currentOffsets.keySet())
-            System.out.println(tp.partition());
+//        System.out.println("Following Partitions Revoked ....");
+//        for (TopicPartition partition : partitions)
+//            System.out.println(partition.partition() + ",");
+//
+//
+//        System.out.println("Following Partitions commited ....");
+//        for (TopicPartition tp : currentOffsets.keySet())
+//            System.out.println(tp.partition());
 
         consumer.commitSync(currentOffsets);
         currentOffsets.clear();

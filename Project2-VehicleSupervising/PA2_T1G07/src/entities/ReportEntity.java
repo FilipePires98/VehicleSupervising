@@ -64,11 +64,13 @@ public class ReportEntity extends JFrame implements EntityAction<Integer,Message
     /**
      * Cache containing the number of times each message has been processed (to allow consumer coordination).
      */
-    private Map<Integer,Integer> processedMessages = new HashMap<Integer, Integer>();
+    private Map<Integer,List<String>> processedMessages = new HashMap<Integer, List<String>>();
 
     private int reprocessed=0;
     private List<Integer> knownMessages=new ArrayList<Integer>();
 
+    private boolean firstMessage=true;
+    
     /**
      * Creates new form ReportEntity and requests consumer initialization.
      */
@@ -119,6 +121,10 @@ public class ReportEntity extends JFrame implements EntityAction<Integer,Message
         jScrollPane1 = new javax.swing.JScrollPane();
         logs = new javax.swing.JTextArea();
         reportAndReset = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
+        heartbeatBtn = new javax.swing.JCheckBox();
+        speedBtn = new javax.swing.JCheckBox();
+        statusBtn = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setSize(new java.awt.Dimension(500, 360));
@@ -144,6 +150,17 @@ public class ReportEntity extends JFrame implements EntityAction<Integer,Message
             }
         });
 
+        jLabel1.setText("Message Filter:");
+
+        heartbeatBtn.setSelected(true);
+        heartbeatBtn.setText("Heartbeat");
+
+        speedBtn.setSelected(true);
+        speedBtn.setText("Speed");
+
+        statusBtn.setSelected(true);
+        statusBtn.setText("Status");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -157,7 +174,18 @@ public class ReportEntity extends JFrame implements EntityAction<Integer,Message
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(nConsumers, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 166, Short.MAX_VALUE)
-                        .addComponent(reportAndReset)))
+                        .addComponent(reportAndReset))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(6, 6, 6)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel1)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(heartbeatBtn)
+                                .addGap(18, 18, 18)
+                                .addComponent(speedBtn)
+                                .addGap(18, 18, 18)
+                                .addComponent(statusBtn)))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -169,7 +197,14 @@ public class ReportEntity extends JFrame implements EntityAction<Integer,Message
                     .addComponent(nConsumers, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(reportAndReset))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 311, Short.MAX_VALUE)
+                .addComponent(jLabel1)
+                .addGap(4, 4, 4)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(heartbeatBtn)
+                    .addComponent(speedBtn)
+                    .addComponent(statusBtn))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 262, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -213,16 +248,16 @@ public class ReportEntity extends JFrame implements EntityAction<Integer,Message
         String tmp ="";
         int total=0;
         for(int key : processedMessages.keySet()){
-            total+=processedMessages.get(key);
+            total+=processedMessages.get(key).size();
             switch(key){
                 case 0:
-                tmp+="Heartbeat: "+processedMessages.get(key)+"; ";
+                tmp+="Heartbeat: "+processedMessages.get(key).size()+"; ";
                 break;
                 case 1:
-                tmp+="Speed: "+processedMessages.get(key)+"; ";
+                tmp+="Speed: "+processedMessages.get(key).size()+"; ";
                 break;
                 case 2:
-                tmp+="Status: "+processedMessages.get(key)+"; ";
+                tmp+="Status: "+processedMessages.get(key).size()+"; ";
                 break;
             }
         }
@@ -235,8 +270,10 @@ public class ReportEntity extends JFrame implements EntityAction<Integer,Message
         
         logs.append(tmp);
         logs.setCaretPosition(logs.getDocument().getLength());
+        firstMessage=true;
     }//GEN-LAST:event_reportAndResetMouseClicked
 
+    
     /**
      * Report entity's main method, responsible for creating and displaying the GUI.
      * Arguments are not needed.
@@ -287,20 +324,33 @@ public class ReportEntity extends JFrame implements EntityAction<Integer,Message
      */
     @Override
     public void processMessage(int consumerId,String topic, Integer key, Message value) {
+        if(firstMessage){
+            logs.setText("");
+            firstMessage=false;
+        }
+        
         try {
             String tmp  = value.toString();
             file.write(tmp+"\n");
             file.flush();
 //            printedLines++;
-            this.logs.append("["+key+"][Consumer: "+consumerId+"] "+ tmp + "\n");
+            tmp="["+key+"][Consumer: "+consumerId+"] "+ tmp + "\n";
+            if(value.getType()==0 && heartbeatBtn.isSelected()){
+                this.logs.append(tmp);
+            }
+            if(value.getType()==1 && speedBtn.isSelected()){
+                this.logs.append(tmp);
+            }
+            if(value.getType()==2 && statusBtn.isSelected()){
+                this.logs.append(tmp);
+            }
             logs.setCaretPosition(logs.getDocument().getLength());
 //            System.out.println("[REPORT] Processed message: "+tmp);
             
-            if(processedMessages.containsKey(value.getType())){
-                processedMessages.put(value.getType(), processedMessages.get(value.getType())+1);
-            }else{
-                processedMessages.put(value.getType(), 1);
+            if(!processedMessages.containsKey(value.getType())){
+                processedMessages.put(value.getType(), new ArrayList<String>());
             }
+            processedMessages.get(value.getType()).add(tmp);
             
             if(knownMessages.contains(key)){
                 reprocessed++;
@@ -316,9 +366,13 @@ public class ReportEntity extends JFrame implements EntityAction<Integer,Message
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel consumersLabel;
+    private javax.swing.JCheckBox heartbeatBtn;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextArea logs;
     private javax.swing.JSpinner nConsumers;
     private javax.swing.JButton reportAndReset;
+    private javax.swing.JCheckBox speedBtn;
+    private javax.swing.JCheckBox statusBtn;
     // End of variables declaration//GEN-END:variables
 }

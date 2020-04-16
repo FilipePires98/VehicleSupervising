@@ -15,5 +15,5 @@ public interface EntityAction<K,V> {
      * @param key message unique key
      * @param value message value, actual message content with a format defined a priori
      */
-    public void processMessage(int consumerId, String topic, K key, V value);
+    public void processMessage(int consumerId,String topic, K key, V value);
 }

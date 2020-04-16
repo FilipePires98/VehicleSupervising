@@ -61,6 +61,8 @@ public class BatchEntity extends JFrame implements EntityAction<Integer, Message
      */
     private int activeConsumers = 3;
     
+    private boolean firstMessage=true;
+    
     /**
      * Cache containing the number of times each message has been processed (to allow consumer coordination).
      */
@@ -99,6 +101,10 @@ public class BatchEntity extends JFrame implements EntityAction<Integer, Message
         jScrollPane1 = new javax.swing.JScrollPane();
         logs = new javax.swing.JTextArea();
         reportAndReset = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
+        heartbeatBtn = new javax.swing.JCheckBox();
+        speedBtn = new javax.swing.JCheckBox();
+        statusBtn = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setSize(new java.awt.Dimension(500, 360));
@@ -124,6 +130,17 @@ public class BatchEntity extends JFrame implements EntityAction<Integer, Message
             }
         });
 
+        jLabel1.setText("Message Filter:");
+
+        heartbeatBtn.setSelected(true);
+        heartbeatBtn.setText("Heartbeat");
+
+        speedBtn.setSelected(true);
+        speedBtn.setText("Speed");
+
+        statusBtn.setSelected(true);
+        statusBtn.setText("Status");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -139,6 +156,17 @@ public class BatchEntity extends JFrame implements EntityAction<Integer, Message
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(reportAndReset)))
                 .addContainerGap())
+            .addGroup(layout.createSequentialGroup()
+                .addGap(15, 15, 15)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel1)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(heartbeatBtn)
+                        .addGap(18, 18, 18)
+                        .addComponent(speedBtn)
+                        .addGap(18, 18, 18)
+                        .addComponent(statusBtn)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -149,7 +177,14 @@ public class BatchEntity extends JFrame implements EntityAction<Integer, Message
                     .addComponent(nConsumers, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(reportAndReset))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 311, Short.MAX_VALUE)
+                .addComponent(jLabel1)
+                .addGap(4, 4, 4)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(heartbeatBtn)
+                    .addComponent(speedBtn)
+                    .addComponent(statusBtn))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 262, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -217,6 +252,7 @@ public class BatchEntity extends JFrame implements EntityAction<Integer, Message
         
         logs.append(tmp);
         logs.setCaretPosition(logs.getDocument().getLength());
+        firstMessage=true;
     }//GEN-LAST:event_reportAndResetMouseClicked
 
     /**
@@ -330,13 +366,27 @@ public class BatchEntity extends JFrame implements EntityAction<Integer, Message
 //                processedMsgs = new HashMap<>();
 //            }
 //        }
+
+        if(firstMessage){
+            logs.setText("");
+            firstMessage=false;
+        }
         
         try {
             String tmp  = value.toString();
             file.write(tmp+"\n");
             file.flush();
 //            printedLines++;
-            this.logs.append("["+key+"][Consumer: "+consumerId+"] "+ tmp + "\n");
+            tmp="["+key+"][Consumer: "+consumerId+"] "+ value.toString() + "\n";
+            if(value.getType()==0 && heartbeatBtn.isSelected()){
+                this.logs.append(tmp);
+            }
+            if(value.getType()==1 && speedBtn.isSelected()){
+                this.logs.append(tmp);
+            }
+            if(value.getType()==2 && statusBtn.isSelected()){
+                this.logs.append(tmp);
+            }
             logs.setCaretPosition(logs.getDocument().getLength());
 //            System.out.println("[Batch] Processed message: "+tmp);
             
@@ -361,10 +411,14 @@ public class BatchEntity extends JFrame implements EntityAction<Integer, Message
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel consumersLabel;
+    private javax.swing.JCheckBox heartbeatBtn;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextArea logs;
     private javax.swing.JSpinner nConsumers;
     private javax.swing.JButton reportAndReset;
+    private javax.swing.JCheckBox speedBtn;
+    private javax.swing.JCheckBox statusBtn;
     // End of variables declaration//GEN-END:variables
 
 }
