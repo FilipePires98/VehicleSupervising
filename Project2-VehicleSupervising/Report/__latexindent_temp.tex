@@ -5,6 +5,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage{enumitem}
 \usepackage{booktabs}
+\usepackage{multicol}
 
 \topmargin -1.0cm
 \oddsidemargin 0.0cm
@@ -52,12 +53,17 @@ Software Architecture\\
 This report aims to describe the work developed for the second assignment of the course of 'Software Architecture', focused on a platform that collects and 
 processes information from simulated vehicles.
 
-....................
+The aim of the assignment was to explore the capabilities of a technology like Kafka in standard IoT solutions.
+The system itself isn't meant to provide a field-tested solution to a problem or a set of problems, rather it is supposed to show how communications via Kafka 
+can empower developers in a time that modularity is more important than ever and system components must be prepared to easily transfer data streams between each other.
 
+So in this report we present the architecture of our solution and the Kafka-related configurations, justifying them according to what we learned and found to be 
+most suitable for each specific use case.
 We also mention how the work was distributed amongst the authors.
+
 All code developed is publicly accessible in our GitHub repository:
-\url{https://github.com/FilipePires98/AS/}.
-\newpage
+
+\url{https://github.com/FilipePires98/AS/}
 
 % \vspace{-10pt}
 % \begin{itemize}[noitemsep]
@@ -82,6 +88,7 @@ All code developed is publicly accessible in our GitHub repository:
 
 %\texttt{java -cp <userdir>/build/classes fi.FarmInfrastructure}
 
+\newpage
 \section{IoT, Kafka and Connected Devices} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Internet of Things (IoT) is becoming an increasing topic of interest among technology giants and business communities.
@@ -104,7 +111,7 @@ vehicles, aimed to to explore Kafka capabilities for messaging between entities.
 
 As having actual connected vehicles with processing units capable of collecting car data and transmitting it to other entities was out of the scope of the project, 
 this is simulated through a simple text file containing one transmission (or message) per line.
-This data file with the name of \texttt{CAR.txt} is placed under a specific directory and is read by our system for processing.
+This data file with the name of \texttt{CAR.TXT} is placed under a specific directory and is read by our system for processing.
 
 In order to dynamically generate such source data, we developed a small script in Python that receives as parameters the number of cars to be simulated and the 
 total number of messages to be generated from those cars and stored in the text file.
@@ -168,18 +175,46 @@ $|$ 30-UU-59 $|$ 1586183327012 $|$ 01 $|$ 0 $|$
 
 $|$ 73-FD-20 $|$ 1586183328012 $|$ 01 $|$ 130 $|$
 
-Example of a portion of the \texttt{CAR.txt} file.
+Example of a portion of the \texttt{CAR.TXT} file.
 
 \newpage 
 \section{System Architecture} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-.........................
+Modular architecture is very appealing for IoT solutions, as it offers a way to manage the complexity of a problem by breaking it down to smaller and more 
+easily manageable modules.
+Plus, IoT components are constantly changing and updating, so limiting the effects of such almost organic-like transformations to individual modules allows 
+developers to keep in control of the system's growth and functionalities.
+
+Software applications are embracing distributed, decentralized, real time and on-the-cloud as the new norm. 
+They are focused on providing real service rather than just being obsessed on lists of features.
+This is what drives the increase in awareness for the importance of modularity in software development.
+And this is partly what was meant to be explored in this assignment.
+So in this chapter we focus on presenting the interacting entities of our vehicle supervising system and the components that constitute their functionality.
 
 \subsection{Entities} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% description of each
-% block diagram
-...
+There are four entities, each with its own set of responsibilities.
+These entities simulate the management of the car network, with representative features of what could be accomplished by a fully implemented version.
+Following is a description of each and a very simplistic block diagram in Figure \ref{BlockDiagram}.
+
+\vspace{-10pt}
+\begin{itemize}[noitemsep]
+  \item CollectEntity - its role is to collect data from connected vehicles (represented by \texttt{CAR.TXT}) and produce messages to the other entities with the gathered information (through communication channels established \textit{a priori} and explained in chapter \ref{infrastructure}).
+  \item ReportEntity - as the name states, this entity is responsible for reporting all that is transmitted by CollectEntity, writting it to \texttt{REPORT.TXT}.
+  \item BatchEntity - Batch's role is to make possible the computation of any relevant metrics and calculations related to the information collected; in our case it merely accomplishes the same as ReportEntity, writting results to \texttt{BATCH.TXT}.
+  \item AlarmEntity - its role is to trigger alarms and present them to the system user when some relevant event occurs; in our case alarms are triggered when a car surpasses the predefined speed limit of 120 Km/h; all alarms are written to \texttt{ALARM.TXT}.
+\end{itemize}
+\vspace{-10pt}
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}{\textwidth}
+    \centering
+    \includegraphics[width=.5\linewidth]{img/BlockDiagram.png}
+  \end{minipage}%
+  \caption{Basic block diagram for the system, taken from \cite{assign}.}
+  \label{BlockDiagram}
+\end{figure} 
 
 \subsection{Components} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -192,55 +227,127 @@ Example of a portion of the \texttt{CAR.txt} file.
 ...
 
 \newpage
-\section{Kafka Infrastructure} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-As already mentioned, according to \cite{kafka}, Apache Kafka is a distributed streaming platform and has three main capabilities: publish and subscribe to record streams similarly to a message queue or messaging system, store those record streams in a fault-tolerant way and process streams of records as they occur. Generally used for building real-time streaming data pipelines to establish communication between application and building real-time streaming applications to transform and react to streams of data.
+\section{Kafka Infrastructure} \label{infrastructure} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Being more interest in the messaging system option, it is also stated in \cite{kafka}, that normally this type of systems follow two possible models, message queueing or publish-subscribe. The queue model is characterized by a pool of consumers that read from the messaging server and each record goes to one of the consumers. This models as several positive aspects such as allowing the division of the records in a balanced fashion by the registered consumers, enabling the processing rate and power to scale. On the other hand, being a queue, when a record is processed it may not be reprocessed.
+As a distributed streaming platform, Apache Kafka has three main capabilities: publish and subscribe to record streams, similarly to a message queue or 
+messaging system; store those record streams in a fault-tolerant way; process streams of records as they occur. 
+Its general use is for building real-time streaming data pipelines to establish communication between applications, and building real-time streaming applications 
+to transform and react to streams of data.
 
-Comparatively, the publish-subscribe model is characterized by broadcasting each record to all registered consumers. This broadcasting feature can be seen as a positive aspect to this approach, but is counterweighted by the fact that there is no way to scale the process, since every message is sent to every consumer.
+For our specific case, the messaging system scenario seemed the most appropriate.
+As stated in their online documentation \cite{kafka}, normally these type of systems follow two possible models: message queueing or publish-subscribe. 
+The queue model is characterized by a pool of consumers that read from the messaging server and each record goes to one of the consumers; 
+this has several positive aspects such as allowing the division of the records in a balanced fashion by the registered consumers and enabling the processing rate 
+and power to scale; on the other hand, being a queue, when a record is processed it may not be reprocessed.
+Comparatively, the publish-subscribe model is characterized by broadcasting each record to all registered consumers; this broadcasting feature can be seen as a 
+positive aspect, but is counterweighted by the fact that there is no way to scale the process, since every message is sent to every consumer.
 
-In this project, Kafka is used as the message system and the backbone for the entire system, making use of both models supported for the messaging. The usage of this platform was not only a constraint in the proposed project description, but was also justified by a analysis our group made over it, that showed that in fact this platform is quite complete and guarantees a number of quality metrics that were quite important and interesting, hence this project to study and deeply understand the influence of these metrics in a system with a quite standard architecture in the IOT area. 
+With this in mind, we established Kafka's infrastructure as the message system and the backbone for the entire system, making use of both models metioned above.
+The usage of this platform was not only a constraint in the proposed assignment, but was also justified by our own personal analysis that showed that Kafka is a 
+solution complete enough for our purposes and guarantees a number of quality metrics that were found important.
+It was these metrics we explored during development in order to understand their influence on the quality attributes of a system with a standard IoT architecture. 
 
 \subsection{Initialization and Destruction Scripts} %%%%%%%%
-Obviously, to use this platform we first needed to instantiate the services and infrastructure composing Apache Kafka. To do so, we had two approaches: use the instantiation scripts provided with the source code available at \cite{kafka} or use docker as a middleware framework that enables us to abstract the the instantiation process and use kafka as a image. We choose the fist option, which although requesting more work from our side, it enabled us to instantiate the platform with more precision and control.
 
-To do so, it was unfeasible to run manually each necessary command, and for that reason two scripts were developed to aid in both the creation and deletion of the infrastructure necessary for this project. These scripts are available together with the source code, in the folder \texttt{scripts}, and the initialization script is the first action to be done when the project is ran, and as expected, the deletion script is the last thing to do when the project is terminated.
+Obviously, to use this platform we first needed to instantiate the services and infrastructure composing Apache Kafka. 
+To do so, we had two approaches: use the instantiation scripts provided with the source code available online \cite{kafka} or use docker as a middleware 
+framework that would enable us to abstract the the instantiation process and use Kafka in a container. 
+We chose the former option, which requested more work from our side but enabled us to instantiate the platform with more precision and control.
 
-In relations to \textit{initKafka.sh}, the initialization script, it is responsible for initializing the Zookeeper, the entity in charge of managing the Kafka Brokers, initializing the Kafka Brokers themselves, entities with the logic of the platform and providing the service, in this case 3 brokers were deployed, and creating the necessary topics. The final order of actions performed is:
+Manually running each necessary command was obviously out of question.
+The solution was to develop two scripts to automate both the creation and deletion of the infrastructure necessary for this project. 
+These scripts are available together with the source code, in the package folder \texttt{scripts}.
 
-\begin{enumerate}
-  \item Instantiate the Zookeeper
-  \item Instantiate the Kafka Brokers
-  \item Storing the process ids of the Kafka Brokers in a auxiliary file
-  \item Create the necessary topics for this project
+The initialization script is the first action to be executed when the project is ran.
+Also, as you might guess, the deletion script is the last thing to be executed before the system is terminated.
+In relation to \textit{initKafka.sh}, the initialization script, it is responsible for: starting Zookeeper, the entity in charge of managing the Kafka Brokers;
+initializing the Kafka Brokers themselves, entities with the logic of the platform, for service providing (3 brokers are deployed); creating the necessary Kafka Topics.
+The final order of actions performed is:
+\vspace{-10pt}
+\begin{enumerate} [noitemsep]
+  \item Instantiate Zookeeper
+  \item Instantiate Kafka Brokers
+  \item Store process IDs of the Kafka Brokers in a auxiliary file
+  \item Create necessary topics for this project
 \end{enumerate}
-
-In relations to \textit{deleteKafka.sh}, the deletion script, it is responsible for killing the processes previously stored in the auxiliary files and deleting the logs generated by the previously mentioned processes. The final order of actions performed is:
-
-\begin{enumerate}
-  \item Fetch processes ids from the auxiliary file
-  \item Killing the fetched processes
-  \item Deleting the generated logs
+\vspace{-10pt}
+In relations to \textit{deleteKafka.sh}, the deletion script, its responsibility is to kill the processes previously stored in the auxiliary files and delete 
+the logs generated by the same processes.
+The final order of actions performed is:
+\vspace{-10pt}
+\begin{enumerate} [noitemsep]
+  \item Fetch process IDs from the auxiliary file
+  \item Kill the fetched processes
+  \item Delete the generated logs
 \end{enumerate}
+\vspace{-10pt}
 
 \subsection{Topics and Constraints}\label{topics} %%%%%%%%%%%%%%%%%%%%%%%%
 To establish constraints to the infrastructure consequently to the project, we had three methods, either in the definition of properties for the consumers, in the definition of the producers or in the definition of properties for the topics themselves.
 
 For this project it was established that there should only exist three topics, the \textit{BatchTopic}, \textit{ReportTopic} and the \textit{AlarmTopic}, each one with the objective of establishing communication between the \textit{CollectEntity} and the \textit{BatchEntity}, \textit{ReportEntity} and \textit{AlarmEntity}, respectively.
 
-.......
+As already mentioned, there are three different types of messages, and all types should be sent to every one of the topics. This condition is quite relevant since this means that the properties and conditions assured in shared resources across message types, such as the topics, will be dictated by the most restricting message type. The higher restrictions on a given constraint can be defined by different message types, since each message type as a different set of constraints. Those constrains are:
+
+\begin{multicols}{3}
+  \begin{itemize}
+    \item HEARTBEAT
+    \newline - can be lost
+    \newline - can be reordered
+    \newline - can be reprocessed
+  \end{itemize}
+
+  \columnbreak
+
+  \begin{itemize}
+    \item SPEED
+    \newline - can be lost
+    \newline - cannot be reordered
+    \newline - cannot be reprocessed
+  \end{itemize}
+
+  \columnbreak
+
+  \begin{itemize}
+    \item STATUS
+    \newline - cannot be lost
+    \newline - cannot be reordered
+    \newline - can be reprocessed
+  \end{itemize}
+\end{multicols}
+
 
 \newpage
 \section{Additional Remarks} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \subsection{Documentation} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-...................
+Our attitude towards the developed code was to ensure it could be applied to other similar scenarios and reused in systems intended to be deployed in real scenarios.
+With this in mind, we took great care with regards to code readability.
+By maintaining a code style equal throughout the project and defining intuitive and self-explaining variable and method names, we made the code easy to understand
+by someone already contextualized with Kafka.
+
+Nevertheless, we wanted to make sure this was also true to someone looking at our project for the first time, so we resorted to the well-known Javadoc tool to 
+manage all code documentation.
+Comments were also added in key points throughout the code, including the scripts.
 
 \subsection{Assignment Contributions} %%%%%%%%%%%%%%%%%%%%%%
 
-...................
+As the entire development phase took place in a time where on-site cooperation was not possible, we resorted to online communication platforms to debate decisions
+and discuss difficulties.
+Team scheduling allowed us to work on the project simultaneously, so no member suffered from unbalanced workloads.
 
+The dimension of the project did not appeal to the usage of repository pull requests and other synchronization tools.
+However, each small solution was verified and agreed by both team members.
+
+Having said this, it is difficult to isolate what each member actually implemented, as the influence of both is present in all components.
+Nevertheless, one might say that each had stronger responsibilities on a set of project aspects:
+Filipe took care of the execution of the individual Java processes and of the Shell scripts, while João developed the Kafka-related classes such as Consumer,
+Producer and EntityAction; Filipe developed the Python script for generation of \texttt{CAR.TXT}, while João developed the Shell scripts for Kafka initialization 
+and deletion; each implemented two entities and each wrote a portion of this report; Filipe made sure everything was coherent throughout the report and the code 
+documentation, while João solved the most critical issues regarding the configuration of the Kafka topics, in order to ensure their proper functioning.
+
+\newpage
 \section*{Conclusions} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 ........................

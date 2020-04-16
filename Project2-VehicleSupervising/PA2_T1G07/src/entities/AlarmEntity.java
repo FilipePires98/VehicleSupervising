@@ -76,6 +76,8 @@ public class AlarmEntity extends JFrame implements EntityAction<Integer, Message
      */
     private boolean isAlarmOn=false;
 //    private int printedLines = 0;
+    
+    private boolean firstMessage=true;
 
     /**
      * Creates new form CollectEntity and requests consumer initialization.
@@ -126,9 +128,12 @@ public class AlarmEntity extends JFrame implements EntityAction<Integer, Message
         jScrollPane1 = new javax.swing.JScrollPane();
         logs = new javax.swing.JTextArea();
         reportAndReset = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
+        heartbeatBtn = new javax.swing.JCheckBox();
+        speedBtn = new javax.swing.JCheckBox();
+        statusBtn = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setPreferredSize(new java.awt.Dimension(500, 360));
         setSize(new java.awt.Dimension(500, 360));
 
         consumersLabel.setText("# of Consumers:");
@@ -152,6 +157,17 @@ public class AlarmEntity extends JFrame implements EntityAction<Integer, Message
             }
         });
 
+        jLabel1.setText("Message Filter:");
+
+        heartbeatBtn.setSelected(true);
+        heartbeatBtn.setText("Heartbeat");
+
+        speedBtn.setSelected(true);
+        speedBtn.setText("Speed");
+
+        statusBtn.setSelected(true);
+        statusBtn.setText("Status");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -167,6 +183,17 @@ public class AlarmEntity extends JFrame implements EntityAction<Integer, Message
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 166, Short.MAX_VALUE)
                         .addComponent(reportAndReset)))
                 .addContainerGap())
+            .addGroup(layout.createSequentialGroup()
+                .addGap(17, 17, 17)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel1)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(heartbeatBtn)
+                        .addGap(18, 18, 18)
+                        .addComponent(speedBtn)
+                        .addGap(18, 18, 18)
+                        .addComponent(statusBtn)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -177,7 +204,14 @@ public class AlarmEntity extends JFrame implements EntityAction<Integer, Message
                     .addComponent(nConsumers, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(reportAndReset))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 311, Short.MAX_VALUE)
+                .addComponent(jLabel1)
+                .addGap(4, 4, 4)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(heartbeatBtn)
+                    .addComponent(speedBtn)
+                    .addComponent(statusBtn))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 262, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -243,9 +277,10 @@ public class AlarmEntity extends JFrame implements EntityAction<Integer, Message
         knownMessages.clear();
 
         processedMessages.clear();
-
+        
         logs.append(tmp);
         logs.setCaretPosition(logs.getDocument().getLength());
+        firstMessage=true;
     }//GEN-LAST:event_reportAndResetMouseClicked
 
     /**
@@ -297,8 +332,23 @@ public class AlarmEntity extends JFrame implements EntityAction<Integer, Message
      * @param value message value, actual message content with a format defined a priori
      */
     @Override
-    public void processMessage(int consumerId, String topic, Integer key, Message value) {
-        this.logs.append("[" + key + "][Consumer: "+consumerId+"] "  + value.toString() + "\n");
+    public void processMessage(int consumerId,String topic, Integer key, Message value) {
+        
+        if(firstMessage){
+            logs.setText("");
+            firstMessage=false;
+        }
+        
+        String tmp="["+key+"][Consumer: "+consumerId+"] "+ value.toString() + "\n";
+        if(value.getType()==0 && heartbeatBtn.isSelected()){
+            this.logs.append(tmp);
+        }
+        if(value.getType()==1 && speedBtn.isSelected()){
+            this.logs.append(tmp);
+        }
+        if(value.getType()==2 && statusBtn.isSelected()){
+            this.logs.append(tmp);
+        }
         logs.setCaretPosition(logs.getDocument().getLength());
 //        System.out.println("[ALARM] Processed message: "+tmp);
 
@@ -316,7 +366,7 @@ public class AlarmEntity extends JFrame implements EntityAction<Integer, Message
         
         
         if(value.getType()==1){//message is of type speed 
-            String tmp="";
+            tmp="";
             if(!isAlarmOn && value.getSpeed()>120){
                 tmp=value.toString()+" ON |";
                 isAlarmOn=true;
@@ -342,9 +392,13 @@ public class AlarmEntity extends JFrame implements EntityAction<Integer, Message
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel consumersLabel;
+    private javax.swing.JCheckBox heartbeatBtn;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextArea logs;
     private javax.swing.JSpinner nConsumers;
     private javax.swing.JButton reportAndReset;
+    private javax.swing.JCheckBox speedBtn;
+    private javax.swing.JCheckBox statusBtn;
     // End of variables declaration//GEN-END:variables
 }
