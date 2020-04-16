@@ -110,7 +110,7 @@ vehicles, aimed to to explore Kafka capabilities for messaging between entities.
 \subsection{The Data} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 As having actual connected vehicles with processing units capable of collecting car data and transmitting it to other entities was out of the scope of the project, 
-this is simulated through a simple text file containing one transmission (or message) per line.
+this is simulated through a simple text file containing 1 transmission (or message) per line.
 This data file with the name of \texttt{CAR.TXT} is placed under a specific directory and is read by our system for processing.
 
 In order to dynamically generate such source data, we developed a small script in Python that receives as parameters the number of cars to be simulated and the 
@@ -182,8 +182,8 @@ Example of a portion of the \texttt{CAR.TXT} file.
 
 Modular architecture is very appealing for IoT solutions, as it offers a way to manage the complexity of a problem by breaking it down to smaller and more 
 easily manageable modules.
-Plus, IoT components are constantly changing and updating, so limiting the effects of such almost organic-like transformations to individual modules allows 
-developers to keep in control of the system's growth and functionalities.
+Plus, IoT components are constantly changing, so limiting the effects of such organic-like transformations to individual modules allows developers to keep in 
+control of the system's growth.
 
 Software applications are embracing distributed, decentralized, real time and on-the-cloud as the new norm. 
 They are focused on providing real service rather than just being obsessed on lists of features.
@@ -193,9 +193,9 @@ So in this chapter we focus on presenting the interacting entities of our vehicl
 
 \subsection{Entities} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-There are four entities, each with its own set of responsibilities.
+There are 4 entities, each with its own responsibilities.
 These entities simulate the management of the car network, with representative features of what could be accomplished by a fully implemented version.
-Following is a description of each and a very simplistic block diagram in Figure \ref{BlockDiagram}.
+Following is their description and a simple block diagram in Figure \ref{BlockDiagram}.
 
 \vspace{-10pt}
 \begin{itemize}[noitemsep]
@@ -210,7 +210,7 @@ Following is a description of each and a very simplistic block diagram in Figure
   \centering
   \begin{minipage}{\textwidth}
     \centering
-    \includegraphics[width=.5\linewidth]{img/BlockDiagram.png}
+    \includegraphics[width=.4\linewidth]{img/BlockDiagram.png}
   \end{minipage}%
   \caption{Basic block diagram for the system, taken from \cite{assign}.}
   \label{BlockDiagram}
@@ -218,9 +218,64 @@ Following is a description of each and a very simplistic block diagram in Figure
 
 \subsection{Components} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% responsibilities of each
-% other diagrams
-...
+The Java application is organized with packages.
+Each package contains a set of files with common natures so that managing source code is made easy.
+The "data" package contains both the input (CAR.TXT) and the output data (REPORT.TXT, BATCH.TXT and ALARM.TXT).
+The "entities" package contains every entity class.
+The "scripts" package holds project scripts, including the Kafka initialization and deletion scripts and the CAR.TXT file generation script.
+
+The "message" package contains all classes related to the messages sent through Kafka; here we have the Message class, with all that was described in section 
+\ref{messages}, and our implementations of the serializer and deserializer classes of Message instances.
+Kafka has serialization classes available for non-structured data such as regular integers or strings, but we intended to send a structured message for greater 
+usability, so implementing a serialization process for such structure was required in order to transmit data through Kafka.
+
+Finally, the "kafkaUtils" package provides Kafka utilities such as EntityAction.
+This interface, implemented by all consumer entities, ensures that such entities have means to process Kafka messages in a predefined format by defining the 
+method \textit{processMessage()}.
+This method receives the identifier of the consumer that is going to process the current message, the topic that the message belongs to and the key-value pair of 
+the message.
+
+The package also contains our implementations of Kafka Consumers and Producers.
+Kafka is explained in greater detail in chapter \ref{infrastructure}, however a simple way of understanding producers and consumers in Kafka is to see them as 
+the components responsible for creating messages that can be sent via Kafka topics and sending them, and for subscribing to topics and receiving messages from them,
+respectively.
+By implementing our own versions of such components, we gain greater control over their configurations and functionalities.
+The Producer class supports 3 message sending methods:
+\vspace{-10pt}
+\begin{itemize}[noitemsep]
+  \item \textit{fireAndForget()} - where messages can be lost or arrive reordered on the consumer side.
+  \item \textit{sendAsync()} - where the producer asynchronously awaits for a delivery confirmation with the use of callbacks.
+  \item \textit{sendSync()} - where the producer waits for a delivery confirmation before proceeding to processing another message, ensuring the correct order on the consumer side.
+\end{itemize}
+\vspace{-10pt}
+Producer also has an inner class called ProducerCallback that, as the name suggests, deals with the callbacks related to the executions of the method \textit{sendAsync()}.
+The Consumer class on the other hand works as a java thread by implementing the Runnable interface.
+Once instantiated, it listens to the topics where it is subscribed and processes arriving messages by calling \textit{processMessage()}.
+Each consumer has an instance of RebalanceListener, our implementation of Kafka's ConsumerRebalanceListener for partition management.
+This listener is explained in greater detail in section \ref{topics}.
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}{\textwidth}
+    \centering
+    \includegraphics[width=.5\linewidth]{img/BlockDiagram.png}
+  \end{minipage}%
+  \caption{Java application's class diagram.}
+  \label{ClassDiagram}
+\end{figure} 
+
+Figure \ref{ClassDiagram} presents the project's class diagram with the relations between components.
+In order to more easily visualize interactions between entities, we designed an interaction diagram as well, present in Figure \ref{InteractionDiagram}.
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}{\textwidth}
+    \centering
+    \includegraphics[width=.5\linewidth]{img/BlockDiagram.png}
+  \end{minipage}%
+  \caption{Entities interaction diagram.}
+  \label{InteractionDiagram}
+\end{figure} 
 
 \subsection{User Interface} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -229,13 +284,13 @@ Following is a description of each and a very simplistic block diagram in Figure
 \newpage
 \section{Kafka Infrastructure} \label{infrastructure} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-As a distributed streaming platform, Apache Kafka has three main capabilities: publish and subscribe to record streams, similarly to a message queue or 
+As a distributed streaming platform, Apache Kafka has 3 main capabilities: publish and subscribe to record streams, similarly to a message queue or 
 messaging system; store those record streams in a fault-tolerant way; process streams of records as they occur. 
 Its general use is for building real-time streaming data pipelines to establish communication between applications, and building real-time streaming applications 
 to transform and react to streams of data.
 
 For our specific case, the messaging system scenario seemed the most appropriate.
-As stated in their online documentation \cite{kafka}, normally these type of systems follow two possible models: message queueing or publish-subscribe. 
+As stated in their online documentation \cite{kafka}, normally these type of systems follow 2 possible models: message queueing or publish-subscribe. 
 The queue model is characterized by a pool of consumers that read from the messaging server and each record goes to one of the consumers; 
 this has several positive aspects such as allowing the division of the records in a balanced fashion by the registered consumers and enabling the processing rate 
 and power to scale; on the other hand, being a queue, when a record is processed it may not be reprocessed.
@@ -250,12 +305,12 @@ It was these metrics we explored during development in order to understand their
 \subsection{Initialization and Destruction Scripts} %%%%%%%%
 
 Obviously, to use this platform we first needed to instantiate the services and infrastructure composing Apache Kafka. 
-To do so, we had two approaches: use the instantiation scripts provided with the source code available online \cite{kafka} or use docker as a middleware 
+To do so, we had 2 approaches: use the instantiation scripts provided with the source code available online \cite{kafka} or use docker as a middleware 
 framework that would enable us to abstract the the instantiation process and use Kafka in a container. 
 We chose the former option, which requested more work from our side but enabled us to instantiate the platform with more precision and control.
 
 Manually running each necessary command was obviously out of question.
-The solution was to develop two scripts to automate both the creation and deletion of the infrastructure necessary for this project. 
+The solution was to develop 2 scripts to automate both the creation and deletion of the infrastructure necessary for this project. 
 These scripts are available together with the source code, in the package folder \texttt{scripts}.
 
 The initialization script is the first action to be executed when the project is ran.
@@ -282,10 +337,10 @@ The final order of actions performed is:
 \end{enumerate}
 \vspace{-10pt}
 
-\subsection{Topics and Constraints}\label{topics} %%%%%%%%%%%%%%%%%%%%%%%%
-To establish constraints to the infrastructure consequently to the project, we had three methods, either in the definition of properties for the consumers, in the definition of the producers or in the definition of properties for the topics themselves.
+\subsection{Topics and Constraints} \label{topics} %%%%%%%%%
+To establish constraints to the infrastructure consequently to the project, we had 3 methods, either in the definition of properties for the consumers, in the definition of the producers or in the definition of properties for the topics themselves.
 
-For this project it was established that there should only exist three topics, the \textit{BatchTopic}, \textit{ReportTopic} and the \textit{AlarmTopic}, each one with the objective of establishing communication between the \textit{CollectEntity} and the \textit{BatchEntity}, \textit{ReportEntity} and \textit{AlarmEntity}, respectively.
+For this project it was established that there should only exist 3 topics, the \textit{BatchTopic}, \textit{ReportTopic} and the \textit{AlarmTopic}, each one with the objective of establishing communication between the \textit{CollectEntity} and the \textit{BatchEntity}, \textit{ReportEntity} and \textit{AlarmEntity}, respectively.
 
 As already mentioned, there are three different types of messages, and all types should be sent to every one of the topics. This condition is quite relevant since this means that the properties and conditions assured in shared resources across message types, such as the topics, will be dictated by the most restricting message type. The higher restrictions on a given constraint can be defined by different message types, since each message type as a different set of constraints. Those constrains are:
 
@@ -327,8 +382,8 @@ With this in mind, we took great care with regards to code readability.
 By maintaining a code style equal throughout the project and defining intuitive and self-explaining variable and method names, we made the code easy to understand
 by someone already contextualized with Kafka.
 
-Nevertheless, we wanted to make sure this was also true to someone looking at our project for the first time, so we resorted to the well-known Javadoc tool to 
-manage all code documentation.
+Nevertheless, we wanted to make sure this was also true to someone looking at our project for the first time, so we resorted to the well-known Javadoc 
+\cite{javadoc} tool to manage all code documentation.
 Comments were also added in key points throughout the code, including the scripts.
 
 \subsection{Assignment Contributions} %%%%%%%%%%%%%%%%%%%%%%
@@ -336,7 +391,6 @@ Comments were also added in key points throughout the code, including the script
 As the entire development phase took place in a time where on-site cooperation was not possible, we resorted to online communication platforms to debate decisions
 and discuss difficulties.
 Team scheduling allowed us to work on the project simultaneously, so no member suffered from unbalanced workloads.
-
 The dimension of the project did not appeal to the usage of repository pull requests and other synchronization tools.
 However, each small solution was verified and agreed by both team members.
 
@@ -344,8 +398,9 @@ Having said this, it is difficult to isolate what each member actually implement
 Nevertheless, one might say that each had stronger responsibilities on a set of project aspects:
 Filipe took care of the execution of the individual Java processes and of the Shell scripts, while João developed the Kafka-related classes such as Consumer,
 Producer and EntityAction; Filipe developed the Python script for generation of \texttt{CAR.TXT}, while João developed the Shell scripts for Kafka initialization 
-and deletion; each implemented two entities and each wrote a portion of this report; Filipe made sure everything was coherent throughout the report and the code 
-documentation, while João solved the most critical issues regarding the configuration of the Kafka topics, in order to ensure their proper functioning.
+and deletion; each implemented 2 entities and each wrote a portion of this report; Filipe made sure everything was coherent throughout the report and the code 
+documentation, while João solved the most critical issues regarding the configuration of the topics.
+In terms of work percentage, we believe it was about 50\% for each student.
 
 \newpage
 \section*{Conclusions} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -373,6 +428,12 @@ documentation, while João solved the most critical issues regarding the configu
     \url{https://kafka.apache.org/},
     acessed in April 2020.
 
+   \bibitem{javadoc}
+    Oracle,
+    \textit{Javadoc Technology},
+    \url{https://docs.oracle.com/javase/8/docs/technotes/guides/javadoc/index.html},
+    accessed in April 2020.
+
 
   % \bibitem{uml}
   %   Object Management Group,
@@ -380,11 +441,7 @@ documentation, while João solved the most critical issues regarding the configu
   %   \url{https://www.uml.org/what-is-uml.htm},
   %   accessed in March 2020.
     
-  % \bibitem{javadoc}
-  %   Oracle,
-  %   \textit{Javadoc Technology},
-  %   \url{https://docs.oracle.com/javase/8/docs/technotes/guides/javadoc/index.html},
-  %   accessed in February 2020.
+ 
 
 \end{thebibliography}
 
