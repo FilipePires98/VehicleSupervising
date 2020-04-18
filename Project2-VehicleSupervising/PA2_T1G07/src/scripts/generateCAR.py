@@ -39,7 +39,7 @@ def getCarStatus():
 
 def createMsg(car_reg, type, info, t):
     timestamp = int(time.time()*1000)
-    time.sleep(random.randint(1,t))
+    time.sleep(random.randint(1,t)/1000)
     msg = "| " + car_reg + " | " + str(timestamp) + " | " + type + " |"
     if(info):
         msg += " " + info + " |"
@@ -51,7 +51,7 @@ def createMsg(car_reg, type, info, t):
 # Process script arguments
 
 nCars = 10
-nLines = 100
+nLines = 25000
 maxT = 5
 if(len(sys.argv)>1):
     new_nLines = 0

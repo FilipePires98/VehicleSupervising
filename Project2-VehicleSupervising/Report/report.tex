@@ -258,7 +258,7 @@ This listener is explained in greater detail in section \ref{topics}.
   \centering
   \begin{minipage}{\textwidth}
     \centering
-    \includegraphics[width=.5\linewidth]{img/BlockDiagram.png}
+    \includegraphics[width=\linewidth]{img/ClassDiagram.png}
   \end{minipage}%
   \caption{Java application's class diagram.}
   \label{ClassDiagram}
@@ -271,7 +271,7 @@ In order to more easily visualize interactions between entities, we designed an 
   \centering
   \begin{minipage}{\textwidth}
     \centering
-    \includegraphics[width=.5\linewidth]{img/BlockDiagram.png}
+    \includegraphics[width=.5\linewidth]{img/BlockDiagram.png} 
   \end{minipage}%
   \caption{Entities interaction diagram.}
   \label{InteractionDiagram}
@@ -279,7 +279,56 @@ In order to more easily visualize interactions between entities, we designed an 
 
 \subsection{User Interface} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-In any management platform there needs to be  
+In any management platform there needs to be some sort of interface for users to interact with the system.
+Our choice was to develop a graphical user interface (GUI) for each entity using Java Swing \cite{swing}.
+
+All entities have a window dedicated to presenting relevant information, including processed messages status information and possible execution errors.
+Below we see a sequence of figures showing all GUIs in different program execution states.
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}{\textwidth}
+    \centering
+    \includegraphics[width=.75\linewidth]{img/GUI_1.png}
+  \end{minipage}%
+  \caption{GUIs before file reading.}
+  \label{GUI_1}
+\end{figure} 
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}{\textwidth}
+    \centering
+    \includegraphics[width=.75\linewidth]{img/GUI_2.png}
+  \end{minipage}%
+  \caption{GUIs during message transmission.}
+  \label{GUI_2}
+\end{figure} 
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}{\textwidth}
+    \centering
+    \includegraphics[width=.75\linewidth]{img/GUI_3.png}
+  \end{minipage}%
+  \caption{GUIs with counter reports.}
+  \label{GUI_3}
+\end{figure} 
+
+The central entity, Collect, is the one with more control over the platform.
+In its GUI, the user can: 
+define the path to the data file \texttt{CAR.TXT} (a standard path is defined by default, directed towards the "data" package);
+select which topics shall be used, allowing the program to run even if one of the consumer entities isn't working;
+define a timeout variable that sets the time period between message dispatches;
+initiate the collecting and transmission of data by clicking the \texttt{Start} button.
+During execution, at any time, the user can also terminate data transmission by clicking the \texttt{Stop} button (enabled only during execution).
+
+Batch, Report and Alarm entities all have similar interfaces with the same operations available to the user.
+These operations are:
+defining the number of consumers ................ ; % do consumer group ou da redundância? 
+filtering which messages to present on the information window according to their type;
+presenting the number of messages of each type, of reprocessed messages and in total processed so far by clicking the \texttt{ReportAndReset} button 
+(as the name suggests, these counters are set to zero every time the button is clicked).
 
 \newpage
 \section{Kafka Infrastructure} \label{infrastructure} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -425,12 +474,6 @@ Batch Entity.
 \begin{thebibliography}{9} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   \bibliographystyle{Science}
 
-  \bibitem{assign}
-    Óscar Pereira,
-    \textit{SA: Practical Assignment no.2},
-    University of Aveiro,
-    2019/20.
-  
   \bibitem{gartner}
     Smarter With Gartner,
     \textit{Staying on Track with Connected Car Security},
@@ -443,7 +486,19 @@ Batch Entity.
     \url{https://kafka.apache.org/},
     acessed in April 2020.
 
-   \bibitem{javadoc}
+  \bibitem{assign}
+    Óscar Pereira,
+    \textit{SA: Practical Assignment no.2},
+    University of Aveiro,
+    2019/20.
+
+  \bibitem{swing}
+    Oracle,
+    \textit{Swing},
+    \url{https://docs.oracle.com/javase/8/docs/technotes/guides/swing/index.html},
+    accessed in April 2020.
+
+  \bibitem{javadoc}
     Oracle,
     \textit{Javadoc Technology},
     \url{https://docs.oracle.com/javase/8/docs/technotes/guides/javadoc/index.html},

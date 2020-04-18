@@ -31,7 +31,7 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="pathToCarDataLabel" min="-2" pref="494" max="-2" attributes="0"/>
-                      <EmptySpace min="0" pref="6" max="32767" attributes="0"/>
+                      <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="startBtn" min="-2" max="-2" attributes="0"/>
@@ -78,11 +78,13 @@
               <EmptySpace max="-2" attributes="0"/>
               <Component id="filePath" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="startBtn" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="stopBtn" alignment="3" min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="timeoutLabel" alignment="0" max="32767" attributes="0"/>
-                  <Component id="timeout" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="startBtn" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="stopBtn" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="timeout" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="jScrollPane1" pref="210" max="32767" attributes="0"/>
