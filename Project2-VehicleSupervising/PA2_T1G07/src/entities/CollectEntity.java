@@ -6,6 +6,9 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.*;
 import kafkaUtils.Producer;
 import message.Message;
@@ -152,11 +155,12 @@ public class CollectEntity extends JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(filePath, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(startBtn)
-                    .addComponent(stopBtn)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(timeoutLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(timeout, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(startBtn)
+                        .addComponent(stopBtn)
+                        .addComponent(timeout, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 210, Short.MAX_VALUE)
                 .addContainerGap())
@@ -263,7 +267,7 @@ public class CollectEntity extends JFrame {
             heartbeatProps.put("bootstrap.servers", "localhost:9092, localhost:9093 ,localhost:9094");
             heartbeatProps.put("key.serializer", "org.apache.kafka.common.serialization.IntegerSerializer");
             heartbeatProps.put("value.serializer", MessageSerializer.class.getName());
-            heartbeatProps.put("max.in.flight.requests.per.connection", 10);
+//            heartbeatProps.put("max.in.flight.requests.per.connection", 10);
             heartbeatProps.put("ack", "0");
 
             Properties speedProps = new Properties();
@@ -271,7 +275,8 @@ public class CollectEntity extends JFrame {
             speedProps.put("key.serializer", "org.apache.kafka.common.serialization.IntegerSerializer");
             speedProps.put("value.serializer", MessageSerializer.class.getName());
             speedProps.put("max.in.flight.requests.per.connection", 1);
-            speedProps.put("acks", "0 ");
+            speedProps.put("enable.idempotence", true);
+            speedProps.put("acks", "all");
 
             Properties statusProps = new Properties();
             statusProps.put("bootstrap.servers", "localhost:9092, localhost:9093 ,localhost:9094");
