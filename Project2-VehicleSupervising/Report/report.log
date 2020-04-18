@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Arch Linux) (preloaded format=pdflatex 2020.2.20)  18 APR 2020 15:18
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Arch Linux) (preloaded format=pdflatex 2020.2.20)  18 APR 2020 18:20
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -361,28 +361,29 @@ File: img/ClassDiagram.png Graphic file (type png)
 Package pdftex.def Info: img/ClassDiagram.png  used on input line 261.
 (pdftex.def)             Requested size: 455.24408pt x 485.0811pt.
  [5]
-File: img/BlockDiagram.png Graphic file (type png)
-<use img/BlockDiagram.png>
-Package pdftex.def Info: img/BlockDiagram.png  used on input line 274.
-(pdftex.def)             Requested size: 227.62204pt x 152.36351pt.
+<img/InteractionDiagram.png, id=96, 805.0075pt x 703.62875pt>
+File: img/InteractionDiagram.png Graphic file (type png)
+<use img/InteractionDiagram.png>
+Package pdftex.def Info: img/InteractionDiagram.png  used on input line 274.
+(pdftex.def)             Requested size: 455.24408pt x 397.90529pt.
  [6 </home/fp/Desktop/4A2S/AS/P/AS-ProjectsRepository/Project2-VehicleSupervising/Report/img/ClassDiagram.png>]
-<img/GUI_1.png, id=103, 752.8125pt x 572.1375pt>
+<img/GUI_1.png, id=104, 752.8125pt x 572.1375pt>
 File: img/GUI_1.png Graphic file (type png)
 <use img/GUI_1.png>
 Package pdftex.def Info: img/GUI_1.png  used on input line 292.
-(pdftex.def)             Requested size: 341.43306pt x 259.4936pt.
-<img/GUI_2.png, id=104, 752.8125pt x 572.1375pt>
+(pdftex.def)             Requested size: 386.96024pt x 294.09973pt.
+ [7 </home/fp/Desktop/4A2S/AS/P/AS-ProjectsRepository/Project2-VehicleSupervising/Report/img/InteractionDiagram.png>]
+<img/GUI_2.png, id=111, 752.8125pt x 572.1375pt>
 File: img/GUI_2.png Graphic file (type png)
 <use img/GUI_2.png>
 Package pdftex.def Info: img/GUI_2.png  used on input line 302.
-(pdftex.def)             Requested size: 341.43306pt x 259.4936pt.
- [7 </home/fp/Desktop/4A2S/AS/P/AS-ProjectsRepository/Project2-VehicleSupervising/Report/img/GUI_1.png>]
-<img/GUI_3.png, id=111, 754.31813pt x 572.1375pt>
+(pdftex.def)             Requested size: 386.96024pt x 294.09973pt.
+<img/GUI_3.png, id=112, 754.31813pt x 572.1375pt>
 File: img/GUI_3.png Graphic file (type png)
 <use img/GUI_3.png>
 Package pdftex.def Info: img/GUI_3.png  used on input line 312.
-(pdftex.def)             Requested size: 341.43306pt x 258.9698pt.
- [8 </home/fp/Desktop/4A2S/AS/P/AS-ProjectsRepository/Project2-VehicleSupervising/Report/img/GUI_2.png> </home/fp/Desktop/4A2S/AS/P/AS-ProjectsRepository/Project2-VehicleSupervising/Report/img/GUI_3.png>] [9] [10] [11] [12]
+(pdftex.def)             Requested size: 386.96024pt x 293.49736pt.
+ [8 </home/fp/Desktop/4A2S/AS/P/AS-ProjectsRepository/Project2-VehicleSupervising/Report/img/GUI_1.png> </home/fp/Desktop/4A2S/AS/P/AS-ProjectsRepository/Project2-VehicleSupervising/Report/img/GUI_2.png>] [9 </home/fp/Desktop/4A2S/AS/P/AS-ProjectsRepository/Project2-VehicleSupervising/Report/img/GUI_3.png>] [10] [11] [12]
 Underfull \hbox (badness 10000) in paragraph at lines 478--482
 []\OT1/ptm/m/n/12 Smarter With Gart-ner, \OT1/ptm/m/it/12 Stay-ing on Track with Con-nected Car Se-
  []
@@ -418,18 +419,18 @@ Package rerunfilecheck Info: File `report.out' has not changed.
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 520.
  ) 
 Here is how much of TeX's memory you used:
- 6974 strings out of 492167
- 107963 string characters out of 6131558
+ 6981 strings out of 492167
+ 108164 string characters out of 6131558
  206235 words of memory out of 5000000
- 11229 multiletter control sequences out of 15000+600000
+ 11235 multiletter control sequences out of 15000+600000
  18002 words of font info for 41 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  38i,7n,42p,600b,413s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb></usr/share/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/share/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on /home/fp/Desktop/4A2S/AS/P/AS-ProjectsRepository/Project2-VehicleSupervising/Report/report.pdf (13 pages, 451962 bytes).
+Output written on /home/fp/Desktop/4A2S/AS/P/AS-ProjectsRepository/Project2-VehicleSupervising/Report/report.pdf (13 pages, 489968 bytes).
 PDF statistics:
- 194 PDF objects out of 1000 (max. 8388607)
+ 196 PDF objects out of 1000 (max. 8388607)
  166 compressed objects within 2 object streams
  48 named destinations out of 1000 (max. 500000)
- 130 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 135 words of extra memory for PDF output out of 10000 (max. 10000000)
 
