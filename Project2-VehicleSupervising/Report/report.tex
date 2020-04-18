@@ -191,7 +191,7 @@ This is what drives the increase in awareness for the importance of modularity i
 And this is partly what was meant to be explored in this assignment.
 So in this chapter we focus on presenting the interacting entities of our vehicle supervising platform and the components that constitute their functionality.
 
-\subsection{Entities} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Entities} \label{entitites} %%%%%%%%%%%%%%%%%%%%
 
 There are 4 entities, each with its own responsibilities.
 These entities simulate the management of the car network, with representative features of what could be accomplished by a fully implemented version.
@@ -216,7 +216,7 @@ Following is their description and a simple block diagram in Figure \ref{BlockDi
   \label{BlockDiagram}
 \end{figure} 
 
-\subsection{Components} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Components} \label{components} %%%%%%%%%%%%%%%%%
 
 The Java application is organized with packages.
 Each package contains a set of files with common natures so that managing source code is made easy.
@@ -284,7 +284,7 @@ Our choice was to develop a graphical user interface (GUI) for each entity using
 
 All entities have a window dedicated to presenting relevant information, including processed messages status information and possible execution errors.
 Below we see a sequence of figures showing all GUIs in different program execution states.
-
+ 
 \begin{figure}[H]
   \centering
   \begin{minipage}{\textwidth}
@@ -325,7 +325,7 @@ During execution, at any time, the user can also terminate data transmission by 
 
 Batch, Report and Alarm entities all have similar interfaces with the same operations available to the user.
 These operations are:
-defining the number of consumers ................ ; % do consumer group ou da redundância? 
+defining the number of consumers in the Heartbeat consumer group (see subsection \ref{reprocessing} for further details on consumer groups);
 filtering which messages to present on the information window according to their type;
 presenting the number of messages of each type, of reprocessed messages and in total processed so far by clicking the \texttt{ReportAndReset} button 
 (as the name suggests, these counters are set to zero every time the button is clicked).
@@ -363,7 +363,7 @@ The solution was to develop 2 scripts to automate both the creation and deletion
 These scripts are available together with the source code, in the package folder \texttt{scripts}.
 
 The initialization script is the first action to be executed when the project is ran.
-Also, as you might guess, the deletion script is the last thing to be executed before the system is terminated.
+Also, as you might guess, the deletion script is the last thing to be executed before the system is terminated (see Figure \ref{InteractionDiagram}).
 In relation to \textit{initKafka.sh}, the initialization script, it is responsible for: starting Zookeeper, the entity in charge of managing the Kafka Brokers;
 initializing the Kafka Brokers themselves, entities with the logic of the platform, for service providing (3 brokers are deployed); creating the necessary Kafka Topics.
 The final order of actions performed is:
@@ -387,12 +387,17 @@ The final order of actions performed is:
 \vspace{-10pt}
 
 \subsection{Topics and Constraints} \label{topics} %%%%%%%%%
-To establish constraints to the infrastructure consequently to the project, we had 3 methods, either in the definition of properties for the consumers, in the definition of the producers or in the definition of properties for the topics themselves.
 
-For this project it was established that there should only exist 3 topics, the \textit{BatchTopic}, \textit{ReportTopic} and the \textit{AlarmTopic}, each one with the objective of establishing communication between the \textit{CollectEntity} and the \textit{BatchEntity}, \textit{ReportEntity} and \textit{AlarmEntity}, respectively.
+Constraints are what define the behavior of the interactions with Kafka.
+To establish them on our infrastructure, 3 alternatives of constraint parameterization were available: 
+either in the consumers' properties; in the producers' properties; or in the definition of properties for the topics themselves.
 
-As already mentioned, there are three different types of messages, and all types should be sent to every one of the topics. This condition is quite relevant since this means that the properties and conditions assured in shared resources across message types, such as the topics, will be dictated by the most restricting message type. The higher restrictions on a given constraint can be defined by different message types, since each message type as a different set of constraints. Those constrains are:
-
+As we have seen in section \ref{messages}, several message types should be considered.
+The imposed condition of all types being required to be sent to all topics is quite relevant since this means that the properties ensuring the proper functioning 
+of shared resources (the Kafka topics) is dictated by the most restricting type. 
+Other properties were defined differently for each message type, according to the predefined constraints imposed on them.
+Those constrains are:
+\vspace{-10pt}
 \begin{multicols}{3}
   \begin{itemize}
     \item HEARTBEAT
@@ -400,18 +405,14 @@ As already mentioned, there are three different types of messages, and all types
     \newline - can be reordered
     \newline - can be reprocessed
   \end{itemize}
-
   \columnbreak
-
   \begin{itemize}
     \item SPEED
     \newline - can be lost
     \newline - cannot be reordered
     \newline - cannot be reprocessed
   \end{itemize}
-
   \columnbreak
-
   \begin{itemize}
     \item STATUS
     \newline - cannot be lost
@@ -419,37 +420,181 @@ As already mentioned, there are three different types of messages, and all types
     \newline - can be reprocessed
   \end{itemize}
 \end{multicols}
-
+\vspace{-10pt}
 To ensure these constraints, efforts can be made in several points along the data flow.
 
+\newpage
 \subsubsection{Message Lost}\label{lost}
-This constraint needed only to be assure to the status type message. After some research we found that there were specific properties for the producer and topics to ensure the message persistence. Additionally a specific consumer behavior was taken in consideration to further assure a lossless data flow.
 
-From the producer side, the \textit{acks} property was the one that we found to be the most relevant for this aspect. This property is related to the way the kafka leader considers the send request complete. There are three option, the leader when receiving a request to store a message immediately considers the request complete, not making sure the message was persisted in its logs nor requesting the acknowledge of any of its followers; another option is to assure the message is persisted in the leader itself, returning request complete without requesting the acknowledge of its followers; the last and most secure way is to return only after the leader and all its followers acknowledges the persistence of the message. The codification of this modes is made by assigning "0" to no acknowledges, "1" to only the leader's acknowledge and "-1"/"all" to the acknowledge of every entity involved. We ended up setting the \textit{acks} property the "0" mode to the HEARTBEAT message type, since it can be lost and "all" mode for the STATUS message type since it cannot be lost. For the SPEED message type, although it can be lost, the \textit{acks} mode was set to "all" due to another constraint(see Section \ref{reprocessing}).Additionally, for the HEARTBEAT and SPEED status we used the \texttt{fire and forget} method of sending message, since the Kafka response was not important to assert if the persistance of the message was successful or not; comparatively, for the STATUS type message we went the last effort and used the \texttt{synchronous} method, which enabled us to wait for the Kafka response, and in case of an error we re-sent the message to assure the correct persistance of the message in the Kafka system.
+Messages of type STATUS should never be lost.
+After doing some research, we understood that there were specific properties for Kafka Producers and Topics that allowed the assurance of message persistence.
+Additionally a specific Consumer behavior was taken in consideration to further assure a lossless data flow.
 
-From the topics point of view, the replication factor is quite important in a no-message-loss scenario, since it is mandatory that the message is stored not in a single place, since in that fashion a single point of failure would be created and in the event of that single machine containing critical messages crashing, all those messages would be lost since there were no backups. For that reason replication is a must in a critical scenario. We ended up settling in a replication factor of 3, which we considered to be a satisfactory number for our context.
+On the Producer side, the \texttt{acks} property, related to the way the Kafka leader considers the "send" request complete, was the most relevant for our purposes. 
+"Acknowledge" has 3 options: 
+when receiving a request to store a message, the leader immediately considers the request complete, not making sure of its persistence in its logs nor requesting 
+the acknowledgement from any of its followers; 
+alternatively, the leader itself can assure message persistence, returning "request complete" without requesting acknowledgement from its followers; 
+or, the last and most secure way, "request complete" is only returned after the leader and all of its followers acknowledge the persistence of the message. 
+The codification of these modes is made by assigning "0" to no acknowledges, "1" to only the leader's acknowledge and "-1" or "all" to the acknowledge of both 
+leader and followers. 
+Property \texttt{acks} was set to "0" mode for the HEARTBEAT message type since it can be lost, and "all" mode for the STATUS message type since it cannot. 
+For the SPEED message type, although it can be lost, the \texttt{acks} mode was set to "all" due to another constraint (see section \ref{reprocessing}).
 
-Lastly, in the consumer side, we noticed that it was desirable for our system to manually commit the offsets for us to have a greater control over this aspect. This option enabled us to decide were we wanted to commit the processed offsets, either before the message processing or after the message processing. To compare both options, the first one, were we commit before processing the data, this scenario makes allows the loss of some messages, since it can happen that the consumer fetches messages from the Kafka system, commits the offsets and immediately crashes, not processing those messages, loosing them; on the other hand, if the offset commit is after the message processing, this may cause message reprocessing since in the case the consumer fetches messages from the Kafka system processes them and crashes right after, not committing them and enabling reprocessing. This was all taken in consideration but was submitted to another constraint which made us implement this offset commit in another fashion. See Section \ref{reprocessing}.
+Additionally, for messages of types HEARTBEAT and SPEED, the \textit{fireAndForget()} method of sending message discussed in section{components} was used, since 
+the Kafka response was not important to assert if the persistance of the message was successful or not.
+Comparatively, for the STATUS type, \textit{sendSync()} was used, keeping the program synchronized with Kafka by waiting for its response.
+This way, in case of an error, the message could be re-sent before moving on to another one to assure the correct persistance of the message in the Kafka system.
+
+On the Topics side, the replication factor is quite important in a no-message-loss scenario, since it is mandatory that the message is stored not in a single 
+place, but in several.
+Defining the replication factor to 1 would result in a single point of failure: in the event of that single machine containing critical messages crashing, all 
+those messages would be lost since there were no backups. 
+For that reason replication is a must in a critical scenario. 
+We settled with a replication factor of 3, which was considered to be a satisfactory number for our context.
+
+Lastly, on the Consumer side, we noticed that it was desirable for our system to manually commit the offsets for greater control. 
+This option enabled controlling when to commit the processed offsets: either before the message processing or after it. 
+To compare both possibilities, we analysed what consequences would each have and ran some tests.
+Committing before processing the data made possible the loss of some messages, since it can happen that the consumer fetches messages from the Kafka system, 
+commits the offsets and immediately crashes - resulting in unprocessed and lost messages.
+Committing only after processing prevented this problem but brought the possibility of causing message reprocessing, since if the consumer fetches messages
+from the Kafka system, processes them and crashes right after, the commit is not completed and the message is reprocessed.
+No solution was ideal, and much was taken in consideration when implementing the configuration.
+However, an additional constraint discussed further ahead in section \ref{reprocessing} made us implement this offset commit in another fashion.
 
 % With all of these efforts we minimized the probabilities of losing a message.
 
 \subsubsection{Message Reordering}
-For this constraint we found two properties in the producer side as well as a specific way of sending the message that seemed enough to handle this reordering aspect, and through test showed to be true.
 
-Those properties were the \textit{retries} and \textit{max.in.flight.requests.per.connection}. The retries property establishes a maximum number of retries per send request. The max.in.flight.requests.\\per.connection, as the name implies, establishes a maximum number of parallel active connections to the Kafka leader. These two properties when combined in a specific way can minimize or even neutralize the reordering probability. The values these properties have by default, which are 2147483647 for the retries and 5 for the max.in.flight.requests.per.connection allow the messages to be reordered, and to illustrate that a brief example will be given. Suppose that we send a message but the Kafka leader takes some time to respond and in that time a new connection with another message is also produced, in the case the first message response is unsuccessful and the one is successful, the first one due to the retries established will re-send the request, changing the intended order of the messages. To prevent this case, we decided that for both the SPEED and STATUS message types, the ones were the order is mandatory, we assigned the value "1" to max.in.flight.requests.per.connection, neutralizing the reordering possibility.
+To deal with messages reordering, 2 properties on the Producer side were found along with a specific method of message sending that, through tests conducted by 
+us, proved to be enough to handle such issue.
+The Producer properties were the \texttt{retries} and \texttt{max.in.flight.reque\\sts.per.connection}.
+The \texttt{retries} property establishes a maximum number of retries per send request.
+The \texttt{max.in.flight.requests.per.connection} establishes a maximum number of parallel active connections to the Kafka leader. 
+These properties, when combined, can minimize - or even neutralize - the reordering probability. 
 
-In relation to the sending message message, we also took in consideration the fact that our Kafka system was partitioned, which meant that if not specified, Kafka itself would distribute the messages in a balanced fashion across all available partitions, this would cause the order to also be lost. To neutralize that possibility, all messages of SPEED and STATUS type were produces to a specific partition, in our case, both to partition 0 since as stated by the project description, HEARTBEAT messages are produced in a much larger scale in comparison top the other two message types, so HEARTBEAT is the message type that makes sense in partitioning, as already stated in this section.
+The values these properties have by default, which are 2147483647 for the \texttt{retries} and 5 for the \texttt{max.in.flight.requests.per.connection} allow 
+messages to be reordered.
+To illustrate this, a brief example is here given:
+suppose that we send a message but the Kafka leader takes some time to respond and, in that time, a new connection with another message is also produced; 
+in the case the first message response is unsuccessful and the second is successful, the first one due to the retries established will re-send the request, 
+changing the intended order of the messages. 
+To prevent this case, it was decided that for both the SPEED and STATUS message types (the ones where the order was mandatory) 
+\texttt{max.in.flight.requests.per\\.connection} would have the value 1 assigned, neutralizing the reordering possibility.
+
+In relation to the message sending method,it was also taken in consideration the fact that the Kafka system was partitioned, which meant that if not specified, 
+Kafka itself would distribute the messages in a balanced fashion across all available partitions and cause the order to be lost. 
+To neutralize that possibility, all messages of type SPEED or STATUS were forced to be produced to a specific partition, in our case, to partition 0.
+Note that, as stated by the project description, HEARTBEAT messages are produced in a much larger scale in comparison to the other types, so HEARTBEAT messages
+are the ones that makes sense to divide amongst several partitions.
 
 \subsubsection{Message Reprocessing}\label{reprocessing}
-Lastly, in relation to the reprocessing constraint, after some research we settled on one property on the producer side and mainly a consumer side behavior we needed to adopt.
 
-In relation to the producer side property we found the \textit{enable.idempotence} property, which when enabled will assure that the producer only writes one copy of the message. Otherwise, due to retries, more than one copy can be persisted which can cause reprocessing of the message. SPEED message type was the one that required not to be reprocessed, and for that reason was the one were this property was enabled. For the correct operation of this property, other properties are affected, such as the max.in.flight.requests.per.connection that need to be less or equal to 5, the retries need to be higher than 0 and acks need to be "all". This last internal constraint was the reason the acks property was set to "all" in the SPEED message type(as mentioned in Section \ref{lost}), which decreases the message loss probability but remains possible due to the fire and forget method.
+A discovered Consumer side behavior was adopted in order to deal with message reprocessing.
+This behavior is explained here, along with another property configured on the Producer side.
 
-Lastly, for the consumers efforts, we found that the usage of a \texttt{Rebalance Listener} was necessary. \texttt{Rebalance Listener} is an entity which follows a Kafka defined behavior(interface), that enables the injection of code in two specific events when assign to a consumer. Those events are in case new partitions or topics are assigned to the consumer or when partitions or topics are revoked from that consumer due to the consumer not signalling it is alive for a long time or a new consumer being added in the consumer group. Obviously we were more interested in the last event, where partitions and topics are removed from the consumer, since that enabled us to commit the latest processed offsets.
+The property configured on Kafka Producers was \texttt{enable.idempotence}, which, when enabled, assures that the producer only writes one copy of the message. 
+Otherwise, due to retries, more than one copy can be persisted which can cause reprocessing of the message. 
+SPEED message type was the one that required not to be reprocessed, and for that reason was the one were this property was enabled. 
+For the correct operation of this property, other properties are affected, such as the \texttt{max.in.flight.requests.per.connection} that need to be less or 
+equal to 5, the \texttt{retries} that need to be higher than 0 and \texttt{acks} that need to be set to "all". 
+This last internal constraint was the reason the \texttt{acks} property was set to "all" in the SPEED message type(as mentioned in Section \ref{lost}), which 
+decreases the message loss probability but remains possible due to the \textit{fireAndForget()} method.
 
-A note need to be made in relation to the consumption strategy we adopted. when analyzing this we found two options, either we instantiated 3 different consumer groups per topic with one or more consumers assigned to them to make possible a grainer control over the constraints assigned to each message type or one consumer group per topic with the most restricting constraints with one or more consumers assigned to it. The first option of 3 distinct consumer groups per topic didn't seemed to be the most correct nor the most efficient, since each message was going to be consumed 2 times more just to make possible the separation of messages in the three available types. This from our point of view is not scalable, since if there were 100 messages types we would need 100 consumer groups and creates unnecessary overhead.
+Lastly, for the consumers efforts, we found that the usage of a Rebalance Listener was necessary. 
+A Rebalance Listener is an entity which follows a Kafka defined behavior (interface), that enables the injection of code in two specific events when assign to a consumer. 
+Those events are the occurrence of new partitions or topics being assigned to the consumer or being revoked from that consumer, due to either the consumer not 
+signalling it is alive for a long time or a new consumer being added to the consumer group. 
+Obviously we were more interested in the last event, where partitions and topics are removed from the consumer, since that enabled commiting the latest processed offsets.
 
-For that reason we implemented only one consumer group per topic which deals with all messages types in a efficient way. Given the fact that every topic may contain every message type and existing only one consumer group per topic, the order constraint of the SPEED message type meant that we needed to implement the Rebalance Listener to every consumer of every consumer group.
+A note needs to be made in relation to the consumption strategy adopted.
+When analyzing possible strategies, 2 options stood out: either 3 different consumer groups would be instantiated per topic, with one or more consumers assigned 
+to them to make possible a greater control over the constraints assigned to each message type; or one consumer group would be instantiated per topic with the 
+most restricting constraints with one or more consumers assigned to it. 
+The first strategy was not as efficient in terms of performance, since each message was going to be consumed 3 times more just to make possible the separation 
+of messages in the 3 available types. 
+This way, scalability is compromised, since if there were 100 messages types, 100 consumer groups would be needed and thus unnecessary overhead would be created.
+For that reason we implemented only one consumer group per topic which deals with all messages types in a efficient way. 
+Given the fact that every topic may contain every message type, the order constraint of the SPEED message type meant that we needed to implement the Rebalance 
+Listener to every consumer of every consumer group.
+
+\newpage
+\subsubsection{Code Configuration}
+
+For further analysis, we make available relevant code portions related to the configuration of the Kafka producers, consumers and topics.
+The first code snippet belongs to the Shell script \texttt{initKafka.sh}, whereas the others are Java configurations from the program's entities. 
+
+\vspace{2pt}
+\begingroup
+  \fontsize{9pt}{10pt}\selectfont
+  \begin{verbatim}
+for var in "$@"
+do
+
+../../kafka_2.12-2.4.1/bin/kafka-topics.sh --create --bootstrap-server localhost
+:9092 --replication-factor 3 --partitions 3 --topic $var
+
+done
+  \end{verbatim}
+\endgroup
+
+\begingroup
+  \fontsize{9pt}{10pt}\selectfont
+  \begin{verbatim}
+// Code taken from CollectEntity.java
+
+String bootstrapServers = "localhost:9092, localhost:9093 ,localhost:9094";
+Properties heartbeatProps = new Properties();
+heartbeatProps.put("bootstrap.servers", bootstrapServers);
+heartbeatProps.put("key.serializer", "org.apache.kafka.common.serialization.Int
+egerSerializer");
+heartbeatProps.put("value.serializer", MessageSerializer.class.getName());
+heartbeatProps.put("ack", "0");
+Properties speedProps = new Properties();
+speedProps.put("bootstrap.servers", bootstrapServers);
+speedProps.put("key.serializer", "org.apache.kafka.common.serialization.Integer
+Serializer");
+speedProps.put("value.serializer", MessageSerializer.class.getName());
+speedProps.put("max.in.flight.requests.per.connection", 1);
+speedProps.put("enable.idempotence", true);
+speedProps.put("acks", "all");
+Properties statusProps = new Properties();
+statusProps.put("bootstrap.servers", bootstrapServers);
+statusProps.put("key.serializer", "org.apache.kafka.common.serialization.Integer
+Serializer");
+statusProps.put("value.serializer", MessageSerializer.class.getName());
+statusProps.put("max.in.flight.requests.per.connection", 1);
+statusProps.put("acks", "all");
+
+Producer<Integer,Message> heartbeatProducer = new Producer<>(heartbeatProps);
+Producer<Integer,Message> speedProducer = new Producer<>(speedProps);
+Producer<Integer,Message> statusProducer = new Producer<>(statusProps);
+  \end{verbatim}
+\endgroup
+
+\begingroup
+  \fontsize{9pt}{10pt}\selectfont
+  \begin{verbatim}
+// Code taken from ReportEntity.java
+
+props.put("bootstrap.servers", "localhost:9092,localhost:9093,localhost:9094");
+props.put("group.id", groupName);
+props.put("key.deserializer", "org.apache.kafka.common.serialization.IntegerDes
+erializer");
+props.put("value.deserializer", MessageDeserializer.class.getName());
+props.put("enable.auto-commit", false);
+
+String[] tmp = new String[]{topicName};
+Consumer<Integer, Message> consumer;
+for(int i=0; i<(Integer)nConsumers.getValue(); i++) {
+  consumer = new Consumer<Integer,Message>(i, props, tmp, this);
+  Thread t = new Thread(consumer); t.start();
+  consumers[i] = consumer;
+  consumerThreads[i] = t;
+}
+  \end{verbatim}
+\endgroup
 
 \newpage
 \section{Additional Remarks} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
