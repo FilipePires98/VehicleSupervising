@@ -277,7 +277,7 @@ public class CollectEntity extends JFrame {
             heartbeatProps.put("bootstrap.servers", bootstrapServers);
             heartbeatProps.put("key.serializer", "org.apache.kafka.common.serialization.IntegerSerializer");
             heartbeatProps.put("value.serializer", MessageSerializer.class.getName());
-            heartbeatProps.put("max.in.flight.requests.per.connection", 10);
+//            heartbeatProps.put("max.in.flight.requests.per.connection", 10);
             heartbeatProps.put("ack", "0");
 
             Properties speedProps = new Properties();
@@ -285,7 +285,8 @@ public class CollectEntity extends JFrame {
             speedProps.put("key.serializer", "org.apache.kafka.common.serialization.IntegerSerializer");
             speedProps.put("value.serializer", MessageSerializer.class.getName());
             speedProps.put("max.in.flight.requests.per.connection", 1);
-            speedProps.put("acks", "0 ");
+            speedProps.put("enable.idempotence", true);
+            speedProps.put("acks", "all");
 
             Properties statusProps = new Properties();
             statusProps.put("bootstrap.servers", bootstrapServers);
