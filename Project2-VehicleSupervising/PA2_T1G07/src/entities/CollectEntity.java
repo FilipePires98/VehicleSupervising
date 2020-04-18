@@ -64,6 +64,7 @@ public class CollectEntity extends JFrame {
         timeout = new javax.swing.JSpinner();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setPreferredSize(new java.awt.Dimension(500, 360));
         setSize(new java.awt.Dimension(500, 360));
 
         topicsToIncludeLabel.setText("Topics to include:");
@@ -117,7 +118,7 @@ public class CollectEntity extends JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(pathToCarDataLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 494, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 6, Short.MAX_VALUE))
+                        .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(startBtn)
                         .addGap(18, 18, 18)
@@ -251,9 +252,16 @@ public class CollectEntity extends JFrame {
     // End of variables declaration//GEN-END:variables
 
  
-    
+    /**
+     * Class that serves as a Java Thread for the processing of data files.
+     * CollectEntity instantiates this class when the user initiates data collection and transmission in order to read the data that will serve as input.
+     */
     private class ProcessFile implements Runnable{
 
+        /**
+         * Run method of the thread class.
+         * Here lies the entire logic of CollectEntity, where data is read and sent to the Kafka topics.
+         */
         @Override
         public void run() {
             Map<Integer, Integer> processedMessages = new HashMap<Integer, Integer>();
@@ -262,16 +270,18 @@ public class CollectEntity extends JFrame {
             processedMessages.put(2,0);
 
             int total=0;
+            
+            String bootstrapServers = "localhost:9092, localhost:9093 ,localhost:9094";
 
             Properties heartbeatProps = new Properties();
-            heartbeatProps.put("bootstrap.servers", "localhost:9092, localhost:9093 ,localhost:9094");
+            heartbeatProps.put("bootstrap.servers", bootstrapServers);
             heartbeatProps.put("key.serializer", "org.apache.kafka.common.serialization.IntegerSerializer");
             heartbeatProps.put("value.serializer", MessageSerializer.class.getName());
 //            heartbeatProps.put("max.in.flight.requests.per.connection", 10);
             heartbeatProps.put("ack", "0");
 
             Properties speedProps = new Properties();
-            speedProps.put("bootstrap.servers", "localhost:9092,localhost:9093,localhost:9094");
+            speedProps.put("bootstrap.servers", bootstrapServers);
             speedProps.put("key.serializer", "org.apache.kafka.common.serialization.IntegerSerializer");
             speedProps.put("value.serializer", MessageSerializer.class.getName());
             speedProps.put("max.in.flight.requests.per.connection", 1);
@@ -279,7 +289,7 @@ public class CollectEntity extends JFrame {
             speedProps.put("acks", "all");
 
             Properties statusProps = new Properties();
-            statusProps.put("bootstrap.servers", "localhost:9092, localhost:9093 ,localhost:9094");
+            statusProps.put("bootstrap.servers", bootstrapServers);
             statusProps.put("key.serializer", "org.apache.kafka.common.serialization.IntegerSerializer");
             statusProps.put("value.serializer", MessageSerializer.class.getName());
             statusProps.put("max.in.flight.requests.per.connection", 1);
@@ -299,6 +309,17 @@ public class CollectEntity extends JFrame {
                 file = System.getProperty("user.dir") + "/src/data/CAR.TXT";
             }
             
+            String[] activeTopics = new String[topicNames.length];
+            if(batchTopicCheckbox.isSelected()) {
+                activeTopics[0] = "BatchTopic";
+            }
+            if(reportTopicCheckbox.isSelected()) {
+                activeTopics[1] = "ReportTopic";
+            }
+            if(alarmTopicCheckbox.isSelected()) {
+                activeTopics[2] = "AlarmTopic";
+            }
+            
             try{
                 CAR = new BufferedReader(new FileReader(file));
                 logs.append("Data file successfully opened for reading.\n");
@@ -315,8 +336,10 @@ public class CollectEntity extends JFrame {
                     switch(msgType) {
                         case 0:
                             msg = new Message(car_reg,timestamp,msgType);
-                            for(String topic : topicNames){
-                                heartbeatProducer.fireAndForget(topic, null,tmpCtr,msg);
+                            for(String topic : activeTopics){
+                                if(topic != null) {
+                                    heartbeatProducer.fireAndForget(topic, null,tmpCtr,msg);
+                                }
                             }
                             processedMessages.put(0, processedMessages.get(0)+1);
                             total++;
@@ -324,8 +347,10 @@ public class CollectEntity extends JFrame {
                         case 1:
                             speed = Integer.valueOf(content[4].trim());
                             msg = new Message(car_reg,timestamp,msgType,speed);
-                            for(String topic : topicNames){
-                                speedProducer.fireAndForget(topic,0,tmpCtr,msg);
+                            for(String topic : activeTopics){
+                                if(topic != null) {
+                                    speedProducer.fireAndForget(topic,0,tmpCtr,msg);
+                                }
                             }
                             processedMessages.put(1, processedMessages.get(1)+1);
                             total++;
@@ -333,16 +358,18 @@ public class CollectEntity extends JFrame {
                         case 2:
                             status = content[4].trim();
                             msg = new Message(car_reg,timestamp,msgType,status);
-                            for(String topic : topicNames){
-                                boolean send=true;
-                                while(send){
-                                    try {
-                                        send=false;
-                                        statusProducer.sendSync(topic,0,tmpCtr,msg);
-                                    } catch (InterruptedException ex) {
-                                        send=true;
-                                    } catch (ExecutionException ex) {
-                                        send=true;
+                            for(String topic : activeTopics){
+                                if(topic != null) {
+                                    boolean send=true;
+                                    while(send){
+                                        try {
+                                            send=false;
+                                            statusProducer.sendSync(topic,0,tmpCtr,msg);
+                                        } catch (InterruptedException ex) {
+                                            send=true;
+                                        } catch (ExecutionException ex) {
+                                            send=true;
+                                        }
                                     }
                                 }
     //                            statusProducer.fireAndForget(topic,0,tmpCtr,msg);
