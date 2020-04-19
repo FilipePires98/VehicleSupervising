@@ -235,17 +235,17 @@ method \textit{processMessage()}.
 This method receives the identifier of the consumer that is going to process the current message, the topic that the message belongs to and the key-value pair of 
 the message.
 
-The package also contains our implementations of Kafka Consumers and Producers.
+The package also contains Kafka Consumers and Producers wrappers implemented by us.
 Kafka is explained in greater detail in chapter \ref{infrastructure}, however a simple way of understanding producers and consumers in Kafka is to see them as 
 the components responsible for creating messages that can be sent via Kafka topics and sending them, and for subscribing to topics and receiving messages from them,
 respectively.
-By implementing our own versions of such components, we gain greater control over their configurations and functionalities.
+By implementing our own wrappers, we gain greater control over their configurations and functionalities and facilitate our work in other components.
 The Producer class supports 3 message sending methods:
 \vspace{-10pt}
 \begin{itemize}[noitemsep]
-  \item \textit{fireAndForget()} - where messages can be lost or arrive reordered on the consumer side.
-  \item \textit{sendAsync()} - where the producer asynchronously awaits for a delivery confirmation with the use of callbacks.
-  \item \textit{sendSync()} - where the producer waits for a delivery confirmation before proceeding to processing another message, ensuring the correct order on the consumer side.
+  \item \textit{fireAndForget()} - where the producers doesn't wait for the Kafka response in any fashion.
+  \item \textit{sendAsync()} - where the producer doesn't wait for the Kafka response, but receives it asynchronously through callbacks.
+  \item \textit{sendSync()} - where the producer waits for a delivery confirmation before proceeding to another message
 \end{itemize}
 \vspace{-10pt}
 Producer also has an inner class called ProducerCallback that, as the name suggests, deals with the callbacks related to the executions of the method \textit{sendAsync()}.
@@ -355,7 +355,7 @@ It was these metrics we explored during development in order to understand their
 
 Obviously, to use this platform we first needed to instantiate the services and infrastructure composing Apache Kafka. 
 To do so, we had 2 approaches: use the instantiation scripts provided with the source code available online \cite{kafka} or use docker as a middleware 
-framework that would enable us to abstract the the instantiation process and use Kafka in a container. 
+framework that would enable us to abstract the instantiation process and use Kafka in a container. 
 We chose the former option, which requested more work from our side but enabled us to instantiate the platform with more precision and control.
 
 Manually running each necessary command was obviously out of question.
@@ -430,7 +430,16 @@ Those constrains are:
   \end{itemize}
 \end{multicols}
 \vspace{-10pt}
-To ensure these constraints, efforts can be made in several points along the data flow.
+
+A further note needs to be made in relation to the HEARTBEAT message type and consumption strategy adopted. The fact this message type was meant to be generated in a much larger scale in relation to the other message types, a consumer group was mandatory to be implemented to efficiently consume the massive amounts of HEARTBEAT messages.
+When analyzing possible strategies, 2 options stood out: either 3 different consumer groups would be instantiated per topic, with one or more consumers assigned 
+to them to make possible a greater control over the constraints assigned to each message type; or one consumer group would be instantiated per topic with the 
+most restricting constraints with one or more consumers assigned to it. 
+The first strategy was not as efficient in terms of performance, since each message was going to be consumed 3 times more just to make possible the separation 
+of messages in the 3 available types. 
+This way, scalability is compromised, since if there were 100 messages types, 100 consumer groups would be needed and thus unnecessary overhead would be created.For that reason we implemented only one consumer group per topic which deals with all messages types in a efficient way. 
+
+To ensure the mentioned constraints, efforts can be made in several points along the data flow.
 
 \subsubsection{Message Lost}\label{lost}
 
@@ -449,7 +458,7 @@ leader and followers.
 Property \texttt{acks} was set to "0" mode for the HEARTBEAT message type since it can be lost, and "all" mode for the STATUS message type since it cannot. 
 For the SPEED message type, although it can be lost, the \texttt{acks} mode was set to "all" due to another constraint (see section \ref{reprocessing}).
 
-Additionally, for messages of types HEARTBEAT and SPEED, the \textit{fireAndForget()} method of sending message discussed in section{components} was used, since 
+Additionally, for messages of types HEARTBEAT and SPEED, the \textit{fireAndForget()} method of sending message discussed in section \ref{components} was used, since 
 the Kafka response was not important to assert if the persistance of the message was successful or not.
 Comparatively, for the STATUS type, \textit{sendSync()} was used, keeping the program synchronized with Kafka by waiting for its response.
 This way, in case of an error, the message could be re-sent before moving on to another one to assure the correct persistance of the message in the Kafka system.
@@ -479,7 +488,7 @@ To deal with messages reordering, 2 properties on the Producer side were found a
 us, proved to be enough to handle such issue.
 The Producer properties were the \texttt{retries} and \texttt{max.in.flight.reque\\sts.per.connection}.
 The \texttt{retries} property establishes a maximum number of retries per send request.
-The \texttt{max.in.flight.requests.per.connection} establishes a maximum number of parallel active connections to the Kafka leader. 
+The \texttt{max.in.flight.requests.per.connection} establishes a maximum number of unacknowledged requests per connection to the Kafka leader. 
 These properties, when combined, can minimize - or even neutralize - the reordering probability. 
 
 The values these properties have by default, which are 2147483647 for the \texttt{retries} and 5 for the \texttt{max.in.flight.requests.per.connection} allow 
@@ -515,15 +524,7 @@ Those events are the occurrence of new partitions or topics being assigned to th
 signalling it is alive for a long time or a new consumer being added to the consumer group. 
 Obviously we were more interested in the last event, where partitions and topics are removed from the consumer, since that enabled commiting the latest processed offsets.
 
-A note needs to be made in relation to the consumption strategy adopted.
-When analyzing possible strategies, 2 options stood out: either 3 different consumer groups would be instantiated per topic, with one or more consumers assigned 
-to them to make possible a greater control over the constraints assigned to each message type; or one consumer group would be instantiated per topic with the 
-most restricting constraints with one or more consumers assigned to it. 
-The first strategy was not as efficient in terms of performance, since each message was going to be consumed 3 times more just to make possible the separation 
-of messages in the 3 available types. 
-This way, scalability is compromised, since if there were 100 messages types, 100 consumer groups would be needed and thus unnecessary overhead would be created.
-For that reason we implemented only one consumer group per topic which deals with all messages types in a efficient way. 
-Given the fact that every topic may contain every message type, the order constraint of the SPEED message type meant that we needed to implement the Rebalance 
+Given the fact mentioned in section \ref{topics} and the fact that every topic may contain every message type, the order constraint of the SPEED message type meant that we needed to implement the Rebalance 
 Listener to every consumer of every consumer group.
 
 \newpage

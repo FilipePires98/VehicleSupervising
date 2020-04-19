@@ -31,6 +31,9 @@ public class CollectEntity extends JFrame {
      */
     private String[] topicNames = new String[]{"BatchTopic", "ReportTopic", "AlarmTopic"};
     
+    /**
+     * Flag signaling if a file is being processed.
+     */
     private boolean processFile;
 
     /**
