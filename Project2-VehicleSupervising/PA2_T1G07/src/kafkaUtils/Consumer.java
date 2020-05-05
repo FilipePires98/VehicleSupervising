@@ -33,6 +33,9 @@ public class Consumer<K,V> implements Runnable{
      */
     private int id;
 
+    /**
+     * Internal reference to the rebalance listener assigned to the consumer.
+     */
     private RebalanceListener rebalanceListener;
     
     /**

@@ -61,15 +61,25 @@ public class BatchEntity extends JFrame implements EntityAction<Integer, Message
      */
     private int activeConsumers = 3;
     
-    private boolean firstMessage=true;
-    
     /**
      * Cache containing the number of times each message has been processed (to allow consumer coordination).
      */
     private Map<Integer,Integer> processedMessages = new HashMap<Integer, Integer>();
     
+    /**
+     * Number of know reprocessed messages.
+     */
     private int reprocessed=0;
+    
+    /**
+     * Structure with know messages.
+     */
     private List<Integer> knownMessages=new ArrayList<Integer>();
+    
+    /**
+     * Flag signaling if it is the first message.
+     */
+    private boolean firstMessage=true;
 
     /**
      * Creates new form BatchEntity and requests consumer initialization.

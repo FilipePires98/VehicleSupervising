@@ -66,9 +66,19 @@ public class ReportEntity extends JFrame implements EntityAction<Integer,Message
      */
     private Map<Integer,List<String>> processedMessages = new HashMap<Integer, List<String>>();
 
+    /**
+     * Number of know reprocessed messages.
+     */
     private int reprocessed=0;
+    
+    /**
+     * Structure with know messages.
+     */
     private List<Integer> knownMessages=new ArrayList<Integer>();
-
+    
+    /**
+     * Flag signaling if it is the first message.
+     */
     private boolean firstMessage=true;
     
     /**
