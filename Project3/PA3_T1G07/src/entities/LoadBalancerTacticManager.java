@@ -1,5 +1,9 @@
 package entities;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -16,6 +20,7 @@ public class LoadBalancerTacticManager extends javax.swing.JFrame {
      * Creates new form LoadBalancerTacticManager
      */
     public LoadBalancerTacticManager() {
+        this.setTitle("LB/M");
         initComponents();
     }
 
@@ -70,7 +75,7 @@ public class LoadBalancerTacticManager extends javax.swing.JFrame {
             java.util.logging.Logger.getLogger(LoadBalancerTacticManager.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
-
+        
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {

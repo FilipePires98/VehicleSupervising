@@ -11,11 +11,15 @@ package entities;
  * @author fp
  */
 public class Server extends javax.swing.JFrame {
+    
+    private final int ID;
 
     /**
      * Creates new form Server
      */
-    public Server() {
+    public Server(String args[]) {
+        ID = Integer.parseInt(args[0]);
+        this.setTitle("Server #" + ID);
         initComponents();
     }
 
@@ -74,7 +78,7 @@ public class Server extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new Server().setVisible(true);
+                new Server(args).setVisible(true);
             }
         });
     }

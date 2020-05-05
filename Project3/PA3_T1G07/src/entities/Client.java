@@ -11,11 +11,15 @@ package entities;
  * @author fp
  */
 public class Client extends javax.swing.JFrame {
+    
+    private final int ID;
 
     /**
      * Creates new form Client
      */
-    public Client() {
+    public Client(String args[]) {
+        ID = Integer.parseInt(args[0]);
+        this.setTitle("Client #" + ID);
         initComponents();
     }
 
@@ -74,7 +78,7 @@ public class Client extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new Client().setVisible(true);
+                new Client(args).setVisible(true);
             }
         });
     }
