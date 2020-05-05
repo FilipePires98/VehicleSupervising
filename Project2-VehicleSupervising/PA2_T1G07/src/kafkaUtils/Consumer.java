@@ -6,7 +6,6 @@ import java.util.Properties;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
-
 /**
  * Class for Kafka message consumers.
  * A consumer instance works as a thread and belongs to a given entity and subscribes to an array of Kafka topics according to a set of properties.
@@ -19,24 +18,24 @@ public class Consumer<K,V> implements Runnable{
     /**
      * Consumer properties (bootstrap.servers, group.id, key.deserializer, value.deserializer, etc.).
      */
-    private Properties properties;
+    private final Properties properties;
     /**
      * Consumer instance from org.apache.kafka.clients.
      */
-    private KafkaConsumer<K,V> consumer;
+    private final KafkaConsumer<K,V> consumer;
     /**
      * Entity instance to which the consumer belongs to.
      */
-    private EntityAction<K,V> entity;
+    private final EntityAction<K,V> entity;
     /**
      * Unique consumer identifier.
      */
-    private int id;
+    private final int id;
 
     /**
      * Internal reference to the rebalance listener assigned to the consumer.
      */
-    private RebalanceListener rebalanceListener;
+    private final RebalanceListener rebalanceListener;
     
     /**
      * Control variable to notify the consumer that it should stop working.
@@ -53,8 +52,8 @@ public class Consumer<K,V> implements Runnable{
      */
     public Consumer(int id, Properties properties, String[] topics, EntityAction<K,V> entity) {
         this.properties = properties;
-        this.consumer = new KafkaConsumer<K,V>(properties);
-        rebalanceListener = new RebalanceListener(consumer);
+        this.consumer = new KafkaConsumer<>(properties);
+        this.rebalanceListener = new RebalanceListener<>(consumer);
         this.consumer.subscribe(Arrays.asList(topics), rebalanceListener);
         this.entity=entity;
         this.id=id;
@@ -64,6 +63,7 @@ public class Consumer<K,V> implements Runnable{
      * Consumer thread's run method.
      */
     @Override
+    @SuppressWarnings("unchecked")
     public void run() {
         // while (true) {
         while(!done) {
