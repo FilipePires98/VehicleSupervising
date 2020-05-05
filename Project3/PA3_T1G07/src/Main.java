@@ -60,10 +60,10 @@ public class Main {
         commands[0] = "java -cp " + jars + userDir + "/build/classes entities." + entities[0]; // launch LB/M
         for(int i=1; i<commands.length; i++) {
             if(i>=1+ns) { 
-                commands[i] = "java -cp " + jars + userDir + "/build/classes entities." + entities[2] + " " + clientID; // launch Clients
+                commands[i] = "java -cp " + jars + userDir + "/build/classes entities." + entities[2] + " " + clientID + " " + (6200+clientID); // launch Clients
                 clientID++;
             } else { 
-                commands[i] = "java -cp " + jars + userDir + "/build/classes entities." + entities[1] + " " + serverID; // launch Servers
+                commands[i] = "java -cp " + jars + userDir + "/build/classes entities." + entities[1] + " " + serverID + " " + (6100+serverID); // launch Servers
                 serverID++;
             }
         }

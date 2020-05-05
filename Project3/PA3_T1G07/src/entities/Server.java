@@ -1,26 +1,36 @@
 package entities;
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+import common.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  * @author fp
  */
-public class Server extends javax.swing.JFrame {
+public class Server extends javax.swing.JFrame implements MessageProcessor {
     
     private final int ID;
+    private final int port;
+    private SocketClient socketManager;
+    private SocketServer socketServer;
+    private Thread serverThread;
 
     /**
      * Creates new form Server
      */
     public Server(String args[]) {
-        ID = Integer.parseInt(args[0]);
-        this.setTitle("Server #" + ID);
+        this.ID = Integer.parseInt(args[0]);
+        this.port = Integer.valueOf(args[1]);
+        
+        this.setTitle("Server #" + this.ID);
         initComponents();
+        
+        this.initManagerClient();
+        
+        this.socketServer = new SocketServer(this.port, this);
+        this.serverThread = new Thread(socketServer);
+        this.serverThread.start();
     }
 
     /**
@@ -81,6 +91,32 @@ public class Server extends javax.swing.JFrame {
                 new Server(args).setVisible(true);
             }
         });
+    }
+    
+    public void initManagerClient() {
+        this.socketManager = new SocketClient("localhost", 6001);
+        this.socketManager.send("| newServer | " + this.ID + " | " + this.port + " |");
+    }
+    
+    private double calculatePi(int niter) {
+        // Pi would be calculated here...
+        try {
+            Thread.sleep(niter);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return 3.1416;
+    }
+
+    @Override
+    public void processMessage(String message) {
+        String[] msg = message.split("|");
+        for(String m: msg) {
+            m = m.trim();
+        }
+        
+        String reply = "| " + this.ID + " | " + msg[0] + " | " + msg[1] + " | 02 | " + msg[3] + " | " + this.calculatePi(Integer.valueOf(msg[3])) + " | ";
+        
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
