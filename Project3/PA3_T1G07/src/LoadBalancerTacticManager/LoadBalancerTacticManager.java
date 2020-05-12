@@ -1,4 +1,7 @@
-package entities;
+package LoadBalancerTacticManager;
+
+import common.MessageProcessor;
+import common.SocketServer;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -10,13 +13,19 @@ package entities;
  *
  * @author fp
  */
-public class LoadBalancerTacticManager extends javax.swing.JFrame {
-
+public class LoadBalancerTacticManager extends javax.swing.JFrame{
+    
+    private LoadBalancer lb;
+    private TacticManager tm;
+    
     /**
      * Creates new form LoadBalancerTacticManager
      */
     public LoadBalancerTacticManager() {
         initComponents();
+        lb=new LoadBalancer();
+        tm=new TacticManager(lb);
+        lb.setTacticManager(tm);
     }
 
     /**
@@ -78,7 +87,6 @@ public class LoadBalancerTacticManager extends javax.swing.JFrame {
             }
         });
     }
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     // End of variables declaration//GEN-END:variables
 }
