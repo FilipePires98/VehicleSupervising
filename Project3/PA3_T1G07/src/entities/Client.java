@@ -1,5 +1,12 @@
 package entities;
 
+import common.MessageProcessor;
+import common.SocketClient;
+import common.SocketServer;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -10,13 +17,40 @@ package entities;
  *
  * @author fp
  */
-public class Client extends javax.swing.JFrame {
+public class Client extends javax.swing.JFrame implements MessageProcessor{
+    
+    private int id;
+    private final int port;
+    private SocketServer socket;
+    private Thread socketThread;
+    private final String mainServerHost;
+    private final Integer mainServerPort;
 
     /**
      * Creates new form Client
      */
-    public Client() {
+    public Client(String args[]) {
+        this.port = Integer.valueOf(args[0]);
+        this.mainServerHost = args[1];
+        this.mainServerPort = Integer.valueOf(args[2]);
+        
+        
+        this.socket = new SocketServer(this.port, this);
+        this.socketThread = new Thread(socket);
+        this.socketThread.start();
+
+        this.initManagerClient();
         initComponents();
+    }
+    
+    public void initManagerClient(){
+        try {
+            SocketClient socketManager = new SocketClient(this.mainServerHost, this.mainServerPort);
+            socketManager.send("newClient-localhost-" + this.port);
+            socketManager.close();
+        } catch (IOException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     /**
@@ -74,9 +108,22 @@ public class Client extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new Client().setVisible(true);
+                new Client(args).setVisible(true);
             }
         });
+    }
+
+    @Override
+    public void processMessage(String message) {
+        String[] processedMessage = message.split("-");
+        switch(processedMessage[0]){
+            case "clientId":
+                this.id=Integer.valueOf(processedMessage[1]);
+                this.setTitle("Client #" + this.id);
+                break;
+            default:
+                break;
+        }
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

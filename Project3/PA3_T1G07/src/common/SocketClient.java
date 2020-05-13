@@ -50,7 +50,6 @@ public class SocketClient {
         this.out.writeUTF(message);
         this.out.flush();
         this.in.readUTF();
-
     }
     
     /**

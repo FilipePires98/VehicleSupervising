@@ -1,21 +1,35 @@
 package entities;
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+import common.*;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  * @author fp
  */
-public class Server extends javax.swing.JFrame {
+public class Server extends javax.swing.JFrame implements MessageProcessor {
+    
+    private int id;
+    private final int port;
+    private SocketServer socketServer;
+    private Thread serverThread;
+    private final String mainServerHost;
+    private final Integer mainServerPort;
 
     /**
      * Creates new form Server
      */
-    public Server() {
+    public Server(String args[]) {
+        this.port = Integer.valueOf(args[0]);
+        this.mainServerHost = args[1];
+        this.mainServerPort = Integer.valueOf(args[2]);
+        
+        this.socketServer = new SocketServer(this.port, this);
+        this.serverThread = new Thread(socketServer);
+        this.serverThread.start();
+        this.initManagerClient();
         initComponents();
     }
 
@@ -74,9 +88,91 @@ public class Server extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new Server().setVisible(true);
+                new Server(args).setVisible(true);
             }
         });
+    }
+    
+    public void initManagerClient(){
+        try {
+            SocketClient socketManager = new SocketClient(this.mainServerHost, this.mainServerPort);
+            socketManager.send("newServer-localhost-" + this.port);
+            socketManager.close();
+        } catch (IOException ex) {
+            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    @Override
+    public void processMessage(String message) {
+        String[] processedMessage = message.split("-");
+        switch(processedMessage[0]){
+            case "serverId"://serverId-id
+                this.id=Integer.valueOf(processedMessage[1]);
+                this.setTitle("Server #" + this.id);
+                break;
+            case "healthcheck":// healthcheck
+                break;
+            case "request": //request-clientHost-clientPort-request
+                SocketClient socketManager = new SocketClient(this.mainServerHost, this.mainServerPort);
+                try {
+                    socketManager.send("newRequest-"+this.id+"-" + processedMessage[3]);
+                } catch (IOException ex) {
+                    Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                socketManager.close();
+                PiCalculation request = new PiCalculation(processedMessage[1], Integer.valueOf(processedMessage[2]),processedMessage[3]);
+                Thread requestProcessing = new Thread(request);
+                requestProcessing.start();
+                break;
+
+        }
+    }
+    
+    private class PiCalculation implements Runnable{
+        
+        private String message;
+        private String[] processedMessage;
+        private final int clientPort;
+        private final String clientHost;
+        
+        public PiCalculation(String clientHost, int clientPort, String message){
+            this.message=message;
+            this.processedMessage = message.split("|");
+            for(String m: this.processedMessage) {
+                m = m.trim();
+            }
+            this.clientHost=clientHost;
+            this.clientPort=clientPort;
+        }
+        
+        @Override
+        public void run() {
+            try {
+                Thread.sleep(Integer.valueOf(this.processedMessage[3])*1000);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+            String reply = "| " +id + " | " + this.processedMessage[0] + " | " + this.processedMessage[1] + " | 02 | " + this.processedMessage[3] + " | 3.1415 |";
+            
+            SocketClient targetClient = new SocketClient(clientHost, clientPort);
+            try {
+                targetClient.send(reply);
+            } catch (IOException ex) {
+                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            targetClient.close();
+            
+            SocketClient socketManager = new SocketClient(mainServerHost, mainServerPort);
+            try {
+                socketManager.send("processedRequest-"+id+"-" + message);
+            } catch (IOException ex) {
+                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            socketManager.close();
+        }
+        
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

@@ -11,8 +11,6 @@ import common.SocketServer;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -22,41 +20,24 @@ public class LoadBalancer implements MessageProcessor{
     
     private SocketServer server;
     private Thread serverThread;
-    private TacticManager tm;
-
-    public LoadBalancer() {
-        this.server = new SocketServer(6000, this);
-        this.serverThread = new Thread(server);
-        this.serverThread.start();
-    }
+    private ClusterInfo ci;
     
-    public LoadBalancer(TacticManager tm) {
+    public LoadBalancer(ClusterInfo ci) {
         this.server = new SocketServer(6000, this);
         this.serverThread = new Thread(server);
         this.serverThread.start();
-        this.tm=tm;
+        this.ci=ci;
     }
 
-    public void setTacticManager(TacticManager tm) {
-        this.tm = tm;
+    public void setClusterInfo(ClusterInfo ci) {
+        this.ci=ci;
     }
 
     @Override
     public void processMessage(String message) {
-        distributeLoad((List<String>)Arrays.asList(message));
-    }
-
-    public void distributeLoad(List<String> messages){
-        ServerInfo si=tm.leastOccupiedServer();
-        SocketClient client=new SocketClient("localhost", si.getPort());
-        try {
-            for(String msg:messages){
-                client.send(msg);
-            }
-        } catch (IOException ex) {
-            tm.removeAndRedistributeMessages(si);
-        }
-        client.close();
+        LoadDistributor ld = new LoadDistributor(ci,(List<String>)Arrays.asList(message));
+        Thread ldt = new Thread(ld);
+        ldt.start();
     }
     
 }

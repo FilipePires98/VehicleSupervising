@@ -1,7 +1,9 @@
-package LoadBalancerTacticManager;
+package entities;
 
-import common.MessageProcessor;
-import common.SocketServer;
+import LoadBalancerTacticManager.ClusterInfo;
+import LoadBalancerTacticManager.LoadBalancer;
+import LoadBalancerTacticManager.TacticManager;
+
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -17,15 +19,17 @@ public class LoadBalancerTacticManager extends javax.swing.JFrame{
     
     private LoadBalancer lb;
     private TacticManager tm;
+    private ClusterInfo ci;
     
     /**
      * Creates new form LoadBalancerTacticManager
      */
     public LoadBalancerTacticManager() {
+        this.setTitle("LB/M");
         initComponents();
-        lb=new LoadBalancer();
-        tm=new TacticManager(lb);
-        lb.setTacticManager(tm);
+        ci=new ClusterInfo();
+        tm=new TacticManager(ci);
+        lb=new LoadBalancer(ci);
     }
 
     /**
@@ -37,17 +41,60 @@ public class LoadBalancerTacticManager extends javax.swing.JFrame{
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jScrollPane1 = new javax.swing.JScrollPane();
+        upServers = new javax.swing.JList<>();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        inProcessMessages = new javax.swing.JTextArea();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        processedMessages = new javax.swing.JTextArea();
+        stop = new javax.swing.JButton();
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        upServers.setModel(new javax.swing.AbstractListModel<String>() {
+            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
+            public int getSize() { return strings.length; }
+            public String getElementAt(int i) { return strings[i]; }
+        });
+        jScrollPane1.setViewportView(upServers);
+
+        inProcessMessages.setColumns(20);
+        inProcessMessages.setRows(5);
+        jScrollPane2.setViewportView(inProcessMessages);
+
+        processedMessages.setColumns(20);
+        processedMessages.setRows(5);
+        jScrollPane3.setViewportView(processedMessages);
+
+        stop.setText("Stop");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(stop, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 298, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 298, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 174, Short.MAX_VALUE)
+                    .addComponent(jScrollPane3))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 96, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(stop))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
@@ -79,7 +126,7 @@ public class LoadBalancerTacticManager extends javax.swing.JFrame{
             java.util.logging.Logger.getLogger(LoadBalancerTacticManager.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
-
+        
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
@@ -88,5 +135,12 @@ public class LoadBalancerTacticManager extends javax.swing.JFrame{
         });
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTextArea inProcessMessages;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JTextArea processedMessages;
+    private javax.swing.JButton stop;
+    private javax.swing.JList<String> upServers;
     // End of variables declaration//GEN-END:variables
 }

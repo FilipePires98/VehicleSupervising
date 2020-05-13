@@ -15,32 +15,31 @@ import java.util.List;
 public class ServerInfo implements Comparable{
     
     private int id;
+    private String host;
     private int port;
-    private List<RequestInfo> requests;
+    private List<String> requests;
 
-    public ServerInfo(int id, int port) {
-        this.id = id;
+    public ServerInfo(int id, String host, int port) {
+        this.id=id;
+        this.host = host;
         this.port = port;
         this.requests=new ArrayList();
     }
     
     public void addRequest(String request){
-        this.requests.add(new RequestInfo(request));
+        this.requests.add(request);
     }
     
     public void removeRequest(String request){
-        RequestInfo ri=null;
-        for(RequestInfo tmp : this.requests){
-            if(tmp.getRequest().equals(request)){
-                ri=tmp;
-                break;
-            }
-        }
-        this.requests.remove(ri);
+        this.requests.remove(request);
     }
 
-    public List<RequestInfo> getRequests() {
+    public List<String> getRequests() {
         return requests;
+    }
+    
+    public String getHost() {
+        return host;
     }
 
     public int getPort() {

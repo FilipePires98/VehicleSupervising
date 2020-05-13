@@ -23,6 +23,7 @@ public class SocketServer implements Runnable{
      * Instance of the message processor assigned to the server.
      */
     private MessageProcessor mp;
+    private boolean continueRunning;
 
     /**
      * Class constructor for the server definition.
@@ -32,6 +33,7 @@ public class SocketServer implements Runnable{
     public SocketServer(int port, MessageProcessor mp) {
         this.port=port;
         this.mp = mp;
+        this.continueRunning=true;
     }
     
     /**
@@ -40,22 +42,51 @@ public class SocketServer implements Runnable{
      */
     @Override
     public void run() {
+        ServerSocket socket=null;
+            
         try {
-            ServerSocket socket = new ServerSocket(this.port);
-            Socket inSocket = socket.accept();
-            DataInputStream socketInputStream = new DataInputStream(inSocket.getInputStream());
-            DataOutputStream socketOutputStream = new DataOutputStream(inSocket.getOutputStream());
-            String receivedMessage="a";
-            while(!receivedMessage.equals("endSimulationOrder")){
-                receivedMessage=socketInputStream.readUTF();
-                System.out.println("Transmitted Message: "+receivedMessage);
-                this.mp.processMessage(receivedMessage);
-                socketOutputStream.writeUTF("Message Processed");
+            socket = new ServerSocket(this.port);
+            while(continueRunning){
+                Socket inSocket = socket.accept();
+                Thread t=new Thread(new AttendClient(inSocket));
+                t.start();
             }
             socket.close();
+
         } catch (IOException ex) {
             Logger.getLogger(SocketServer.class.getName()).log(Level.SEVERE, null, ex);
         }
+            
+    }
+    
+    private class AttendClient implements Runnable{
+
+        private Socket inSocket;
+
+        public AttendClient(Socket inSocket){
+            this.inSocket=inSocket;
+        }
+        
+        @Override
+        public void run() {
+            try {
+                DataInputStream socketInputStream = new DataInputStream(inSocket.getInputStream());
+                DataOutputStream socketOutputStream = new DataOutputStream(inSocket.getOutputStream());
+                String receivedMessage="a";
+                while(!receivedMessage.equals("exit")){
+                        receivedMessage=socketInputStream.readUTF();
+                        System.out.println("Transmitted Message: "+receivedMessage);
+                        mp.processMessage(receivedMessage);
+                        socketOutputStream.writeUTF("Message Processed");
+
+                }
+                inSocket.close();
+                continueRunning=false;
+            } catch (IOException ex) {
+//                Logger.getLogger(SocketServer.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        
     }
     
 }
