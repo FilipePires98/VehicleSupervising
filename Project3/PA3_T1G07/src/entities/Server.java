@@ -2,6 +2,8 @@ package entities;
 
 import common.*;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -17,7 +19,8 @@ public class Server extends javax.swing.JFrame implements MessageProcessor {
     private Thread serverThread;
     private final String mainServerHost;
     private final Integer mainServerPort;
-
+    private List<String> processingRequests;
+    private List<String> processedRequests;
     /**
      * Creates new form Server
      */
@@ -26,6 +29,8 @@ public class Server extends javax.swing.JFrame implements MessageProcessor {
         this.mainServerHost = args[1];
         this.mainServerPort = Integer.valueOf(args[2]);
         
+        this.processingRequests=new ArrayList();
+        this.processedRequests=new ArrayList();
         this.socketServer = new SocketServer(this.port, this);
         this.serverThread = new Thread(socketServer);
         this.serverThread.start();
@@ -42,21 +47,67 @@ public class Server extends javax.swing.JFrame implements MessageProcessor {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        stop = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        processing = new javax.swing.JList<>();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        processed = new javax.swing.JList<>();
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        stop.setText("Stop");
+        stop.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                stopMouseClicked(evt);
+            }
+        });
+
+        jScrollPane1.setViewportView(processing);
+
+        jScrollPane2.setViewportView(processed);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(173, 173, 173)
+                        .addComponent(stop, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 179, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 179, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(26, 26, 26)
+                .addComponent(stop)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void stopMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_stopMouseClicked
+        try {
+            SocketClient socketManager = new SocketClient(this.mainServerHost, this.mainServerPort);
+            socketManager.send("serverDown-" + this.id);
+            socketManager.close();
+            System.exit(0);
+        } catch (IOException ex) {
+            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+    }//GEN-LAST:event_stopMouseClicked
 
     /**
      * @param args the command line arguments
@@ -117,13 +168,16 @@ public class Server extends javax.swing.JFrame implements MessageProcessor {
                 SocketClient socketManager = new SocketClient(this.mainServerHost, this.mainServerPort);
                 try {
                     socketManager.send("newRequest-"+this.id+"-" + processedMessage[3]);
+                    socketManager.close();
+                    processingRequests.add(processedMessage[3]);
+                    updateProcessing();
+                    PiCalculation request = new PiCalculation(processedMessage[1], Integer.valueOf(processedMessage[2]),processedMessage[3]);
+                    Thread requestProcessing = new Thread(request);
+                    requestProcessing.start();
                 } catch (IOException ex) {
                     Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                socketManager.close();
-                PiCalculation request = new PiCalculation(processedMessage[1], Integer.valueOf(processedMessage[2]),processedMessage[3]);
-                Thread requestProcessing = new Thread(request);
-                requestProcessing.start();
+                
                 break;
 
         }
@@ -171,10 +225,32 @@ public class Server extends javax.swing.JFrame implements MessageProcessor {
                 Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
             }
             socketManager.close();
+            processingRequests.remove(message);
+            processedRequests.add(message);
+            updateProcessing();
+            updateProcessed();
         }
         
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JList<String> processed;
+    private javax.swing.JList<String> processing;
+    private javax.swing.JButton stop;
     // End of variables declaration//GEN-END:variables
+
+    private void updateProcessing(){
+        String[] tmp=new String[processingRequests.size()];
+        processingRequests.toArray(tmp);
+        processing.setListData(tmp);
+    }
+    
+    private void updateProcessed(){
+        String[] tmp=new String[processedRequests.size()];
+        processedRequests.toArray(tmp);
+        processed.setListData(tmp);
+    }
+
 }

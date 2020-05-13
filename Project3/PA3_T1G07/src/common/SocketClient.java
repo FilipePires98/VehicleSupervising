@@ -23,6 +23,8 @@ public class SocketClient {
      * Instance of the communication socket to be used.
      */
     private Socket socket=null;
+    private final String ip;
+    private final int port;
 
     /**
      * Class constructor for the client definition.
@@ -30,16 +32,8 @@ public class SocketClient {
      * @param port Port assigned to the client.
      */
     public SocketClient(String ip, int port) {
-        try {
-            while(this.socket==null){
-                this.socket = new Socket(ip, port);
-            }
-            this.out = new DataOutputStream( socket.getOutputStream() );
-            this.in = new DataInputStream( socket.getInputStream() );
-            
-        } catch (IOException ex) {
-            Logger.getLogger(SocketClient.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        this.ip=ip;
+        this.port=port;
     }
     
     /**
@@ -47,6 +41,11 @@ public class SocketClient {
      * @param message string containing the message to send.
      */
     public void send(String message) throws IOException{
+        if(this.socket==null){
+            this.socket = new Socket(ip, port);
+            this.out = new DataOutputStream( socket.getOutputStream() );
+            this.in = new DataInputStream( socket.getInputStream() );
+        }
         this.out.writeUTF(message);
         this.out.flush();
         this.in.readUTF();
@@ -60,7 +59,7 @@ public class SocketClient {
             this.out.close();
             this.socket.close();
         } catch (IOException ex) {
-            Logger.getLogger(SocketClient.class.getName()).log(Level.SEVERE, null, ex);
+//            Logger.getLogger(SocketClient.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
