@@ -45,6 +45,7 @@ public class LoadBalancer implements MessageProcessor{
     @Override
     public String processMessage(String message) {
         String[] processed = message.split("-");
+        
         if(processed.length==1){
             LoadDistributor ld = new LoadDistributor((List<String>)Arrays.asList(message));
             Thread ldt = new Thread(ld);
@@ -89,12 +90,13 @@ public class LoadBalancer implements MessageProcessor{
 
         @Override
         public void run() {
-            String[] server;
             try {
-                server = this.myClient.send("leastOccupiedServer").split("-"); //serverInfo-serverId-serverIp-serverPort
+                String[] server = this.myClient.send("leastOccupiedServer").split("-"); //serverInfo-serverId-serverIp-serverPort
+                System.out.println(Arrays.deepToString(server));
                 if(Integer.valueOf(server[1])==-1){
                     for(String msg:messages){
-                        String[] processed = msg.split("\\|");
+                        String[] tmp=msg.replaceAll("\\s+","").split("\\|");
+                        String[] processed = Arrays.copyOfRange(tmp, 1, tmp.length);
                         String[] client = this.myClient.send("clientInfo-"+processed[0]).split("-");//clientInfo-clientId-clientIp-clientPort
                         SocketClient clientSocketClient=new SocketClient(client[2], Integer.valueOf(client[3]));
                         clientSocketClient.send("Server unavailable. Try later.");
@@ -105,7 +107,9 @@ public class LoadBalancer implements MessageProcessor{
                     SocketClient clientSocket=new SocketClient(server[2], Integer.valueOf(server[3]));
                     try {
                         for(String msg:messages){
-                            String[] processed = msg.split("\\|");
+                            String[] tmp=msg.replaceAll("\\s+","").split("\\|");
+                            String[] processed = Arrays.copyOfRange(tmp, 1, tmp.length);
+                            System.out.println(Arrays.deepToString(processed));
                             String[] client = this.myClient.send("clientInfo-"+processed[0]).split("-");//clientInfo-clientId-clientIp-clientPort
                             clientSocket.send("request-"+client[2]+"-"+client[3]+"-"+msg);
                         }

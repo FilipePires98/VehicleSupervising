@@ -74,11 +74,10 @@ public class SocketServer implements Runnable{
                 DataOutputStream socketOutputStream = new DataOutputStream(inSocket.getOutputStream());
                 String receivedMessage="a";
                 while(!receivedMessage.equals("exit")){
-                        receivedMessage=socketInputStream.readUTF();
-                        System.out.println("Transmitted Message: "+receivedMessage);
-                        String response = mp.processMessage(receivedMessage);
-                        socketOutputStream.writeUTF(response);
-
+                    receivedMessage=socketInputStream.readUTF();
+                    System.out.println("Transmitted Message: "+receivedMessage);
+                    String response = mp.processMessage(receivedMessage);
+                    socketOutputStream.writeUTF(response);
                 }
                 inSocket.close();
                 continueRunning=false;

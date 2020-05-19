@@ -8,6 +8,7 @@ package LoadBalancerTacticManager;
 import common.MessageProcessor;
 import common.SocketServer;
 import entities.UiController;
+import java.util.Arrays;
 
 /**
  *
@@ -33,11 +34,11 @@ public class TacticManager implements MessageProcessor{
     @Override
     public String processMessage(String message) {
         String[] p=message.split("-");
-        if(p[0]=="leastOccupiedServer"){//leastOcuppiedServer
+        if(p[0].equals("leastOccupiedServer")){//leastOcuppiedServer
             ServerInfo si = ci.leastOccupiedServer();
             return "serverInfo-"+si.getId()+"-"+si.getHost()+"-"+si.getPort();
         }
-        else if(p[0]=="clientInfo"){//clientInfo-clientId
+        else if(p[0].equals("clientInfo")){//clientInfo-clientId
             ClientInfo clientInfo=ci.getClient(Integer.valueOf(p[1]));
             return "clientInfo-"+clientInfo.getId()+"-"+clientInfo.getHost()+"-"+clientInfo.getPort();
         }

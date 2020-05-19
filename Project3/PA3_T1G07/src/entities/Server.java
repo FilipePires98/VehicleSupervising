@@ -3,6 +3,7 @@ package entities;
 import common.*;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -249,7 +250,8 @@ public class Server extends javax.swing.JFrame implements MessageProcessor {
         
         public PiCalculation(String clientHost, int clientPort, String message){
             this.message=message;
-            this.processedMessage = message.split("|");
+            String[] tmp=message.replaceAll("\\s+","").split("\\|");
+            this.processedMessage = Arrays.copyOfRange(tmp, 1, tmp.length);
             for(String m: this.processedMessage) {
                 m = m.trim();
             }

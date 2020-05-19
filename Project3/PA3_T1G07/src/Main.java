@@ -8,8 +8,11 @@ import org.apache.commons.cli.*;
 
 public class Main {
     
-    private static final String mainServerHost="localhost";
-    private static final int mainServerPort=6001;
+    private static final String monitorServerHost="localhost";
+    private static final int monitorServerPort=6001;
+    
+    private static final String loadServerHost="localhost";
+    private static final int loadServerPort=6000;
 
     public static void main(String[] args) {
         
@@ -63,10 +66,10 @@ public class Main {
         commands[0] = "java -cp " + jars + userDir + "/build/classes entities." + entities[0]; // launch LB/M
         for(int i=1; i<commands.length; i++) {
             if(i>=1+ns) { 
-                commands[i] = "java -cp " + jars + userDir + "/build/classes entities." + entities[2] + " " + (6200+clientID) + " " + mainServerHost + " " + mainServerPort; // launch Clients
+                commands[i] = "java -cp " + jars + userDir + "/build/classes entities." + entities[2] + " " + (6200+clientID) + " " + loadServerHost + " " + loadServerPort; // launch Clients
                 clientID++;
             } else { 
-                commands[i] = "java -cp " + jars + userDir + "/build/classes entities." + entities[1] + " " + (6100+serverID) + " " + mainServerHost + " " + mainServerPort; // launch Servers
+                commands[i] = "java -cp " + jars + userDir + "/build/classes entities." + entities[1] + " " + (6100+serverID) + " " + monitorServerHost + " " + monitorServerPort; // launch Servers
                 serverID++;
             }
         }

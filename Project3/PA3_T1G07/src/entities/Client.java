@@ -288,7 +288,7 @@ public class Client extends javax.swing.JFrame implements MessageProcessor{
     }
 
     @Override
-    public void processMessage(String message) {
+    public String processMessage(String message) {
         String[] processedMessage;
         if(message.contains("-")) {
             processedMessage = message.split("-");
