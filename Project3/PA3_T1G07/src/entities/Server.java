@@ -14,28 +14,24 @@ import java.util.logging.Logger;
 public class Server extends javax.swing.JFrame implements MessageProcessor {
     
     private int id;
-    private final int port;
     private SocketServer socketServer;
     private Thread serverThread;
-    private final String mainServerHost;
-    private final Integer mainServerPort;
     private List<String> processingRequests;
     private List<String> processedRequests;
+    
     /**
      * Creates new form Server
      */
     public Server(String args[]) {
-        this.port = Integer.valueOf(args[0]);
-        this.mainServerHost = args[1];
-        this.mainServerPort = Integer.valueOf(args[2]);
-        
         this.processingRequests=new ArrayList();
         this.processedRequests=new ArrayList();
-        this.socketServer = new SocketServer(this.port, this);
-        this.serverThread = new Thread(socketServer);
-        this.serverThread.start();
-        this.initManagerClient();
+        
         initComponents();
+        this.setTitle("Server");
+        this.host.setText("localhost");
+        this.port.setText(args[0]);
+        this.mainServerHost.setText(args[1]);
+        this.mainServerPort.setText(args[2]);
     }
 
     /**
@@ -52,9 +48,18 @@ public class Server extends javax.swing.JFrame implements MessageProcessor {
         processing = new javax.swing.JList<>();
         jScrollPane2 = new javax.swing.JScrollPane();
         processed = new javax.swing.JList<>();
+        jLabel1 = new javax.swing.JLabel();
+        mainServerHost = new javax.swing.JTextField();
+        mainServerPort = new javax.swing.JTextField();
+        confirm = new javax.swing.JButton();
+        jLabel2 = new javax.swing.JLabel();
+        host = new javax.swing.JTextField();
+        port = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setPreferredSize(new java.awt.Dimension(420, 180));
+        setMaximumSize(new java.awt.Dimension(1920, 1080));
+        setMinimumSize(new java.awt.Dimension(556, 217));
+        setPreferredSize(new java.awt.Dimension(556, 217));
 
         stop.setText("Stop");
         stop.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -66,6 +71,17 @@ public class Server extends javax.swing.JFrame implements MessageProcessor {
         jScrollPane1.setViewportView(processing);
 
         jScrollPane2.setViewportView(processed);
+
+        jLabel1.setText("Main Server:");
+
+        confirm.setText("Confirm");
+        confirm.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                confirmMouseClicked(evt);
+            }
+        });
+
+        jLabel2.setText("Server:");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -81,6 +97,21 @@ public class Server extends javax.swing.JFrame implements MessageProcessor {
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(stop, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(jLabel2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(host, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(port, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(mainServerHost, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(mainServerPort, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(confirm)
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -88,7 +119,16 @@ public class Server extends javax.swing.JFrame implements MessageProcessor {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(mainServerHost, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel1)
+                    .addComponent(mainServerPort, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(confirm)
+                    .addComponent(jLabel2)
+                    .addComponent(host, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(port, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane1)
                     .addComponent(jScrollPane2))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -101,7 +141,7 @@ public class Server extends javax.swing.JFrame implements MessageProcessor {
 
     private void stopMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_stopMouseClicked
         try {
-            SocketClient socketManager = new SocketClient(this.mainServerHost, this.mainServerPort);
+            SocketClient socketManager = new SocketClient(this.mainServerHost.getText(), Integer.valueOf(this.mainServerPort.getText()));
             socketManager.send("serverDown-" + this.id);
             socketManager.close();
             System.exit(0);
@@ -110,6 +150,20 @@ public class Server extends javax.swing.JFrame implements MessageProcessor {
         }
         
     }//GEN-LAST:event_stopMouseClicked
+
+    private void confirmMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_confirmMouseClicked
+        this.socketServer = new SocketServer(Integer.valueOf(this.port.getText()), this);
+        this.serverThread = new Thread(socketServer);
+        this.serverThread.start();
+
+        this.initManagerClient();
+        
+        this.confirm.setEnabled(false);
+        this.host.setEnabled(false);
+        this.port.setEnabled(false);
+        this.mainServerHost.setEnabled(false);
+        this.mainServerPort.setEnabled(false);
+    }//GEN-LAST:event_confirmMouseClicked
 
     /**
      * @param args the command line arguments
@@ -148,8 +202,8 @@ public class Server extends javax.swing.JFrame implements MessageProcessor {
     
     public void initManagerClient(){
         try {
-            SocketClient socketManager = new SocketClient(this.mainServerHost, this.mainServerPort);
-            socketManager.send("newServer-localhost-" + this.port);
+            SocketClient socketManager = new SocketClient(this.mainServerHost.getText(), Integer.valueOf(this.mainServerPort.getText()));
+            socketManager.send("newServer-localhost-" + Integer.valueOf(this.port.getText()));
             socketManager.close();
         } catch (IOException ex) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
@@ -167,7 +221,7 @@ public class Server extends javax.swing.JFrame implements MessageProcessor {
             case "healthcheck":// healthcheck
                 break;
             case "request": //request-clientHost-clientPort-request
-                SocketClient socketManager = new SocketClient(this.mainServerHost, this.mainServerPort);
+                SocketClient socketManager = new SocketClient(this.mainServerHost.getText(), Integer.valueOf(this.mainServerPort.getText()));
                 try {
                     socketManager.send("newRequest-"+this.id+"-" + processedMessage[3]);
                     socketManager.close();
@@ -220,7 +274,7 @@ public class Server extends javax.swing.JFrame implements MessageProcessor {
             }
             targetClient.close();
             
-            SocketClient socketManager = new SocketClient(mainServerHost, mainServerPort);
+            SocketClient socketManager = new SocketClient(mainServerHost.getText(), Integer.valueOf(mainServerPort.getText()));
             try {
                 socketManager.send("processedRequest-"+id+"-" + message);
             } catch (IOException ex) {
@@ -236,8 +290,15 @@ public class Server extends javax.swing.JFrame implements MessageProcessor {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton confirm;
+    private javax.swing.JTextField host;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JTextField mainServerHost;
+    private javax.swing.JTextField mainServerPort;
+    private javax.swing.JTextField port;
     private javax.swing.JList<String> processed;
     private javax.swing.JList<String> processing;
     private javax.swing.JButton stop;
