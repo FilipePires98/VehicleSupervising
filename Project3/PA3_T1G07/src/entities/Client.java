@@ -4,6 +4,8 @@ import common.MessageProcessor;
 import common.SocketClient;
 import common.SocketServer;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -25,6 +27,9 @@ public class Client extends javax.swing.JFrame implements MessageProcessor{
     private Thread socketThread;
     private final String mainServerHost;
     private final Integer mainServerPort;
+    private List<String> sentRequests;
+    private List<String> pendingRequests;
+    private List<String> executedRequests;
 
     /**
      * Creates new form Client
@@ -34,6 +39,9 @@ public class Client extends javax.swing.JFrame implements MessageProcessor{
         this.mainServerHost = args[1];
         this.mainServerPort = Integer.valueOf(args[2]);
         
+        this.sentRequests = new ArrayList();
+        this.pendingRequests = new ArrayList();
+        this.executedRequests = new ArrayList();
         
         this.socket = new SocketServer(this.port, this);
         this.socketThread = new Thread(socket);
@@ -62,21 +70,98 @@ public class Client extends javax.swing.JFrame implements MessageProcessor{
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jScrollPane1 = new javax.swing.JScrollPane();
+        pending = new javax.swing.JList<>();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        sent = new javax.swing.JList<>();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        executed = new javax.swing.JList<>();
+        send = new javax.swing.JButton();
+        stop = new javax.swing.JButton();
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        jScrollPane1.setViewportView(pending);
+
+        jScrollPane2.setViewportView(sent);
+
+        jScrollPane3.setViewportView(executed);
+
+        send.setText("Send");
+        send.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                sendMouseClicked(evt);
+            }
+        });
+
+        stop.setText("Stop");
+        stop.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                stopMouseClicked(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 202, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 204, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(send)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(stop)
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1)
+                    .addComponent(jScrollPane3)
+                    .addComponent(jScrollPane2))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(send)
+                    .addComponent(stop))
+                .addGap(6, 6, 6))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void sendMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_sendMouseClicked
+        String message = "request-localhost-"+this.port+"-request";
+        sentRequests.add(message);
+        updateSent();
+        try {
+            SocketClient socketManager = new SocketClient(this.mainServerHost, this.mainServerPort);
+            socketManager.send(message);
+            socketManager.close();
+        } catch (IOException ex) {
+            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_sendMouseClicked
+
+    private void stopMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_stopMouseClicked
+        try {
+            SocketClient socketManager = new SocketClient(this.mainServerHost, this.mainServerPort);
+            socketManager.send("clientDown-" + this.id);
+            socketManager.close();
+            System.exit(0);
+        } catch (IOException ex) {
+            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_stopMouseClicked
 
     /**
      * @param args the command line arguments
@@ -121,6 +206,9 @@ public class Client extends javax.swing.JFrame implements MessageProcessor{
                 this.id=Integer.valueOf(processedMessage[1]);
                 this.setTitle("Client #" + this.id);
                 break;
+            case "pendingMsg":
+                sentRequests.add(message);
+                updateSent();
             default:
                 break;
         }
@@ -128,5 +216,32 @@ public class Client extends javax.swing.JFrame implements MessageProcessor{
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JList<String> executed;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JList<String> pending;
+    private javax.swing.JButton send;
+    private javax.swing.JList<String> sent;
+    private javax.swing.JButton stop;
     // End of variables declaration//GEN-END:variables
+
+    private void updateSent(){
+        String[] tmp = new String[sentRequests.size()];
+        sentRequests.toArray(tmp);
+        sent.setListData(tmp);
+    }
+
+    private void updatePending(){
+        String[] tmp = new String[pendingRequests.size()];
+        pendingRequests.toArray(tmp);
+        pending.setListData(tmp);
+    }
+    
+    private void updateExecuted(){
+        String[] tmp = new String[executedRequests.size()];
+        executedRequests.toArray(tmp);
+        executed.setListData(tmp);
+    }
+
 }

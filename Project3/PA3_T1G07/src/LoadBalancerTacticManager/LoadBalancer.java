@@ -22,8 +22,8 @@ public class LoadBalancer implements MessageProcessor{
     
     private SocketServer server;
     private Thread serverThread;
-    private final String monitorIp;
-    private final int monitorPort;
+    private String monitorIp;
+    private int monitorPort;
     private SocketClient monitorClient;
     
     public LoadBalancer(String monitorIp, int monitorPort) {
@@ -36,7 +36,10 @@ public class LoadBalancer implements MessageProcessor{
     }
     
     public void updateTacticMonitor(String endpoint, int port){
-        
+        this.monitorIp=endpoint;
+        this.monitorPort=port;
+        this.monitorClient.close();
+        this.monitorClient=new SocketClient(endpoint, port);
     }
 
     @Override
@@ -48,18 +51,16 @@ public class LoadBalancer implements MessageProcessor{
             ldt.start();
         }else{
             switch(processed[0]){
-                case "newClient":
+                case "newClient":// newClient-clientHost-clientPort
                     try {
-                        // newClient-clientHost-clientPort
                         monitorClient.send("newClient-"+processed[1]+"-"+processed[2]);
                     } catch (IOException ex) {
                         Logger.getLogger(LoadBalancer.class.getName()).log(Level.SEVERE, null, ex);
                     }
                     break;
 
-                case "clientDown": 
+                case "clientDown": // clientDown-clientId
                     try {
-                        // clientDown-clientId
                         monitorClient.send("clientDown-"+processed[1]);
                     } catch (IOException ex) {
                         Logger.getLogger(LoadBalancer.class.getName()).log(Level.SEVERE, null, ex);

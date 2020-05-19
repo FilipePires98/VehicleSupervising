@@ -57,7 +57,10 @@ public class ClusterInfo {
     }
     
     public void updateLoadBalancer(String ip, int port){
-        
+        this.balancerIp=ip;
+        this.balancerPort=port;
+        this.loadBalancer.close();
+        this.loadBalancer=new SocketClient(ip, port);
     }
 
     public ServerInfo leastOccupiedServer() {
@@ -193,7 +196,6 @@ public class ClusterInfo {
         processed.toArray(tmp);
         uc.addProcessedMessage(tmp);
     }
-    
     
     private class HealthCheck implements Runnable{
 
