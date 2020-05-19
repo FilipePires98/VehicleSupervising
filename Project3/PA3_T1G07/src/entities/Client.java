@@ -114,7 +114,7 @@ public class Client extends javax.swing.JFrame implements MessageProcessor{
     }
 
     @Override
-    public void processMessage(String message) {
+    public String processMessage(String message) {
         String[] processedMessage = message.split("-");
         switch(processedMessage[0]){
             case "clientId":
@@ -124,6 +124,7 @@ public class Client extends javax.swing.JFrame implements MessageProcessor{
             default:
                 break;
         }
+        return "Message processed with success.";
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

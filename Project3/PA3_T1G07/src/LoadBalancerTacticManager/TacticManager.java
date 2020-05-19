@@ -6,15 +6,8 @@
 package LoadBalancerTacticManager;
 
 import common.MessageProcessor;
-import common.SocketClient;
 import common.SocketServer;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import entities.UiController;
 
 /**
  *
@@ -26,20 +19,34 @@ public class TacticManager implements MessageProcessor{
     private Thread serverThread;
     private ClusterInfo ci;
     
-    public TacticManager(ClusterInfo ci) {
+    public TacticManager(String loadIp, int loadPort, UiController uc) {
         this.server = new SocketServer(6001, this);
         this.serverThread = new Thread(server);
         this.serverThread.start();
-        this.ci=ci;
+        this.ci=new ClusterInfo(loadIp, loadPort, uc);
     }
 
+    public void updateLoadBalancer(String ip, int port){
+        this.ci.updateLoadBalancer(ip, port);
+    }
     
     @Override
-    public void processMessage(String message) {
-        UpdateStatus us = new UpdateStatus(message);
-        Thread ust = new Thread(us);
-        ust.start();
-        
+    public String processMessage(String message) {
+        String[] p=message.split("-");
+        if(p[0]=="leastOccupiedServer"){//leastOcuppiedServer
+            ServerInfo si = ci.leastOccupiedServer();
+            return "serverInfo-"+si.getId()+"-"+si.getHost()+"-"+si.getPort();
+        }
+        else if(p[0]=="clientInfo"){//clientInfo-clientId
+            ClientInfo clientInfo=ci.getClient(Integer.valueOf(p[1]));
+            return "clientInfo-"+clientInfo.getId()+"-"+clientInfo.getHost()+"-"+clientInfo.getPort();
+        }
+        else{
+            UpdateStatus us = new UpdateStatus(message);
+            Thread ust = new Thread(us);
+            ust.start();
+            return "Message porcessed with success.";
+        }
     }
     
     private class UpdateStatus implements Runnable{

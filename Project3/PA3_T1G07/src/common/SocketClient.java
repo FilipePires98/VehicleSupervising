@@ -40,7 +40,7 @@ public class SocketClient {
      * Sends a text message to the subscribed socket server. 
      * @param message string containing the message to send.
      */
-    public void send(String message) throws IOException{
+    public String send(String message) throws IOException{
         if(this.socket==null){
             this.socket = new Socket(ip, port);
             this.out = new DataOutputStream( socket.getOutputStream() );
@@ -48,7 +48,7 @@ public class SocketClient {
         }
         this.out.writeUTF(message);
         this.out.flush();
-        this.in.readUTF();
+        return this.in.readUTF();
     }
     
     /**

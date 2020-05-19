@@ -27,9 +27,8 @@ public class LoadBalancerTacticManager extends javax.swing.JFrame implements UiC
     public LoadBalancerTacticManager(){
         this.setTitle("LB/M");
         initComponents();
-        ci=new ClusterInfo(this);
-        tm=new TacticManager(ci);
-        lb=new LoadBalancer(ci);
+        tm=new TacticManager("localhost", 6000, this);
+        lb=new LoadBalancer("localhost", 6001);
     }
 
     /**

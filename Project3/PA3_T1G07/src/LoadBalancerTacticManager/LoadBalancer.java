@@ -11,6 +11,8 @@ import common.SocketServer;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -20,24 +22,104 @@ public class LoadBalancer implements MessageProcessor{
     
     private SocketServer server;
     private Thread serverThread;
-    private ClusterInfo ci;
+    private final String monitorIp;
+    private final int monitorPort;
+    private SocketClient monitorClient;
     
-    public LoadBalancer(ClusterInfo ci) {
+    public LoadBalancer(String monitorIp, int monitorPort) {
+        this.monitorIp=monitorIp;
+        this.monitorPort=monitorPort;
         this.server = new SocketServer(6000, this);
         this.serverThread = new Thread(server);
         this.serverThread.start();
-        this.ci=ci;
+        this.monitorClient=new SocketClient(monitorIp, monitorPort);
     }
-
-    public void setClusterInfo(ClusterInfo ci) {
-        this.ci=ci;
+    
+    public void updateTacticMonitor(String endpoint, int port){
+        
     }
 
     @Override
-    public void processMessage(String message) {
-        LoadDistributor ld = new LoadDistributor(ci,(List<String>)Arrays.asList(message));
-        Thread ldt = new Thread(ld);
-        ldt.start();
+    public String processMessage(String message) {
+        String[] processed = message.split("-");
+        if(processed.length==1){
+            LoadDistributor ld = new LoadDistributor((List<String>)Arrays.asList(message));
+            Thread ldt = new Thread(ld);
+            ldt.start();
+        }else{
+            switch(processed[0]){
+                case "newClient":
+                    try {
+                        // newClient-clientHost-clientPort
+                        monitorClient.send("newClient-"+processed[1]+"-"+processed[2]);
+                    } catch (IOException ex) {
+                        Logger.getLogger(LoadBalancer.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    break;
+
+                case "clientDown": 
+                    try {
+                        // clientDown-clientId
+                        monitorClient.send("clientDown-"+processed[1]);
+                    } catch (IOException ex) {
+                        Logger.getLogger(LoadBalancer.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    break;
+
+                case "sendMessages": //sendMessages-messages(separated by '-')
+                    LoadDistributor ld = new LoadDistributor((List<String>)Arrays.asList(Arrays.copyOfRange(processed, 1, processed.length)));
+                    Thread ldt = new Thread(ld);
+                    ldt.start();
+                    break;
+            }
+        }
+        return "Message processed with success.";
+    }
+    
+    public class LoadDistributor implements Runnable{
+        
+        private List<String> messages;
+        private SocketClient myClient;
+
+        public LoadDistributor(List<String> messages) {
+            this.messages = messages;
+            this.myClient=new SocketClient(monitorIp, monitorPort);
+        }
+
+        @Override
+        public void run() {
+            String[] server;
+            try {
+                server = this.myClient.send("leastOccupiedServer").split("-"); //serverInfo-serverId-serverIp-serverPort
+                if(Integer.valueOf(server[1])==-1){
+                    for(String msg:messages){
+                        String[] processed = msg.split("\\|");
+                        String[] client = this.myClient.send("clientInfo-"+processed[0]).split("-");//clientInfo-clientId-clientIp-clientPort
+                        SocketClient clientSocketClient=new SocketClient(client[2], Integer.valueOf(client[3]));
+                        clientSocketClient.send("Server unavailable. Try later.");
+                        clientSocketClient.close();
+                    }
+                }
+                else{
+                    SocketClient clientSocket=new SocketClient(server[2], Integer.valueOf(server[3]));
+                    try {
+                        for(String msg:messages){
+                            String[] processed = msg.split("\\|");
+                            String[] client = this.myClient.send("clientInfo-"+processed[0]).split("-");//clientInfo-clientId-clientIp-clientPort
+                            clientSocket.send("request-"+client[2]+"-"+client[3]+"-"+msg);
+                        }
+                    } catch (IOException ex) {
+                        this.myClient.send("serverDown-"+server[1]);
+                    }
+                    clientSocket.close();
+                }
+            } catch (IOException ex) {
+                Logger.getLogger(LoadBalancer.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            
+        }
+
     }
     
 }

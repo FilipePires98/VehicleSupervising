@@ -6,6 +6,6 @@ package common;
  */
 public interface MessageProcessor {
 
-    void processMessage(String message);
+    String processMessage(String message);
     
 }
