@@ -211,7 +211,7 @@ public class Server extends javax.swing.JFrame implements MessageProcessor {
     }
 
     @Override
-    public void processMessage(String message) {
+    public String processMessage(String message) {
         String[] processedMessage = message.split("-");
         switch(processedMessage[0]){
             case "serverId"://serverId-id
@@ -237,6 +237,7 @@ public class Server extends javax.swing.JFrame implements MessageProcessor {
                 break;
 
         }
+        return "Message processed with success.";
     }
     
     private class PiCalculation implements Runnable{

@@ -301,6 +301,7 @@ public class Client extends javax.swing.JFrame implements MessageProcessor{
             updatePending();
             updateExecuted();
         }
+        return "Message processed with success.";
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

@@ -9,8 +9,6 @@ import common.SocketClient;
 import entities.UiController;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -37,8 +35,12 @@ public class ClusterInfo {
     private final Thread healthCheckerThread;
     
     private UiController uc;
+    
+    private SocketClient loadBalancer;
+    private String balancerIp;
+    private int balancerPort;
 
-    public ClusterInfo(UiController uc) {
+    public ClusterInfo(String balancerIp, int balancerPort, UiController uc) {
         this.uc=uc;
         this.serverInfo=new HashMap();
         this.clientInfo=new HashMap();
@@ -49,22 +51,29 @@ public class ClusterInfo {
         this.healthChecker=new HealthCheck();
         this.healthCheckerThread=new Thread(this.healthChecker);
         this.healthCheckerThread.start();
+        this.balancerIp=balancerIp;
+        this.balancerPort=balancerPort;
+        this.loadBalancer=new SocketClient(balancerIp, balancerPort);
     }
     
+    public void updateLoadBalancer(String ip, int port){
+        this.balancerIp=ip;
+        this.balancerPort=port;
+        this.loadBalancer.close();
+        this.loadBalancer=new SocketClient(ip, port);
+    }
+
     public ServerInfo leastOccupiedServer() {
         rl.lock();
         List<ServerInfo> servers = new ArrayList(serverInfo.values());
-        try{
-            while(servers.size()==0){
-                serversUp.await();
-            }
-            Collections.sort(servers);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(ClusterInfo.class.getName()).log(Level.SEVERE, null, ex);
-        }finally{
-            rl.unlock();
+        Collections.sort(servers);
+        rl.unlock();
+        if(servers.size()>0){
+            return servers.get(0);
         }
-        return servers.get(0);
+        else{
+            return new ServerInfo(-1,"none",-1);
+        }
     }
     
     public void addClient(String host, int port){
@@ -108,7 +117,6 @@ public class ClusterInfo {
             removeServer(id);
         }
         client.close();
-        serversUp.signalAll();
         updateServers();
         rl.unlock();
     }
@@ -118,9 +126,15 @@ public class ClusterInfo {
         ServerInfo si=serverInfo.get(id);
         List<String> messages=si.getRequests();
         serverInfo.remove(id);
-        LoadDistributor ld = new LoadDistributor(this,messages);
-        Thread ldt = new Thread(ld);
-        ldt.start();
+        String messageToLoadBalancer="sendMessages";
+        for(String msg : messages){
+            messageToLoadBalancer+="-"+msg;
+        }
+        try {
+            this.loadBalancer.send(messageToLoadBalancer);
+        } catch (IOException ex) {
+            Logger.getLogger(ClusterInfo.class.getName()).log(Level.SEVERE, null, ex);
+        }
         updateServers();
         rl.unlock();
     }

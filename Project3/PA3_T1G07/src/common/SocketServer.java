@@ -76,8 +76,8 @@ public class SocketServer implements Runnable{
                 while(!receivedMessage.equals("exit")){
                         receivedMessage=socketInputStream.readUTF();
                         System.out.println("Transmitted Message: "+receivedMessage);
-                        mp.processMessage(receivedMessage);
-                        socketOutputStream.writeUTF("Message Processed");
+                        String response = mp.processMessage(receivedMessage);
+                        socketOutputStream.writeUTF(response);
 
                 }
                 inSocket.close();
