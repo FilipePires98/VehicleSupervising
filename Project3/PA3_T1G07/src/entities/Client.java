@@ -86,7 +86,6 @@ public class Client extends javax.swing.JFrame implements MessageProcessor{
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setMaximumSize(new java.awt.Dimension(1920, 1080));
         setMinimumSize(new java.awt.Dimension(551, 217));
-        setPreferredSize(new java.awt.Dimension(551, 217));
 
         jScrollPane1.setViewportView(pending);
 
@@ -109,7 +108,7 @@ public class Client extends javax.swing.JFrame implements MessageProcessor{
             }
         });
 
-        nIter.setModel(new javax.swing.SpinnerNumberModel(1, 1, 10, 1));
+        nIter.setModel(new javax.swing.SpinnerNumberModel(1, 0, 10, 1));
 
         jLabel1.setText("# of Iter:");
 
