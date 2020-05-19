@@ -92,7 +92,6 @@ public class LoadBalancer implements MessageProcessor{
         public void run() {
             try {
                 String[] server = this.myClient.send("leastOccupiedServer").split("-"); //serverInfo-serverId-serverIp-serverPort
-                System.out.println(Arrays.deepToString(server));
                 if(Integer.valueOf(server[1])==-1){
                     for(String msg:messages){
                         String[] tmp=msg.replaceAll("\\s+","").split("\\|");
@@ -109,7 +108,6 @@ public class LoadBalancer implements MessageProcessor{
                         for(String msg:messages){
                             String[] tmp=msg.replaceAll("\\s+","").split("\\|");
                             String[] processed = Arrays.copyOfRange(tmp, 1, tmp.length);
-                            System.out.println(Arrays.deepToString(processed));
                             String[] client = this.myClient.send("clientInfo-"+processed[0]).split("-");//clientInfo-clientId-clientIp-clientPort
                             clientSocket.send("request-"+client[2]+"-"+client[3]+"-"+msg);
                         }

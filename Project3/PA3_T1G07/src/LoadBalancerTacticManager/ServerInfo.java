@@ -6,13 +6,14 @@
 package LoadBalancerTacticManager;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
  *
  * @author joaoalegria
  */
-public class ServerInfo implements Comparable{
+public class ServerInfo implements Comparable<ServerInfo>{
     
     private int id;
     private String host;
@@ -51,15 +52,8 @@ public class ServerInfo implements Comparable{
     }
     
     @Override
-    public int compareTo(Object t) {
-        ServerInfo other=(ServerInfo)t;
-        if(this.requests.size()==other.getRequests().size()){
-            return 0;
-        }else if(this.requests.size()>other.getRequests().size()){
-            return 1;
-        }else{
-            return -1;
-        }
+    public int compareTo(ServerInfo t) {
+        return this.requests.size()-t.getRequests().size();
     }
     
     
