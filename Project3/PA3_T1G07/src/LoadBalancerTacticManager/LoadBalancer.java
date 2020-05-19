@@ -92,13 +92,13 @@ public class LoadBalancer implements MessageProcessor{
         public void run() {
             try {
                 String[] server = this.myClient.send("leastOccupiedServer").split("-"); //serverInfo-serverId-serverIp-serverPort
-                if(Integer.valueOf(server[1])==-1){
+                if(server[1].equals("none")){
                     for(String msg:messages){
                         String[] tmp=msg.replaceAll("\\s+","").split("\\|");
                         String[] processed = Arrays.copyOfRange(tmp, 1, tmp.length);
                         String[] client = this.myClient.send("clientInfo-"+processed[0]).split("-");//clientInfo-clientId-clientIp-clientPort
                         SocketClient clientSocketClient=new SocketClient(client[2], Integer.valueOf(client[3]));
-                        clientSocketClient.send("Server unavailable. Try later.");
+                        clientSocketClient.send("| None | "+processed[0]+" | "+processed[1]+" | Server unavailable.");
                         clientSocketClient.close();
                     }
                 }

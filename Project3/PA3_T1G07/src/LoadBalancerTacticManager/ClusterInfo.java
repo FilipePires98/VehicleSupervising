@@ -161,6 +161,7 @@ public class ClusterInfo {
         serverInfo.get(id).addRequest(request);
         processing.add(request+"  |  Server: "+id);
         updateProcessingRequests();
+        updateServers();
         rl.unlock();
     }
     
@@ -171,6 +172,7 @@ public class ClusterInfo {
         processed.add(request+"  |  Server: "+id);
         updateProcessingRequests();
         updateProcessedRequests();
+        updateServers();
         rl.unlock();
     }
     

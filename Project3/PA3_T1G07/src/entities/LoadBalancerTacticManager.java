@@ -4,6 +4,7 @@ import LoadBalancerTacticManager.ClusterInfo;
 import LoadBalancerTacticManager.LoadBalancer;
 import LoadBalancerTacticManager.TacticManager;
 import common.Utilities;
+import java.awt.Color;
 import java.awt.event.WindowEvent;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -64,6 +65,7 @@ public class LoadBalancerTacticManager extends javax.swing.JFrame implements UiC
         hostLB = new javax.swing.JTextField();
         portLB = new javax.swing.JTextField();
         confirm = new javax.swing.JButton();
+        status = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setMaximumSize(new java.awt.Dimension(1920, 1080));
@@ -117,6 +119,12 @@ public class LoadBalancerTacticManager extends javax.swing.JFrame implements UiC
             }
         });
 
+        status.setEditable(false);
+        status.setBackground(java.awt.Color.red);
+        status.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        status.setText("Status");
+        status.setFocusable(false);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -151,13 +159,16 @@ public class LoadBalancerTacticManager extends javax.swing.JFrame implements UiC
                         .addComponent(portLB, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(confirm)
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(status))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
+                .addComponent(status, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(confirm)
                     .addComponent(jLabel1)
@@ -168,7 +179,7 @@ public class LoadBalancerTacticManager extends javax.swing.JFrame implements UiC
                     .addComponent(portLB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane6, javax.swing.GroupLayout.DEFAULT_SIZE, 65, Short.MAX_VALUE)
+                    .addComponent(jScrollPane6, javax.swing.GroupLayout.DEFAULT_SIZE, 30, Short.MAX_VALUE)
                     .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
                 .addGap(6, 6, 6)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
@@ -229,6 +240,7 @@ public class LoadBalancerTacticManager extends javax.swing.JFrame implements UiC
         this.portLB.setEnabled(false);
         this.newServer.setEnabled(true);
         this.newClient.setEnabled(true);
+        status.setBackground(Color.green);
     }//GEN-LAST:event_confirmMouseClicked
 
     private void portLBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_portLBActionPerformed
@@ -286,6 +298,7 @@ public class LoadBalancerTacticManager extends javax.swing.JFrame implements UiC
     private javax.swing.JTextField portTM;
     private javax.swing.JList<String> processedRequests;
     private javax.swing.JList<String> processingRequests;
+    private javax.swing.JTextField status;
     private javax.swing.JButton stop;
     private javax.swing.JList<String> upServers;
     // End of variables declaration//GEN-END:variables

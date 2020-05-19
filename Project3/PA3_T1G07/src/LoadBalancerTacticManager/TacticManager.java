@@ -36,7 +36,11 @@ public class TacticManager implements MessageProcessor{
         String[] p=message.split("-");
         if(p[0].equals("leastOccupiedServer")){//leastOcuppiedServer
             ServerInfo si = ci.leastOccupiedServer();
-            return "serverInfo-"+si.getId()+"-"+si.getHost()+"-"+si.getPort();
+            if(si.getId()==-1){
+                return "serverInfo-none-none-none";
+            }else{
+                return "serverInfo-"+si.getId()+"-"+si.getHost()+"-"+si.getPort();
+            }
         }
         else if(p[0].equals("clientInfo")){//clientInfo-clientId
             ClientInfo clientInfo=ci.getClient(Integer.valueOf(p[1]));

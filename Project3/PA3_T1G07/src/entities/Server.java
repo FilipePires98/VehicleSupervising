@@ -1,6 +1,7 @@
 package entities;
 
 import common.*;
+import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -56,6 +57,7 @@ public class Server extends javax.swing.JFrame implements MessageProcessor {
         jLabel2 = new javax.swing.JLabel();
         host = new javax.swing.JTextField();
         port = new javax.swing.JTextField();
+        status = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setMinimumSize(new java.awt.Dimension(582, 217));
@@ -82,6 +84,12 @@ public class Server extends javax.swing.JFrame implements MessageProcessor {
 
         jLabel2.setText("Server:");
 
+        status.setEditable(false);
+        status.setBackground(java.awt.Color.red);
+        status.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        status.setText("Status");
+        status.setFocusable(false);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -89,6 +97,7 @@ public class Server extends javax.swing.JFrame implements MessageProcessor {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(status)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jScrollPane1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -97,7 +106,7 @@ public class Server extends javax.swing.JFrame implements MessageProcessor {
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(stop, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(0, 0, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                    .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(host, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -118,6 +127,8 @@ public class Server extends javax.swing.JFrame implements MessageProcessor {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
+                .addComponent(status, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(mainServerHost, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel1)
@@ -128,8 +139,8 @@ public class Server extends javax.swing.JFrame implements MessageProcessor {
                     .addComponent(port, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1)
-                    .addComponent(jScrollPane2))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 95, Short.MAX_VALUE)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 95, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(stop)
                 .addContainerGap())
@@ -151,17 +162,18 @@ public class Server extends javax.swing.JFrame implements MessageProcessor {
     }//GEN-LAST:event_stopMouseClicked
 
     private void confirmMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_confirmMouseClicked
-        this.socketServer = new SocketServer(Integer.valueOf(this.port.getText()), this);
-        this.serverThread = new Thread(socketServer);
-        this.serverThread.start();
-
-        this.initManagerClient();
-        
-        this.confirm.setEnabled(false);
-        this.host.setEnabled(false);
-        this.port.setEnabled(false);
-        this.mainServerHost.setEnabled(false);
-        this.mainServerPort.setEnabled(false);
+        if(this.socketServer==null){
+            this.socketServer = new SocketServer(Integer.valueOf(this.port.getText()), this);
+            this.serverThread = new Thread(socketServer);
+            this.serverThread.start();
+        }
+        if(this.initManagerClient()){
+            this.confirm.setEnabled(false);
+            this.host.setEnabled(false);
+            this.port.setEnabled(false);
+            this.mainServerHost.setEnabled(false);
+            this.mainServerPort.setEnabled(false);
+        }
     }//GEN-LAST:event_confirmMouseClicked
 
     /**
@@ -199,13 +211,17 @@ public class Server extends javax.swing.JFrame implements MessageProcessor {
         });
     }
     
-    public void initManagerClient(){
+    public boolean initManagerClient(){
         try {
             SocketClient socketManager = new SocketClient(this.mainServerHost.getText(), Integer.valueOf(this.mainServerPort.getText()));
             socketManager.send("newServer-localhost-" + Integer.valueOf(this.port.getText()));
             socketManager.close();
+            status.setBackground(Color.green);
+            return true;
         } catch (IOException ex) {
-            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+//            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            status.setBackground(Color.red);
+            return false;
         }
     }
 
@@ -302,6 +318,7 @@ public class Server extends javax.swing.JFrame implements MessageProcessor {
     private javax.swing.JTextField port;
     private javax.swing.JList<String> processed;
     private javax.swing.JList<String> processing;
+    private javax.swing.JTextField status;
     private javax.swing.JButton stop;
     // End of variables declaration//GEN-END:variables
 
