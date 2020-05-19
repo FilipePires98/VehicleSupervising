@@ -57,9 +57,7 @@ public class Server extends javax.swing.JFrame implements MessageProcessor {
         port = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setMaximumSize(new java.awt.Dimension(1920, 1080));
         setMinimumSize(new java.awt.Dimension(556, 217));
-        setPreferredSize(new java.awt.Dimension(556, 217));
 
         stop.setText("Stop");
         stop.addMouseListener(new java.awt.event.MouseAdapter() {
