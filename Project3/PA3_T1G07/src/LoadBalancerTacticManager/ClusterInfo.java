@@ -51,8 +51,6 @@ public class ClusterInfo {
         this.healthCheckerThread.start();
     }
     
-    
-
     public ServerInfo leastOccupiedServer() {
         rl.lock();
         List<ServerInfo> servers = new ArrayList(serverInfo.values());
@@ -184,7 +182,6 @@ public class ClusterInfo {
         processed.toArray(tmp);
         uc.addProcessedMessage(tmp);
     }
-    
     
     private class HealthCheck implements Runnable{
 
