@@ -95,6 +95,22 @@ public class ClusterInfo {
         rl.unlock();
     }
     
+    public int getnewServerID() {
+        int id=0;
+        while(serverInfo.keySet().contains(id)){
+            id++;
+        }
+        return id;
+    }
+    
+    public int getNewClientID() {
+        int id=0;
+        while(clientInfo.keySet().contains(id)){
+            id++;
+        }
+        return id;
+    }
+    
     public void removeClient(int id){
         rl.lock();
         clientInfo.remove(id);

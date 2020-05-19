@@ -26,10 +26,10 @@ public class LoadBalancer implements MessageProcessor{
     private int monitorPort;
     private SocketClient monitorClient;
     
-    public LoadBalancer(String monitorIp, int monitorPort) {
+    public LoadBalancer(int port, String monitorIp, int monitorPort) {
         this.monitorIp=monitorIp;
         this.monitorPort=monitorPort;
-        this.server = new SocketServer(6000, this);
+        this.server = new SocketServer(port, this);
         this.serverThread = new Thread(server);
         this.serverThread.start();
         this.monitorClient=new SocketClient(monitorIp, monitorPort);

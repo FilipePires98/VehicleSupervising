@@ -5,6 +5,7 @@ import common.SocketClient;
 import common.SocketServer;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -85,7 +86,7 @@ public class Client extends javax.swing.JFrame implements MessageProcessor{
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setMaximumSize(new java.awt.Dimension(1920, 1080));
-        setMinimumSize(new java.awt.Dimension(551, 217));
+        setMinimumSize(new java.awt.Dimension(577, 217));
 
         jScrollPane1.setViewportView(pending);
 
@@ -155,15 +156,16 @@ public class Client extends javax.swing.JFrame implements MessageProcessor{
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(host, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(port, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(port, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabel5)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(mainServerHost, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(mainServerPort, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(mainServerPort, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(confirm))
+                        .addComponent(confirm)
+                        .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -294,8 +296,17 @@ public class Client extends javax.swing.JFrame implements MessageProcessor{
             this.id=Integer.valueOf(processedMessage[1]);
             this.setTitle("Client #" + this.id);
         } else {
-            //processedMessage = message.split("|");
-            pendingRequests.remove(message);
+            String pending = "";
+            String[] tmp = message.replaceAll("\\s+","").split("\\|");
+            processedMessage = Arrays.copyOfRange(tmp, 1, tmp.length);
+            for(String p: pendingRequests) {
+                String[] tmp2 = message.replaceAll("\\s+","").split("\\|");
+                String[] processedP = Arrays.copyOfRange(tmp, 1, tmp.length);
+                if(Integer.valueOf(processedMessage[2]) == Integer.valueOf(processedP[2])) {
+                    pending = p; 
+                }
+            }
+            pendingRequests.remove(pending);
             executedRequests.add(message);
             updatePending();
             updateExecuted();

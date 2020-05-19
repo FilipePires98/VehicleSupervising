@@ -3,6 +3,10 @@ package entities;
 import LoadBalancerTacticManager.ClusterInfo;
 import LoadBalancerTacticManager.LoadBalancer;
 import LoadBalancerTacticManager.TacticManager;
+import common.Utilities;
+import java.awt.event.WindowEvent;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /*
@@ -27,10 +31,10 @@ public class LoadBalancerTacticManager extends javax.swing.JFrame implements UiC
     public LoadBalancerTacticManager(){
         this.setTitle("LB/M");
         initComponents();
-        this.hostTM.setText("localhost");
-        this.portTM.setText("6000");
         this.hostLB.setText("localhost");
-        this.portLB.setText("6001");
+        this.portLB.setText("6000");
+        this.hostTM.setText("localhost");
+        this.portTM.setText("6001");
     }
 
     /**
@@ -63,7 +67,7 @@ public class LoadBalancerTacticManager extends javax.swing.JFrame implements UiC
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setMaximumSize(new java.awt.Dimension(1920, 1080));
-        setMinimumSize(new java.awt.Dimension(635, 227));
+        setMinimumSize(new java.awt.Dimension(661, 227));
 
         jScrollPane1.setViewportView(upServers);
 
@@ -100,6 +104,12 @@ public class LoadBalancerTacticManager extends javax.swing.JFrame implements UiC
 
         jLabel2.setText("Load Balancer:");
 
+        portLB.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                portLBActionPerformed(evt);
+            }
+        });
+
         confirm.setText("Confirm");
         confirm.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -132,13 +142,13 @@ public class LoadBalancerTacticManager extends javax.swing.JFrame implements UiC
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(hostTM, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(portTM, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(portTM, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabel2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(hostLB, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(portLB, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(portLB, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(confirm)
                         .addGap(0, 0, Short.MAX_VALUE)))
@@ -177,20 +187,40 @@ public class LoadBalancerTacticManager extends javax.swing.JFrame implements UiC
     }// </editor-fold>//GEN-END:initComponents
 
     private void newServerMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_newServerMouseClicked
-        // TODO add your handling code here:
+        int serverID = tm.getNewServerID();
+        String userDir = System.getProperty("user.dir");
+        String jars = userDir + "/dist/lib/*:";
+        String[] commands = new String[1];
+        commands[0] = "java -cp " + jars + userDir + "/build/classes entities.Server "  + (6100+serverID+1) + " " + this.hostTM.getText() + " " + Integer.valueOf(this.portTM.getText()); // launch Servers
+        try {
+            Utilities.runProcess(commands);
+        } catch (Exception ex) {
+            System.err.println("Error: unable to assign process to an entity.");
+            ex.printStackTrace();
+        }
     }//GEN-LAST:event_newServerMouseClicked
 
     private void newClientMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_newClientMouseClicked
-        // TODO add your handling code here:
+        int clientID = tm.getNewClientID();
+        String userDir = System.getProperty("user.dir");
+        String jars = userDir + "/dist/lib/*:";
+        String[] commands = new String[1];
+        commands[0] = "java -cp " + jars + userDir + "/build/classes entities.Client " + (6200+clientID+1) + " " + this.hostLB.getText() + " " + Integer.valueOf(this.portLB.getText()); // launch Clients
+        try {
+            Utilities.runProcess(commands);
+        } catch (Exception ex) {
+            System.err.println("Error: unable to assign process to an entity.");
+            ex.printStackTrace();
+        }
     }//GEN-LAST:event_newClientMouseClicked
 
     private void stopMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_stopMouseClicked
-        // TODO add your handling code here:
+        this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
     }//GEN-LAST:event_stopMouseClicked
 
     private void confirmMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_confirmMouseClicked
-        this.tm=new TacticManager(this.hostTM.getText(), Integer.valueOf(this.portTM.getText()), this);
-        this.lb=new LoadBalancer(this.hostLB.getText(), Integer.valueOf(this.portLB.getText()));
+        this.tm=new TacticManager(Integer.valueOf(this.portTM.getText()), this.hostLB.getText(), Integer.valueOf(this.portLB.getText()), this);
+        this.lb=new LoadBalancer(Integer.valueOf(this.portLB.getText()), this.hostTM.getText(), Integer.valueOf(this.portTM.getText()));
         
         this.confirm.setEnabled(false);
         this.hostTM.setEnabled(false);
@@ -200,6 +230,10 @@ public class LoadBalancerTacticManager extends javax.swing.JFrame implements UiC
         this.newServer.setEnabled(true);
         this.newClient.setEnabled(true);
     }//GEN-LAST:event_confirmMouseClicked
+
+    private void portLBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_portLBActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_portLBActionPerformed
 
     /**
      * @param args the command line arguments

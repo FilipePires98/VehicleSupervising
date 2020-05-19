@@ -20,8 +20,8 @@ public class TacticManager implements MessageProcessor{
     private Thread serverThread;
     private ClusterInfo ci;
     
-    public TacticManager(String loadIp, int loadPort, UiController uc) {
-        this.server = new SocketServer(6001, this);
+    public TacticManager(int port, String loadIp, int loadPort, UiController uc) {
+        this.server = new SocketServer(port, this);
         this.serverThread = new Thread(server);
         this.serverThread.start();
         this.ci=new ClusterInfo(loadIp, loadPort, uc);
@@ -48,6 +48,14 @@ public class TacticManager implements MessageProcessor{
             ust.start();
             return "Message porcessed with success.";
         }
+    }
+    
+    public int getNewServerID() {
+        return ci.getnewServerID();
+    }
+    
+    public int getNewClientID() {
+        return ci.getNewClientID();
     }
     
     private class UpdateStatus implements Runnable{
