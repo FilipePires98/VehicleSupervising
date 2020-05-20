@@ -24,7 +24,6 @@ public class LoadBalancerTacticManager extends javax.swing.JFrame implements UiC
     
     private LoadBalancer lb;
     private TacticManager tm;
-    private ClusterInfo ci;
     
     /**
      * Creates new form LoadBalancerTacticManager
@@ -105,12 +104,6 @@ public class LoadBalancerTacticManager extends javax.swing.JFrame implements UiC
         jLabel1.setText("Tactic Manager:");
 
         jLabel2.setText("Load Balancer:");
-
-        portLB.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                portLBActionPerformed(evt);
-            }
-        });
 
         confirm.setText("Confirm");
         confirm.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -242,10 +235,6 @@ public class LoadBalancerTacticManager extends javax.swing.JFrame implements UiC
         this.newClient.setEnabled(true);
         status.setBackground(Color.green);
     }//GEN-LAST:event_confirmMouseClicked
-
-    private void portLBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_portLBActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_portLBActionPerformed
 
     /**
      * @param args the command line arguments

@@ -10,7 +10,6 @@ import entities.UiController;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +30,6 @@ public class ClusterInfo {
     private final List<String> processed;
     
     private final ReentrantLock rl;
-    private Condition serversUp;
     private final HealthCheck healthChecker;
     private final Thread healthCheckerThread;
     
@@ -48,7 +46,6 @@ public class ClusterInfo {
         this.processing=new ArrayList();
         this.processed=new ArrayList();
         this.rl = new ReentrantLock();
-        this.serversUp = rl.newCondition();
         this.healthChecker=new HealthCheck();
         this.healthCheckerThread=new Thread(this.healthChecker);
         this.healthCheckerThread.start();
@@ -96,7 +93,7 @@ public class ClusterInfo {
         rl.unlock();
     }
     
-    public int getnewServerID() {
+    public int getNewServerId() {
         int id=0;
         while(serverInfo.keySet().contains(id)){
             id++;
@@ -104,7 +101,7 @@ public class ClusterInfo {
         return id;
     }
     
-    public int getNewClientID() {
+    public int getNewClientId() {
         int id=0;
         while(clientInfo.keySet().contains(id)){
             id++;

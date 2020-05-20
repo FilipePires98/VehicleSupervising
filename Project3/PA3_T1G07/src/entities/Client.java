@@ -130,18 +130,6 @@ public class Client extends javax.swing.JFrame implements MessageProcessor{
 
         jLabel5.setText("Main Server:");
 
-        mainServerHost.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                mainServerHostActionPerformed(evt);
-            }
-        });
-
-        mainServerPort.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                mainServerPortActionPerformed(evt);
-            }
-        });
-
         status.setEditable(false);
         status.setBackground(java.awt.Color.red);
         status.setHorizontalAlignment(javax.swing.JTextField.CENTER);
@@ -261,14 +249,6 @@ public class Client extends javax.swing.JFrame implements MessageProcessor{
         }
         
     }//GEN-LAST:event_confirmMouseClicked
-
-    private void mainServerPortActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mainServerPortActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_mainServerPortActionPerformed
-
-    private void mainServerHostActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mainServerHostActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_mainServerHostActionPerformed
 
     /**
      * @param args the command line arguments

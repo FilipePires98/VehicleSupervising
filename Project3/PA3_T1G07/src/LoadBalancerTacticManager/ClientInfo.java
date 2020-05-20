@@ -5,9 +5,6 @@
  */
 package LoadBalancerTacticManager;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  *
  * @author joaoalegria

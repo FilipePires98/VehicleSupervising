@@ -8,7 +8,6 @@ package LoadBalancerTacticManager;
 import common.MessageProcessor;
 import common.SocketServer;
 import entities.UiController;
-import java.util.Arrays;
 
 /**
  *
@@ -55,11 +54,11 @@ public class TacticManager implements MessageProcessor{
     }
     
     public int getNewServerID() {
-        return ci.getnewServerID();
+        return ci.getNewServerId();
     }
     
     public int getNewClientID() {
-        return ci.getNewClientID();
+        return ci.getNewClientId();
     }
     
     private class UpdateStatus implements Runnable{
