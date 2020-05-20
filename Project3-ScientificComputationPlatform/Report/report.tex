@@ -40,7 +40,7 @@ Software Architecture\\
 
 \date{\today{}}
 
-%%%%%%%%%%%%%%%%% END OF PREAMBLE %%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%% END OF PREAMBLE %%%%%%%%%%%%%%%%%%%%%
 
 \begin{document}
 
@@ -90,7 +90,7 @@ All code developed is publicly accessible in our GitHub repository:
 %\texttt{java -cp <userdir>/build/classes fi.FarmInfrastructure}
 
 \newpage
-\section{Scientific Computation and Custom Systems} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Scientific Computation and Custom Systems} \label{scientificcomputation} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Applied computer science and mathematics often use advanced computing capabilities to understand and solve complex problems.
 In practical use, computational science is typically the application of computer simulation and other forms of computation to tackle problems in various 
@@ -111,7 +111,7 @@ The following tactics were selected to be implemented:
 \end{itemize}
 \vspace{-10pt}
 
-\subsection{The Scenario} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{The Scenario} \label{scenario} %%%%%%%%%%%%%%%%%%%%%%
 
 In order to test the application of the infrastructure on a scientific problem, an example scenario was adopted: the calculation of the mathematical constant $\pi$ (pi).
 Being an irrational number, $\pi$ cannot be expressed as a common fraction and its decimal representation never ends and never settles into a permanently repeating pattern.
@@ -123,7 +123,7 @@ The most commonly adopted forms of calculating $\pi$ are the iterative algorithm
 In order to only focus on the infrastructure's implementation, while simulating the actual implementation of the iterative algorithms, a control variable 
 corresponding to the number of iterations to be used on the calculation was introduced to regulate servers' response times. 
 
-\subsection{The Messages} \label{messages} %%%%%%%%%%%%%%%%%
+\subsection{The Messages} \label{messages} %%%%%%%%%%%%%%%%%%%%%%
 
 One of the fundamental constraints applied to our implementation was related to communications.
 Each individual server is launched as an independent process.
@@ -157,29 +157,32 @@ A few additional message types were added during development for management purp
 ..............................................................................................
 
 \newpage
-\section{System Architecture} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{System Architecture} \label{architecture} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-\subsection{Entities} \label{entitites} %%%%%%%%%%%%%%%%%%%%
+\subsection{Entities} \label{entitites} %%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-\subsection{Components} \label{components} %%%%%%%%%%%%%%%%%
+\subsection{Components} \label{components} %%%%%%%%%%%%%%%%%%%%%%
 
 
-\subsection{User Interface} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{User Interface} \label{ui} %%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
-\section{Architecture Constraints} \label{infrastructure} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-\subsection{Quality Attributes Assurance} %%%%%%%%
-
-\subsection{User Cases Compliance} %%%%%%%%
 
 \newpage
-\section{Additional Remarks} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Architecture Constraints} \label{constraints} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\subsection{Documentation} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Quality Attributes Assurance} \label{qaa} %%%%%%%%%%%
+
+
+\subsection{User Cases Compliance} \label{compliance} %%%%%%%%%%%
+
+
+\newpage
+\section{Additional Remarks} \label{remarks} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Documentation} \label{documentation} %%%%%%%%%%%%%%%%
 
 Our attitude towards the developed code was to ensure it could be applied to other similar scenarios and reused in systems intended to be deployed in real scenarios.
 With this in mind, we took great care with regards to code readability.
@@ -190,7 +193,7 @@ Nevertheless, we wanted to make sure this was also true to someone looking at ou
 \cite{javadoc} tool to manage all code documentation.
 Comments were also added in key points throughout the code, including the scripts.
 
-\subsection{Assignment Contributions} %%%%%%%%%%%%%%%%%%%%%%
+\subsection{Assignment Contributions} \label{contributions} %%%%%
 
 As the entire development phase took place in a time where on-site cooperation was not possible, we resorted to online communication platforms to debate decisions
 and discuss difficulties.
@@ -207,14 +210,14 @@ documentation, while João solved the most critical issues regarding the configu
 In terms of work percentage, we believe it was about 50\% for each student.
 
 \newpage
-\section*{Conclusions} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Conclusions} \label{conclusions} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{thebibliography}{9} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   \bibliographystyle{Science}
 
   \bibitem{pisky}
   \textit{Pi in the sky: Calculating a record-breaking 31.4 trillion digits of Archimedes' constant on Google Cloud}.
-  \href{https://web.archive.org/web/20191019023120/https://cloud.google.com/blog/products/compute/calculating-31-4-trillion-digits-of-archimedes-constant-on-google-cloud}
+  Taken from \href{https://web.archive.org/web/20191019023120/https://cloud.google.com/blog/products/compute/calculating-31-4-trillion-digits-of-archimedes-constant-on-google-cloud}{web.archive.org}.
   Retrieved May 2020. 
 
   \bibitem{jorg}
@@ -229,8 +232,6 @@ In terms of work percentage, we believe it was about 50\% for each student.
   %   \textit{What is UML},
   %   \url{https://www.uml.org/what-is-uml.htm},
   %   accessed in March 2020.
-
-
 
 \end{thebibliography}
 

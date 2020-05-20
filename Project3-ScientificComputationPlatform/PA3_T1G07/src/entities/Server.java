@@ -16,8 +16,11 @@ import java.util.logging.Logger;
 public class Server extends javax.swing.JFrame implements MessageProcessor {
     
     private int id;
+    
     private SocketServer socketServer;
     private Thread serverThread;
+    private int socketStatus;
+    
     private List<String> processingRequests;
     private List<String> processedRequests;
     
@@ -30,6 +33,8 @@ public class Server extends javax.swing.JFrame implements MessageProcessor {
         
         initComponents();
         this.setTitle("Server");
+        this.warning.setVisible(false);
+        this.warning.setForeground(Color.red);
         this.host.setText("localhost");
         this.port.setText(args[0]);
         this.mainServerHost.setText(args[1]);
@@ -58,9 +63,14 @@ public class Server extends javax.swing.JFrame implements MessageProcessor {
         host = new javax.swing.JTextField();
         port = new javax.swing.JTextField();
         status = new javax.swing.JTextField();
+        warning = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setMinimumSize(new java.awt.Dimension(582, 217));
+        setMaximumSize(new java.awt.Dimension(1920, 1080));
+        setMinimumSize(new java.awt.Dimension(663, 296));
+        setPreferredSize(new java.awt.Dimension(663, 296));
 
         stop.setText("Stop");
         stop.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -90,6 +100,12 @@ public class Server extends javax.swing.JFrame implements MessageProcessor {
         status.setText("Status");
         status.setFocusable(false);
 
+        warning.setText("Warning: invalid input.");
+
+        jLabel3.setText("Requests Received:");
+
+        jLabel4.setText("Processed:");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -99,13 +115,9 @@ public class Server extends javax.swing.JFrame implements MessageProcessor {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(status)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jScrollPane1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane2))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(stop, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE))
+                        .addComponent(warning)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(stop, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -118,9 +130,21 @@ public class Server extends javax.swing.JFrame implements MessageProcessor {
                         .addComponent(mainServerHost, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(mainServerPort, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(confirm)
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(confirm, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jScrollPane1)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, 174, Short.MAX_VALUE)
+                                .addGap(154, 154, 154)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, 115, Short.MAX_VALUE)
+                                .addGap(208, 208, 208))
+                            .addComponent(jScrollPane2))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -138,11 +162,17 @@ public class Server extends javax.swing.JFrame implements MessageProcessor {
                     .addComponent(host, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(port, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel3)
+                    .addComponent(jLabel4))
+                .addGap(6, 6, 6)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 95, Short.MAX_VALUE)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 95, Short.MAX_VALUE))
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 154, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(stop)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(stop)
+                    .addComponent(warning))
                 .addContainerGap())
         );
 
@@ -164,10 +194,20 @@ public class Server extends javax.swing.JFrame implements MessageProcessor {
     private void confirmMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_confirmMouseClicked
         if(this.socketServer==null){
             this.socketServer = new SocketServer(Integer.valueOf(this.port.getText()), this);
+            this.socketStatus = 0;
             this.serverThread = new Thread(socketServer);
             this.serverThread.start();
+            
+            while(this.socketStatus == 0) {}
+            
+            if(this.socketStatus<0) {
+                this.warning.setVisible(true);
+                this.socketServer = null;
+                return;
+            }
         }
         if(this.initManagerClient()){
+            this.warning.setVisible(false);
             this.confirm.setEnabled(false);
             this.host.setEnabled(false);
             this.port.setEnabled(false);
@@ -254,6 +294,11 @@ public class Server extends javax.swing.JFrame implements MessageProcessor {
         }
         return "Message processed with success.";
     }
+
+    @Override
+    public void setSocketStatus(int socketStatus) {
+        this.socketStatus = socketStatus;
+    }
     
     private class PiCalculation implements Runnable{
         
@@ -311,6 +356,8 @@ public class Server extends javax.swing.JFrame implements MessageProcessor {
     private javax.swing.JTextField host;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTextField mainServerHost;
@@ -320,6 +367,7 @@ public class Server extends javax.swing.JFrame implements MessageProcessor {
     private javax.swing.JList<String> processing;
     private javax.swing.JTextField status;
     private javax.swing.JButton stop;
+    private javax.swing.JLabel warning;
     // End of variables declaration//GEN-END:variables
 
     private void updateProcessing(){

@@ -54,6 +54,11 @@ public class TacticManager implements MessageProcessor{
         }
     }
     
+    @Override
+    public void setSocketStatus(int socketStatus) {
+        // does nothing
+    }
+    
     public int getNewServerID() {
         return ci.getnewServerID();
     }
