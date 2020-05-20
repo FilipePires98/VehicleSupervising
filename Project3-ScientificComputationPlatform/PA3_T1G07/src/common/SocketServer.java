@@ -31,9 +31,9 @@ public class SocketServer implements Runnable{
      * @param mp Port assigned to the server.
      */
     public SocketServer(int port, MessageProcessor mp) {
-        this.port=port;
+        this.port = port;
         this.mp = mp;
-        this.continueRunning=true;
+        this.continueRunning = true;
     }
     
     /**
@@ -46,6 +46,7 @@ public class SocketServer implements Runnable{
             
         try {
             socket = new ServerSocket(this.port);
+            mp.setSocketStatus(1);
             while(continueRunning){
                 Socket inSocket = socket.accept();
                 Thread t=new Thread(new AttendClient(inSocket));
@@ -54,6 +55,7 @@ public class SocketServer implements Runnable{
             socket.close();
 
         } catch (IOException ex) {
+            mp.setSocketStatus(-1);
             Logger.getLogger(SocketServer.class.getName()).log(Level.SEVERE, null, ex);
         }
             

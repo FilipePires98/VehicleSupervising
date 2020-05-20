@@ -180,7 +180,7 @@ public class ClusterInfo {
     private void updateServers(){
         List<String> servers=new ArrayList();
         for(ServerInfo si : serverInfo.values()){
-            servers.add("Server: "+si.getId()+"  |  Ocupation: "+si.getRequests().size());
+            servers.add("Server: "+si.getId()+"  |  Occupation: "+si.getRequests().size());
         }
         String[] tmp=new String[servers.size()];
         servers.toArray(tmp);

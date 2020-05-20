@@ -78,6 +78,11 @@ public class LoadBalancer implements MessageProcessor{
         return "Message processed with success.";
     }
     
+    @Override
+    public void setSocketStatus(int socketStatus) {
+        // does nothing
+    }
+    
     public class LoadDistributor implements Runnable{
         
         private List<String> messages;
