@@ -50,8 +50,8 @@ Software Architecture\\
 
 \section*{Introduction} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-This report aims to describe the work developed for the third and final assignment of the course of 'Software Architecture', focused on a platform that accepts 
-and processes computational services requested by the scientific community. 
+This report aims to describe the work developed for the third and final assignment of the course of 'Software Architecture', focused on a platform that accepts
+and processes computational services requested by the scientific community.
 
 The aim of the assignment was to design and develop a software architecture relying on four of the most relevant quality attributes:
 performance, availability, scalability and usability.
@@ -93,7 +93,7 @@ All code developed is publicly accessible in our GitHub repository:
 \section{Scientific Computation and Custom Systems} \label{scientificcomputation} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Applied computer science and mathematics often use advanced computing capabilities to understand and solve complex problems.
-In practical use, computational science is typically the application of computer simulation and other forms of computation to tackle problems in various 
+In practical use, computational science is typically the application of computer simulation and other forms of computation to tackle problems in various
 scientific disciplines.
 Scientists and engineers develop computer programs that model systems being studied and run these programs with various sets of input parameters.
 In some cases, these models require massive amounts of calculations and are often executed on supercomputers or distributed computing platforms.
@@ -115,13 +115,13 @@ The following tactics were selected to be implemented:
 
 In order to test the application of the infrastructure on a scientific problem, an example scenario was adopted: the calculation of the mathematical constant $\pi$ (pi).
 Being an irrational number, $\pi$ cannot be expressed as a common fraction and its decimal representation never ends and never settles into a permanently repeating pattern.
-Nevertheless, in the 21st century, mathematicians and computer scientists have pursued new approaches that, when combined with increasing computational power, 
+Nevertheless, in the 21st century, mathematicians and computer scientists have pursued new approaches that, when combined with increasing computational power,
 extended the decimal representation of $\pi$ to many trillions of digits \cite{pisky}.
 The primary motivation for these computations is as a test case to develop efficient algorithms to calculate numeric series, as well as the quest to break records.
 
 The most commonly adopted forms of calculating $\pi$ are the iterative algorithms \cite{jorg}.
-In order to only focus on the infrastructure's implementation, while simulating the actual implementation of the iterative algorithms, a control variable 
-corresponding to the number of iterations to be used on the calculation was introduced to regulate servers' response times. 
+In order to only focus on the infrastructure's implementation, while simulating the actual implementation of the iterative algorithms, a control variable
+corresponding to the number of iterations to be used on the calculation was introduced to regulate servers' response times.
 
 \subsection{The Messages} \label{messages} %%%%%%%%%%%%%%%%%%%%%%
 
@@ -129,7 +129,7 @@ One of the fundamental constraints applied to our implementation was related to 
 Each individual server is launched as an independent process.
 This is also true for each individual client.
 The orchestrator runs in an independent process as well, serving as both a load balancer and a tactic monitor - although these two are built as separate entities.
-So in order for entities to communicate with each other, the TCP/IP socket technology was made a requirement. 
+So in order for entities to communicate with each other, the TCP/IP socket technology was made a requirement.
 
 For simplicity, only two service message types were defined:
 \vspace{-10pt}
@@ -138,8 +138,8 @@ For simplicity, only two service message types were defined:
   \item Reply: $|$ \texttt{serverID} $|$ \texttt{clientID} $|$ \texttt{requestID} $|$ \texttt{02} $|$ \texttt{\# iterations} $|$ \texttt{pi} $|$
 \end{itemize}
 \vspace{-10pt}
-In them are the following parameters: 
-\texttt{clientID}, a positive integer that uniquely identifies a client machine; 
+In them are the following parameters:
+\texttt{clientID}, a positive integer that uniquely identifies a client machine;
 \texttt{serverID}, a positive integer that uniquely identifies each physical server in the cluster;
 \texttt{requestID}, a positive integer that uniquely identifies a pi calculation request (computed as 1000 $\times$ \texttt{client id} $+$ increment);
 \texttt{01} and \texttt{02}, the request and reply codes;
@@ -160,11 +160,26 @@ A few additional message types were added during development for management purp
 \section{System Architecture} \label{architecture} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-\subsection{Entities} \label{entitites} %%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Entities} \label{entities} %%%%%%%%%%%%%%%%%%%%%%%%%
+
+%talk and justify about each server choosing its port
 
 
 \subsection{Components} \label{components} %%%%%%%%%%%%%%%%%%%%%%
 
+\subsubsection{Load Balancer} \label{lb}
+This is one of the most important components of our architecture. It's existence started by being a project requisite, but we quickly understood and concluded that in fact it was a huge asset in our solution. This component proved to be quite paramount when handling the quality attributes we had to guarantee in this project. This component was mainly created to handle availability and scalability, reasons we will further detail in section \ref{constraints}. This section will describe how this component work.
+
+It's main purpose, as the name implies, is to distribute in a balanced way the incoming $\pi$ calculation requests across all registered servers. When one or more calculation requests are sent to the Load Balancer, for each request the least occupied server is requested from the Tactic Manager, enabling a balanced distribution; after knowing to which server the message should be redirected to, information such as the ip and port from the client requesting the service is also requested from the Tactic Manager, allowing the server to respond to the client directly, as stated by the project guide; finally, the message is redirected to the server with the client information added in a pre-defined fashion.
+
+Additionally, this and only this component is the one responsible for interacting with the system clients. This means that not only the already mentioned $\pi$ calculation requests but also some additional control messages that our team created need to be handled by the Load Balancer. These additional messages are related to the creation and destruction of a client. As already mentioned in section \ref{entities}, we concluded and decided that the most logical approach was to enable each server to choose and define its port, due to physical restriction; this means that when a client is created, the server side of the system does not know its ip not its port, information that needs to be registered. Following that thought process, we created both a creation message, containing the client's ip and port and a deletion message containing only the client's id that was given by the Tactic Manager. Those messages in the creation or deletion of the client are sent to the Load Balancer, the only entity the client knows about in the system's server side.
+
+When receiving the client control messages, the Balancer acknowledges it as received it and redirects the message to the Tactic Manager, that will process and store the received information, and in the case it is a client creation, it will send to that client his just created internal id.
+
+\subsubsection{Tactic Manager}
+This component can be considered as the brain of the cluster, since it should have the knowledge about every registered server, every registered client, the state and who is processing every message at anytime. This is necessary, for example,as stated in section \ref{lb}, to enable the Load Balancer to distribute in a balanced fashion the incoming calculation requests since the Manager knows the occupation of each server at anytime.
+
+One of its responsibilities is to be the entity, and the only one, with whom the servers talk too. For that reason, similarly to the control messages developed for the clients refereed in section \ref{lb}, we also needed to create control messages for the creation and destruction of each server, being sent in the appropriate time to the Task Manager, that will process the messages and store the information, also sending the created id in case of a server creation.
 
 \subsection{User Interface} \label{ui} %%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -218,13 +233,13 @@ In terms of work percentage, we believe it was about 50\% for each student.
   \bibitem{pisky}
   \textit{Pi in the sky: Calculating a record-breaking 31.4 trillion digits of Archimedes' constant on Google Cloud}.
   Taken from \href{https://web.archive.org/web/20191019023120/https://cloud.google.com/blog/products/compute/calculating-31-4-trillion-digits-of-archimedes-constant-on-google-cloud}{web.archive.org}.
-  Retrieved May 2020. 
+  Retrieved May 2020.
 
   \bibitem{jorg}
-  Arndt, Jorg \& Haenel, Christoph (2006). 
-  \textit{Pi Unleashed}, in Springer-Verlag. 
-  ISBN 978-3-540-66572-4. 
-  Retrieved May 2020. 
+  Arndt, Jorg \& Haenel, Christoph (2006).
+  \textit{Pi Unleashed}, in Springer-Verlag.
+  ISBN 978-3-540-66572-4.
+  Retrieved May 2020.
   English translation by Catriona and David Lischka.
 
   % \bibitem{uml}

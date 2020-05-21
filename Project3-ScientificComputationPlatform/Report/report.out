@@ -4,10 +4,12 @@
 \BOOKMARK [1][-]{section.2}{System Architecture}{}% 4
 \BOOKMARK [2][-]{subsection.2.1}{Entities}{section.2}% 5
 \BOOKMARK [2][-]{subsection.2.2}{Components}{section.2}% 6
-\BOOKMARK [2][-]{subsection.2.3}{User Interface}{section.2}% 7
-\BOOKMARK [1][-]{section.3}{Architecture Constraints}{}% 8
-\BOOKMARK [2][-]{subsection.3.1}{Quality Attributes Assurance}{section.3}% 9
-\BOOKMARK [2][-]{subsection.3.2}{User Cases Compliance}{section.3}% 10
-\BOOKMARK [1][-]{section.4}{Additional Remarks}{}% 11
-\BOOKMARK [2][-]{subsection.4.1}{Documentation}{section.4}% 12
-\BOOKMARK [2][-]{subsection.4.2}{Assignment Contributions}{section.4}% 13
+\BOOKMARK [3][-]{subsubsection.2.2.1}{Load Balancer}{subsection.2.2}% 7
+\BOOKMARK [3][-]{subsubsection.2.2.2}{Tactic Manager}{subsection.2.2}% 8
+\BOOKMARK [2][-]{subsection.2.3}{User Interface}{section.2}% 9
+\BOOKMARK [1][-]{section.3}{Architecture Constraints}{}% 10
+\BOOKMARK [2][-]{subsection.3.1}{Quality Attributes Assurance}{section.3}% 11
+\BOOKMARK [2][-]{subsection.3.2}{User Cases Compliance}{section.3}% 12
+\BOOKMARK [1][-]{section.4}{Additional Remarks}{}% 13
+\BOOKMARK [2][-]{subsection.4.1}{Documentation}{section.4}% 14
+\BOOKMARK [2][-]{subsection.4.2}{Assignment Contributions}{section.4}% 15
