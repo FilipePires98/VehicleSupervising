@@ -1,8 +1,8 @@
 # Fdb version 3
-["pdflatex"] 1590181662 "/home/joaoalegria/Desktop/AS/Project3-ScientificComputationPlatform/Report/report.tex" "/home/joaoalegria/Desktop/AS/Project3-ScientificComputationPlatform/Report/report.pdf" "report" 1590181669
+["pdflatex"] 1590236578 "/home/joaoalegria/Desktop/AS/Project3-ScientificComputationPlatform/Report/report.tex" "/home/joaoalegria/Desktop/AS/Project3-ScientificComputationPlatform/Report/report.pdf" "report" 1590236588
   "/etc/texmf/web2c/texmf.cnf" 1587252064 475 c0e671620eb5563b2130f56340a5fde8 ""
-  "/home/joaoalegria/Desktop/AS/Project3-ScientificComputationPlatform/Report/report.aux" 1590181663 3838 c1bad1885b52b878ac95f8e969bceee9 ""
-  "/home/joaoalegria/Desktop/AS/Project3-ScientificComputationPlatform/Report/report.tex" 1590181668 16992 e8ae1b155f542458778756bc6471fc5e ""
+  "/home/joaoalegria/Desktop/AS/Project3-ScientificComputationPlatform/Report/report.aux" 1590236578 4362 f3c955ca30419f26784d79b921d4063d ""
+  "/home/joaoalegria/Desktop/AS/Project3-ScientificComputationPlatform/Report/report.tex" 1590236587 22294 218d6e2554f0aaf8494761764bae11b9 ""
   "/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc" 1165713224 4850 80dc9bab7f31fb78a000ccfed0e27cab ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1511824771 3332 103109f5612ad95229751940c61aada0 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/adobe/courier/pcrr7t.tfm" 1136768653 960 379cc0019370a9e0208a0a3f949f847a ""
@@ -77,14 +77,14 @@
   "caption3.sty" 1589989311 68575 41af57b9d23e31041c5fb63021aa6d56 ""
   "enumitem.sty" 1589989311 51697 f8f08183cd2080d9d18a41432d651dfb ""
   "float.sty" 1589989311 6749 16d2656a1984957e674b149555f1ea1d ""
-  "report.aux" 1590181663 3838 c1bad1885b52b878ac95f8e969bceee9 "pdflatex"
-  "report.out" 1590181663 1120 701253649e0daa93654712a649648bbb "pdflatex"
-  "report.tex" 1590181668 16992 e8ae1b155f542458778756bc6471fc5e ""
+  "report.aux" 1590236578 4362 f3c955ca30419f26784d79b921d4063d "pdflatex"
+  "report.out" 1590236578 1415 313f697b848e444df73e61c9eeb68fd3 "pdflatex"
+  "report.tex" 1590236587 22294 218d6e2554f0aaf8494761764bae11b9 ""
   "scicite.sty" 1589989311 21940 f3b9f4a675770828af17c69b198998fc ""
   (generated)
-  "report.pdf"
+  "report.aux"
   "/home/joaoalegria/Desktop/AS/Project3-ScientificComputationPlatform/Report/report.log"
   "/home/joaoalegria/Desktop/AS/Project3-ScientificComputationPlatform/Report/report.pdf"
+  "report.pdf"
   "report.log"
   "report.out"
-  "report.aux"

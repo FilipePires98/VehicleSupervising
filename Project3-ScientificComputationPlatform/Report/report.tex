@@ -158,15 +158,24 @@ A few additional message types were added during development for management purp
 
 \newpage
 \section{System Architecture} \label{architecture} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+The architecture we were guided to was a junction of a client/server and a master/slave architecture. It is partly a client/server because in the first place, there is a client to our system and a server, that from the client's perspective seems to be only one entity but in fact it is composed of several, each with its specific responsibility. Those internal server entities are independent of one another, and in case they need to communicate they do so in a client/server manner, making the necessary requests and awaiting for the response of the entity in question.
+
+The master/slave aspect of our architecture is due to the fact that the $\pi$ calculation infrastructure is comprised of a main entity and a set of calculation servers; that main entity that in fact is divided in two(Load Balancer and Tactic Manager) is the one that interacts with the clients and then assigns work to the calculation servers that are awaiting.
+
+All the communications in this system are done through WebSockets like the project guide proposed. A further description of each component is given below.
 
 
 \subsection{Components} \label{components} %%%%%%%%%%%%%%%%%%%%%%
 
 \subsubsection{Client}
+This component is the one that represents the client in our system. This entity is the one that makes the calculation requests by sending them to the Load Balancer and then awaits for the response to arrive. The client can make the number of request he wishes and he doesn't need to wait for the response of a calculation request to order another.
 
+The client need to instantiate a WebSocket server so that the calculation request responses can be sent to him in a asynchronous fashion. After some deliberation our group concluded that the best approach was fro the client to choose the port it would use, since there could be constraints the machine the process is running and it wasn't viable for the client to receive the port indication from the server that doesn't know anything about the ports already in use on the client machine. For that reason the client, in initiating, as to send some control messages to notify the main server that it was created and to indicate it's websocket host ip and port, in response it will receive it's internal server id; when the client is stopped it will also notify the main server of that event.
 
-\subsubsection{Server}
+\subsubsection{Calculation Server}
+Responsible for making the $\pi$ calculation themselves, this entity awaits for a calculation request to arrive, processes it and then responds directly to the client that triggered it. The direct response to the clients is possible because the request first goes through the Load Balancer, that with the help of Tactic Manager adds the client metadata necessary for the calculation server to directly reply to the client. All the requests processing is parallelized.
 
+Similarly to the clients, the servers also need a WebSocket server to receive the calculation requests, so they also need to choose the port it will be active in. The same physical constraints apply, so the servers when created need to identify the main server of that event and attach the necessary metadata, such as the host ip and port the websocket is running in; when a server is closed, if possible, it should also notify the main server of that event.
 
 \subsubsection{Load Balancer} \label{lb}
 This is one of the most important components of our architecture. It's existence started by being a project requisite, but we quickly understood and concluded that in fact it was a huge asset in our solution. This component proved to be quite paramount when handling the quality attributes we had to guarantee in this project. This component was mainly created to handle availability and scalability, reasons we will further detail in section \ref{constraints}. This section will describe how this component work.
@@ -185,7 +194,11 @@ One of its responsibilities is to be the entity, and the only one, with whom the
 Another responsibility of this component is the executions and possible consequent actions related to the health-check of all registered servers. This functionally was concluded to be paramount when assuring our quality attributes, namely Scalability, Performance, Availability and Usability. The flow of this process goes as follows: when the Tactic Manager is created, the Health-checking subprocess is initiated in parallel, and from then on, it will send a health-check to all registered servers on a time interval previously established, in our scenario it was defined at 30 seconds. In the case one server doesn't respond to the health-check, it is considered dead, and for that reason it is deleted form the internal registries and any request assigned to that server(which was previously registered by the server when alive) will be equally distributed by all remaining servers by sending them to the Load Balancer which will execute that task.
 
 \subsection{Auxiliary Components}
-%SocketServer,SocketClient,LoadDistributer, HealthChecker, AttendUser
+In addition to all those  main component, there are some auxiliary ones that need to be mentioned since them role is quite important.
+
+The first ones are the SocketServer and SocketClient, both are wrappers for a WebSocket Server and a WebSocket Client, respectively. This enabled us to use our wrappers when in need of a WebSocket Server or Client without worrying of the internal working, allowing us to focus on the logic of the problem. The only consideration we needed to make was that every entity tht used the SocketServer needed to pass a MessageProcessor interface instance, take would supply all the logic when the server received a message. Additionally, some refactoring was made to these classes in relation to the one delivered in our first project, namely in the SocketServer. We added a AttendUser internal class to the SocketServer, which handled in a parallel way all the connections made to the WebSocket server.
+
+Another important component is the LoadDistributer, a class internal to the LoadBalancer that is responsible for the actual distribution of the incoming requests. Every request is processed in a parallel way. Lastly, there's the HealthChecker, internal to the TacticManager and as the name implies, it is the class that as the duty to health check all registered servers and take action in case some of them are not alive.
 
 \subsection{User Interface} \label{ui} %%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -196,6 +209,22 @@ Another responsibility of this component is the executions and possible conseque
 
 \subsection{Quality Attributes Assurance} \label{qaa} %%%%%%%%%%%
 
+\subsubsection{Performance}
+% % 1. Replicas of computation: requests must be fairly distributed among the servers;
+% % 2. Concurrency (must use ReentrantLock): each request runs on its own thread in a server;
+
+\subsubsection{Availability}
+% 1. Redundancy: to reallocate requests in case a server goes down;
+% 2. Monitor: to supervise the cluster’s status (up/down servers (heartbeat), clients:
+% identification, requests being processed, processed requests), etc., etc.). 
+
+\subsubsection{Scalability}
+% 1. Horizontal scalability: add new servers whenever necessary
+
+\subsubsection{Usability}
+% All GUI must be driven by Usability for the EVALUATION PROCESS: usage, trace, verification,
+% validation, etc. You can resort to the tactics and anything else you think is necessary. The
+% stakeholder will use the GUI to validate your implementation.
 
 \subsection{User Cases Compliance} \label{compliance} %%%%%%%%%%%
 
