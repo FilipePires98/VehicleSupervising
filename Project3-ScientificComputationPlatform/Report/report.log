@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2020.5.11)  23 MAY 2020 13:22
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2020.5.11)  26 MAY 2020 14:08
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -245,41 +245,71 @@ Package: multicol 2018/12/27 v1.8v multicolumn formatting (FMi)
 \mult@nat@firstbox=\box54
 \colbreak@box=\box55
 \mc@col@check@num=\count115
+) (/usr/share/texlive/texmf-dist/tex/latex/listings/listings.sty
+\lst@mode=\count116
+\lst@gtempboxa=\box56
+\lst@token=\toks20
+\lst@length=\count117
+\lst@currlwidth=\dimen139
+\lst@column=\count118
+\lst@pos=\count119
+\lst@lostspace=\dimen140
+\lst@width=\dimen141
+\lst@newlines=\count120
+\lst@lineno=\count121
+\lst@maxwidth=\dimen142
+ (/usr/share/texlive/texmf-dist/tex/latex/listings/lstmisc.sty
+File: lstmisc.sty 2019/02/27 1.8b (Carsten Heinz)
+\c@lstnumber=\count122
+\lst@skipnumbers=\count123
+\lst@framebox=\box57
+) (/usr/share/texlive/texmf-dist/tex/latex/listings/listings.cfg
+File: listings.cfg 2019/02/27 1.8b listings configuration
+))
+Package: listings 2019/02/27 1.8b (Carsten Heinz)
+ (/usr/share/texlive/texmf-dist/tex/latex/graphics/color.sty
+Package: color 2016/07/10 v1.1e Standard LaTeX Color (DPC)
+ (/usr/share/texlive/texmf-dist/tex/latex/graphics-cfg/color.cfg
+File: color.cfg 2016/01/02 v1.6 sample color configuration
 )
-\c@lastnote=\count116
+Package color Info: Driver file: pdftex.def on input line 147.
+) (/usr/share/texlive/texmf-dist/tex/latex/listings/lstlang1.sty
+File: lstlang1.sty 2019/02/27 1.8b listings language file
+)
+\c@lastnote=\count124
  (/home/joaoalegria/Desktop/AS/Project3-ScientificComputationPlatform/Report/report.aux)
 \openout1 = `report.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 45.
-LaTeX Font Info:    ... okay on input line 45.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 45.
-LaTeX Font Info:    ... okay on input line 45.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 45.
-LaTeX Font Info:    ... okay on input line 45.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 45.
-LaTeX Font Info:    ... okay on input line 45.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 45.
-LaTeX Font Info:    ... okay on input line 45.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 45.
-LaTeX Font Info:    ... okay on input line 45.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 45.
-LaTeX Font Info:    ... okay on input line 45.
-LaTeX Font Info:    Try loading font information for OT1+ptm on input line 45.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 69.
+LaTeX Font Info:    ... okay on input line 69.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 69.
+LaTeX Font Info:    ... okay on input line 69.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 69.
+LaTeX Font Info:    ... okay on input line 69.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 69.
+LaTeX Font Info:    ... okay on input line 69.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 69.
+LaTeX Font Info:    ... okay on input line 69.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 69.
+LaTeX Font Info:    ... okay on input line 69.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 69.
+LaTeX Font Info:    ... okay on input line 69.
+LaTeX Font Info:    Try loading font information for OT1+ptm on input line 69.
  (/usr/share/texlive/texmf-dist/tex/latex/psnfss/ot1ptm.fd
 File: ot1ptm.fd 2001/06/04 font definitions for OT1/ptm.
 ) (/usr/share/texlive/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count117
-\scratchdimen=\dimen139
-\scratchbox=\box56
-\nofMPsegments=\count118
-\nofMParguments=\count119
-\everyMPshowfont=\toks20
-\MPscratchCnt=\count120
-\MPscratchDim=\dimen140
-\MPnumerator=\count121
-\makeMPintoPDFobject=\count122
-\everyMPtoPDFconversion=\toks21
+\scratchcounter=\count125
+\scratchdimen=\dimen143
+\scratchbox=\box58
+\nofMPsegments=\count126
+\nofMParguments=\count127
+\everyMPshowfont=\toks21
+\MPscratchCnt=\count128
+\MPscratchDim=\dimen144
+\MPnumerator=\count129
+\makeMPintoPDFobject=\count130
+\everyMPtoPDFconversion=\toks22
 ) (/usr/share/texlive/texmf-dist/tex/latex/oberdiek/epstopdf-base.sty
 Package: epstopdf-base 2016/05/15 v2.6 Base part for package epstopdf
  (/usr/share/texlive/texmf-dist/tex/latex/oberdiek/grfext.sty
@@ -292,88 +322,90 @@ Package grfext Info: Graphics extension search list:
  (/usr/share/texlive/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
 ))
-\AtBeginShipoutBox=\box57
-Package hyperref Info: Link coloring OFF on input line 45.
+\AtBeginShipoutBox=\box59
+Package hyperref Info: Link coloring OFF on input line 69.
  (/usr/share/texlive/texmf-dist/tex/latex/hyperref/nameref.sty
 Package: nameref 2016/05/21 v2.44 Cross-referencing by name of section
  (/usr/share/texlive/texmf-dist/tex/generic/oberdiek/gettitlestring.sty
 Package: gettitlestring 2016/05/16 v1.5 Cleanup title references (HO)
 )
-\c@section@level=\count123
+\c@section@level=\count131
 )
-LaTeX Info: Redefining \ref on input line 45.
-LaTeX Info: Redefining \pageref on input line 45.
-LaTeX Info: Redefining \nameref on input line 45.
+LaTeX Info: Redefining \ref on input line 69.
+LaTeX Info: Redefining \pageref on input line 69.
+LaTeX Info: Redefining \nameref on input line 69.
  (/home/joaoalegria/Desktop/AS/Project3-ScientificComputationPlatform/Report/report.out) (/home/joaoalegria/Desktop/AS/Project3-ScientificComputationPlatform/Report/report.out)
 \@outlinefile=\write3
 \openout3 = `report.out'.
 
 Package caption Info: Begin \AtBeginDocument code.
+Package caption Info: listings package is loaded.
 Package caption Info: End \AtBeginDocument code.
+\c@lstlisting=\count132
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <14.4> on input line 50.
+(Font)              <14.4> on input line 74.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <7> on input line 50.
+(Font)              <7> on input line 74.
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <17.28> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 51.
-LaTeX Font Info:    Try loading font information for OT1+pcr on input line 67.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 75.
+LaTeX Font Info:    Try loading font information for OT1+pcr on input line 91.
  (/usr/share/texlive/texmf-dist/tex/latex/psnfss/ot1pcr.fd
 File: ot1pcr.fd 2001/06/04 font definitions for OT1/pcr.
 )
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <12> on input line 67.
+(Font)              <12> on input line 91.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <8> on input line 67.
+(Font)              <8> on input line 91.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <6> on input line 67.
+(Font)              <6> on input line 91.
  [1
 
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}]
-LaTeX Font Info:    Try loading font information for OMS+ptm on input line 106.
+LaTeX Font Info:    Try loading font information for OMS+ptm on input line 130.
  (/usr/share/texlive/texmf-dist/tex/latex/psnfss/omsptm.fd
 File: omsptm.fd 
 )
 LaTeX Font Info:    Font shape `OMS/ptm/m/n' in size <12> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 106.
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 130.
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <14.4> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 114.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 138.
  [2] [3]
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <12> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 170.
- [4] [5] [6] [7] [8]
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 198.
+ [4] [5] [6] [7] [8] [9] [10] [11]
 LaTeX Font Info:    Font shape `OT1/ptm/bx/it' in size <12> not available
-(Font)              Font shape `OT1/ptm/b/it' tried instead on input line 243.
+(Font)              Font shape `OT1/ptm/b/it' tried instead on input line 376.
 
 
-LaTeX Warning: Citation `javadoc' on page 9 undefined on input line 243.
+LaTeX Warning: Citation `javadoc' on page 12 undefined on input line 376.
 
-[9] [10]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 290.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 290.
+[12] [13]
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 423.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 423.
  (/home/joaoalegria/Desktop/AS/Project3-ScientificComputationPlatform/Report/report.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 290.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 290.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 423.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 423.
 Package rerunfilecheck Info: File `report.out' has not changed.
 (rerunfilecheck)             Checksum: 313F697B848E444DF73E61C9EEB68FD3;1415.
 
 
 LaTeX Warning: There were undefined references.
 
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 290.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 423.
  ) 
 Here is how much of TeX's memory you used:
- 6874 strings out of 492609
- 107073 string characters out of 6131462
- 202853 words of memory out of 5000000
- 10702 multiletter control sequences out of 15000+600000
- 21257 words of font info for 45 fonts, out of 8000000 for 9000
+ 8741 strings out of 492609
+ 131659 string characters out of 6131462
+ 429603 words of memory out of 5000000
+ 12461 multiletter control sequences out of 15000+600000
+ 22279 words of font info for 48 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 36i,7n,38p,1168b,321s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 36i,7n,40p,1248b,1175s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmbi8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on /home/joaoalegria/Desktop/AS/Project3-ScientificComputationPlatform/Report/report.pdf (10 pages, 101291 bytes).
+Output written on /home/joaoalegria/Desktop/AS/Project3-ScientificComputationPlatform/Report/report.pdf (13 pages, 115452 bytes).
 PDF statistics:
- 190 PDF objects out of 1000 (max. 8388607)
- 168 compressed objects within 2 object streams
- 37 named destinations out of 1000 (max. 500000)
+ 310 PDF objects out of 1000 (max. 8388607)
+ 284 compressed objects within 3 object streams
+ 124 named destinations out of 1000 (max. 500000)
  169 words of extra memory for PDF output out of 10000 (max. 10000000)
 

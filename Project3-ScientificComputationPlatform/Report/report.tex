@@ -6,37 +6,61 @@
 \usepackage{enumitem}
 \usepackage{booktabs}
 \usepackage{multicol}
+\usepackage{listings}
+\usepackage{color}
+
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{
+  language=Java,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=3
+}
 
 \topmargin -1.0cm
 \oddsidemargin 0.0cm
-\textwidth 16cm 
+\textwidth 16cm
 \textheight 23cm
 \footskip 1.0cm
 
 \newenvironment{sciabstract}{%
-\begin{quote} \bf}
-{\end{quote}}
+  \begin{quote} \bf}
+    {\end{quote}}
 
 \newcounter{lastnote}
 \newenvironment{scilastnote}{%
   \setcounter{lastnote}{\value{enumiv}}%
   \addtocounter{lastnote}{+1}%
   \begin{list}%
-  {\arabic{lastnote}.}
-  {\setlength{\leftmargin}{.22in}}
-  {\setlength{\labelsep}{.5em}}
-}
-{\end{list}}
+    {\arabic{lastnote}.}
+    {\setlength{\leftmargin}{.22in}}
+    {\setlength{\labelsep}{.5em}}
+    }
+    {\end{list}}
 
-\title{Simulation of a Scientific Computation Platform\\With a Focus on Quality Attributes} 
+\title{Simulation of a Scientific Computation Platform\\With a Focus on Quality Attributes}
 
 \author
 {Filipe Pires [85122], João Alegria [85048]\\
-\\
-Software Architecture\\
-\normalsize{Department of Electronics, Telecommunications and Informatics}\\
-\normalsize{University of Aveiro}\\
-} 
+  \\
+  Software Architecture\\
+  \normalsize{Department of Electronics, Telecommunications and Informatics}\\
+  \normalsize{University of Aveiro}\\
+}
 
 \date{\today{}}
 
@@ -141,20 +165,24 @@ For simplicity, only two service message types were defined:
 In them are the following parameters:
 \texttt{clientID}, a positive integer that uniquely identifies a client machine;
 \texttt{serverID}, a positive integer that uniquely identifies each physical server in the cluster;
-\texttt{requestID}, a positive integer that uniquely identifies a pi calculation request (computed as 1000 $\times$ \texttt{client id} $+$ increment);
+\texttt{requestID}, a positive integer that uniquely identifies a pi calculation request (computed as 1000 $\times$ \texttt{clientId} $+$ increment);
 \texttt{01} and \texttt{02}, the request and reply codes;
 \texttt{\# iterations}, the chosen value for the previously mentioned control variable used to simulate the number of iterations for the computation of pi
 (each iteration / cycle corresponds to 1 second);
-\texttt{pi}, the computed value of $\pi$.
+\texttt{pi}, the computed value of $\pi$. In addition, between internal server components we found the need to append to the request message some metadata to help us in implementing some mandatory features. We then extended that message format and ended up with \texttt{request-<clientHost>-<clientPort>-<request>}, a self-explanatory format but the parameters will be detailed below.
 
 A few additional message types were added during development for management purposes:
-\vspace{-10pt}
 \begin{itemize}[noitemsep]
-  \item Heartbeat: ..................................
+  \item Heartbeat/HealthCheck: \texttt{healthcheck}
+  \item New Client: \texttt{newClient-<clientHost>-<clientPort>}
+  \item Client Down: \texttt{clientDown-<clientId>}
+  \item New Server: \texttt{newServer-<serverHost>-<serverPort>}
+  \item Client Down: \texttt{serverDown-<serverId>}
+  \item New Request: \texttt{newRequest-<serverId>-<request>}
+  \item Request Processed: \texttt{processedRequest-<serverId>-<request>}
 \end{itemize}
 \vspace{-10pt}
-
-..............................................................................................
+As shown, some of these messages also need parameters such as: \texttt{clientHost}, a string containing the host name of the client machine; \texttt{clientPort}, a integer containing the port where the client process is running; \texttt{clientId}, an integer that uniquely identifies the client; \texttt{serverHost}, a string containing the host name of the server machine; \texttt{serverPort}, a integer containing the port where the server process is running; \texttt{serverId}, an integer that uniquely identifies the server and lastly \texttt{request}, a string containing the request message that triggered that event.
 
 \newpage
 \section{System Architecture} \label{architecture} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -184,16 +212,16 @@ It's main purpose, as the name implies, is to distribute in a balanced way the i
 
 Additionally, this and only this component is the one responsible for interacting with the system clients. This means that not only the already mentioned $\pi$ calculation requests but also some additional control messages that our team created need to be handled by the Load Balancer. These additional messages are related to the creation and destruction of a client. As already mentioned in section \ref{components}, we concluded and decided that the most logical approach was to enable each server to choose and define its port, due to physical restriction; this means that when a client is created, the server side of the system does not know its ip not its port, information that needs to be registered. Following that thought process, we created both a creation message, containing the client's ip and port and a deletion message containing only the client's id that was given by the Tactic Manager. Those messages in the creation or deletion of the client are sent to the Load Balancer, the only entity the client knows about in the system's server side.
 
-When receiving the client control messages, the Balancer acknowledges it as received it and redirects the message to the Tactic Manager, that will process and store the received information, and in the case it is a client creation, it will send to that client his just created internal id.
+When receiving the client control messages, the Balancer acknowledges it as received and redirects the message to the Tactic Manager, that will process and store the received information, and in the case it is a client creation, it will send to that client his just created internal id.
 
-\subsubsection{Tactic Manager}
+\subsubsection{Tactic Manager} \label{tm}
 This component can be considered as the brain of the cluster, since it should have the knowledge about every registered server, every registered client, the state and who is processing every message at anytime. This is necessary, for example,as stated in section \ref{lb}, to enable the Load Balancer to distribute in a balanced fashion the incoming calculation requests since the Manager knows the occupation of each server at anytime.
 
 One of its responsibilities is to be the entity, and the only one, with whom the servers talk too. For that reason, similarly to the control messages developed for the clients refereed in section \ref{lb}, we also needed to create control messages for the creation and destruction of each server, being sent in the appropriate time to the Task Manager, that will process the messages and store the information, also sending the created id in case of a server creation. Additionally, all servers when receiving or finishing to process a calculation request should notify this managing entity of its status change.
 
 Another responsibility of this component is the executions and possible consequent actions related to the health-check of all registered servers. This functionally was concluded to be paramount when assuring our quality attributes, namely Scalability, Performance, Availability and Usability. The flow of this process goes as follows: when the Tactic Manager is created, the Health-checking subprocess is initiated in parallel, and from then on, it will send a health-check to all registered servers on a time interval previously established, in our scenario it was defined at 30 seconds. In the case one server doesn't respond to the health-check, it is considered dead, and for that reason it is deleted form the internal registries and any request assigned to that server(which was previously registered by the server when alive) will be equally distributed by all remaining servers by sending them to the Load Balancer which will execute that task.
 
-\subsection{Auxiliary Components}
+\subsection{Auxiliary Components}\label{aux}
 In addition to all those  main component, there are some auxiliary ones that need to be mentioned since them role is quite important.
 
 The first ones are the SocketServer and SocketClient, both are wrappers for a WebSocket Server and a WebSocket Client, respectively. This enabled us to use our wrappers when in need of a WebSocket Server or Client without worrying of the internal working, allowing us to focus on the logic of the problem. The only consideration we needed to make was that every entity tht used the SocketServer needed to pass a MessageProcessor interface instance, take would supply all the logic when the server received a message. Additionally, some refactoring was made to these classes in relation to the one delivered in our first project, namely in the SocketServer. We added a AttendUser internal class to the SocketServer, which handled in a parallel way all the connections made to the WebSocket server.
@@ -209,19 +237,124 @@ Another important component is the LoadDistributer, a class internal to the Load
 
 \subsection{Quality Attributes Assurance} \label{qaa} %%%%%%%%%%%
 
-\subsubsection{Performance}
-% % 1. Replicas of computation: requests must be fairly distributed among the servers;
-% % 2. Concurrency (must use ReentrantLock): each request runs on its own thread in a server;
+\subsubsection{Performance} \label{performance}
+As detailed by the project guidelines, this quality attribute focuses in main points: the computational replicas, meaning that there should exist more than one entity able to calculate $\pi$, translating to a necessity of distributing in a balanced fashion the request between the available computational nodes so that the response time can decrease; the other focus was on the mandatory concurrency,  which by design would enable our solution to be more efficient by processing each request in its independent thread in a computational server, also specifying that in the case some synchronization needed to be made, it should use ReentrantLocks.
 
-\subsubsection{Availability}
+With that in mind, we developed several mechanisms to ensure that we were following the guidelines and the solution was the best we could produce. In relation to the aspect of computational servers replication, in the case there are more than one computational server active at a time, we made possible the balanced distribution across using the already mentioned Load Balancer, section \ref{lb}. The flow of data was already explained in that section and the internal worker thread, Load Distributer, was also already presented in section \ref{aux}. To illustrate the distribution itself, we present a code snippet of the Load Distributer normal distribution process:
+
+
+\begin{lstlisting}[label={loadDistributor}]
+//LoadDistributor
+String[] server=myClient.send("leastOccupiedServer")
+                        .split("-");
+if(server[1].equals("none")){...}
+else{
+  SocketClient clientSocket=new SocketClient(...);
+  try {
+    for(String msg:messages){
+      String[] tmp=msg.replaceAll("\\s+","").split("\\|");
+      String[] processed=Arrays.copyOfRange(tmp,1,tmp.length);
+      String[] client=myClient.send("clientInfo-"+
+                                    processed[0]).split("-");
+      clientSocket.send("request-"+
+                            client[2]+"-"+
+                            client[3]+"-"+
+                            msg);
+    }
+  } catch (IOException ex) {
+    myClient.send("serverDown-"+server[1]);
+  }
+  clientSocket.close();
+}
+\end{lstlisting}
+
+In relation to the concurrency aspect and the synchronization, in this project we made sure that all clients were handled by separate thread and every request made by each client also treated with its independent thread. The concurrent synchronization we found that it was only suitable and need in the Tactic Manager; all servers are independent of each other, the Load Balancer is a proxy for all the available servers, but the Tactic Manager need to receive and store crucial cluster information that needs to be consistent and reliable. For that reason, internally to the Tactic Manager, we implemented a monitor using the indicated \textit{ReentrantLock} to assure a mutually exclusive access to that information between all the thread created by each message arriving at the Tactic Manager.
+To illustrate that we present a snippet of our SocketServer wrapper showing that each client is handled by an independent thread, a snippet of the computational server showing that each incoming request is handled by an independent thread and last a snippet of the Tactic Manager internal monitor.
+
+\begin{lstlisting}
+//SocketServer
+socket = new ServerSocket(this.port);
+mp.setSocketStatus(1);
+while(continueRunning){
+  Socket inSocket = socket.accept();
+  Thread t=new Thread(new AttendClient(inSocket));
+  t.start();
+}
+socket.close();
+\end{lstlisting}
+
+\begin{lstlisting}
+//Server
+String[] processedMessage = message.split("-");
+switch(processedMessage[0]){
+  ...
+  case "request":
+    SocketClient manager = new SocketClient(tmHost,tmPort);
+    try {
+      manager.send("newRequest-"+this.id+"-"+processedMessage[3]);
+      manager.close();
+      processingRequests.add(processedMessage[3]);updateProcessing();
+      PiCalculation request = new PiCalculation(processedMessage[1], 
+                                          Integer.valueOf(processedMessage[2]),
+                                          processedMessage[3]);
+      Thread requestProcessing = new Thread(request);
+      requestProcessing.start();
+    } catch (IOException ex) {
+      Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+    }
+    break;
+}
+\end{lstlisting}
+
+\begin{lstlisting}
+//ClusterInfo(Monitor)
+private final ReentrantLock rl;
+...
+public void addServer(String host, int port){
+  rl.lock();
+  int id=0;
+  while(serverInfo.keySet().contains(id)){id++;}
+  ServerInfo si = new ServerInfo(id, host, port);
+  serverInfo.put(id, si);
+  SocketClient client=new SocketClient(host, port);
+  try {client.send("serverId-"+id);} 
+  catch (IOException ex) {removeServer(id);}
+  client.close();updateServers();
+  rl.unlock();
+}
+\end{lstlisting}
+
+\subsubsection{Availability} \label{availability}
 % 1. Redundancy: to reallocate requests in case a server goes down;
 % 2. Monitor: to supervise the cluster’s status (up/down servers (heartbeat), clients:
 % identification, requests being processed, processed requests), etc., etc.). 
 
-\subsubsection{Scalability}
+On availability, the guidelines outlined once again two main objectives, the first was to provide redundancy, meaning that on the event of a server going down, the system should react and reallocate in a balanced way every request that was being processed by that server; the second objective was the implementation of a monitor entity, enabling a supervision of the entire cluster status, active servers, registered clients and requests status. To assure the availability of the calculation servers and also indicated by the guidelines, a healthcheck feature was added, verifying that every registered server is in fact alive in a scheduled fashion.
+
+In our solution, the suggested redundancy was triggered by the unavailability of a server. This event could be assessed in two stages, either when the Load Distributer is sending the calculation request to one of the available servers and a acknowledge message is not sent as response; in this case we assume that that server is down and should be considered dead and removed from the internal registry. Another option, which takes advantage of a monitoring feature, is in the case of a healthcheck being negative, meaning that the server was unable to respond, most certainly being dead; in this case, similarly to the previous option, we consider the server dead, remove it from the internal registry and perform the reallocation of any request current being processed by that server. We will present a little code snippet for the first option but the healthcheck's one will be illustrated after describing the second objective. Referring to snippet \ref{loadDistributor}, when a exception is raised means that an acknowledge wasn't received, so for that reason, the code for handling the exception is the one to reallocate the request(s).
+
+Monitoring is the main purpose of the Tactic Manager as mentioned in section \ref{tm}. Using all the management messages mentioned in section \ref{messages}, both servers and clients send metadata information directly or indirectly to the Tactic Manager so that an updated and reliable state of the cluster is always present. The usage of the already discussed monitor helps to keep this information consistent and error free. Another feature of the Tactic Manager that was also developed due to availability was the health checking process, which assure that all registered servers are alive and available to receive calculation requests. The flow of this process was already detailed in section \ref{tm}, but a code snippet will be presented for a better understanding.
+
+\begin{lstlisting}
+//HealthCheck
+while(true){
+  try {Thread.sleep(30000);}
+  catch (InterruptedException ex) {
+    Logger.getLogger(TacticManager.class.getName()).log(Level.SEVERE, null, ex);
+  }
+  for(ServerInfo si : serverInfo.values()){
+    try {
+      SocketClient client=new SocketClient(si.getHost(), si.getPort());
+      client.send("healthcheck");client.close();
+    } catch (IOException ex) {removeServer(si.getId());}
+  }
+}
+\end{lstlisting}
+
+\subsubsection{Scalability} \label{scalability}
 % 1. Horizontal scalability: add new servers whenever necessary
 
-\subsubsection{Usability}
+\subsubsection{Usability} \label{usability}
 % All GUI must be driven by Usability for the EVALUATION PROCESS: usage, trace, verification,
 % validation, etc. You can resort to the tactics and anything else you think is necessary. The
 % stakeholder will use the GUI to validate your implementation.

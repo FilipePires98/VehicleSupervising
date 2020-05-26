@@ -124,8 +124,6 @@ public class LoadBalancer implements MessageProcessor{
             } catch (IOException ex) {
                 Logger.getLogger(LoadBalancer.class.getName()).log(Level.SEVERE, null, ex);
             }
-            
-            
         }
 
     }
