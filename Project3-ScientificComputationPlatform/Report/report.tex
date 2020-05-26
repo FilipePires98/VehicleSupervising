@@ -158,50 +158,136 @@ A few additional message types were added during development for management purp
 
 \newpage
 \section{System Architecture} \label{architecture} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-The architecture we were guided to was a junction of a client/server and a master/slave architecture. It is partly a client/server because in the first place, there is a client to our system and a server, that from the client's perspective seems to be only one entity but in fact it is composed of several, each with its specific responsibility. Those internal server entities are independent of one another, and in case they need to communicate they do so in a client/server manner, making the necessary requests and awaiting for the response of the entity in question.
 
-The master/slave aspect of our architecture is due to the fact that the $\pi$ calculation infrastructure is comprised of a main entity and a set of calculation servers; that main entity that in fact is divided in two(Load Balancer and Tactic Manager) is the one that interacts with the clients and then assigns work to the calculation servers that are awaiting.
+The adopted architecture was a hybrid version of client/server and master/slave.
+First of all, the clients that connect to and use our system act as a typical client entity and, from their perspective, there is only one server entity 
+responding to their requests.
+The server, however, is in fact made up of several entities, each with its specific responsibility.
+These internal entities are independent from one another and when they need to communicate they do so in a client/server manner, making the necessary requests 
+and awaiting for a response.
 
-All the communications in this system are done through WebSockets like the project guide proposed. A further description of each component is given below.
+The architecture follows a master/slave model as well in the sense that the $\pi$ calculation infrastructure is comprised of a main entity (the master) and a 
+set of calculation servers (the slaves): the calculation servers await for their master to assign them tasks; the main entity is actually made up of two 
+entities (a Load Balancer and a Tactic Manager) that run in the same process as we will detail further ahead and that does the interaction with the clients and 
+communicate with the slaves in order to deliver a response to the client requests.
 
+As predefined by our stakeholder, all communications are done through web sockets.
+Below, we provide a detailed description of each entity as well as of the communication mechanisms.
 
-\subsection{Components} \label{components} %%%%%%%%%%%%%%%%%%%%%%
+\subsection{Entities} \label{entities} %%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \subsubsection{Client}
-This component is the one that represents the client in our system. This entity is the one that makes the calculation requests by sending them to the Load Balancer and then awaits for the response to arrive. The client can make the number of request he wishes and he doesn't need to wait for the response of a calculation request to order another.
 
-The client need to instantiate a WebSocket server so that the calculation request responses can be sent to him in a asynchronous fashion. After some deliberation our group concluded that the best approach was fro the client to choose the port it would use, since there could be constraints the machine the process is running and it wasn't viable for the client to receive the port indication from the server that doesn't know anything about the ports already in use on the client machine. For that reason the client, in initiating, as to send some control messages to notify the main server that it was created and to indicate it's websocket host ip and port, in response it will receive it's internal server id; when the client is stopped it will also notify the main server of that event.
+The Client acts as the system entity that provides the user a graphical interface (GUI) in order to make calculation requests to the scientific computation 
+platform.
+It is the Client that parses the user input and sends requests to the Load Balancer, awaiting for responses to arrive to provide the user with the answers he/she needs.
+The user can make how many requests he/she desires, as the Client does not need to wait for each computation response in order to request another.
+
+A key design decision was made when implementing the communication mechanism for clients.
+After some deliberation, we concluded that the best approach for the web sockets' ports definition would be to make the Client responsible for choosing the port
+it uses, since there could be constraints related to the machine where the process is running and it wouldn't be viable for the Client to receive the port 
+indication from a server that might have no knowledge about the ports already in use on the Client's machine. 
+This way, the Client instantiates a web socket with a port defined by itself, allowing the computation responses to be sent to it asynchronously.
+
+A Client instantiation imposes the exchange of some control messages.
+When initiating, the Client needs to send a message to notify the main server that it was created, indicating its web socket host IP address and chosen port.
+In response, the main server sends to the Client an internal identifier (used for the server to recognize it in future messages).
+When the Client is stopped, it sends a new message notifying the main server that it will shut down. 
 
 \subsubsection{Calculation Server}
-Responsible for making the $\pi$ calculation themselves, this entity awaits for a calculation request to arrive, processes it and then responds directly to the client that triggered it. The direct response to the clients is possible because the request first goes through the Load Balancer, that with the help of Tactic Manager adds the client metadata necessary for the calculation server to directly reply to the client. All the requests processing is parallelized.
 
-Similarly to the clients, the servers also need a WebSocket server to receive the calculation requests, so they also need to choose the port it will be active in. The same physical constraints apply, so the servers when created need to identify the main server of that event and attach the necessary metadata, such as the host ip and port the websocket is running in; when a server is closed, if possible, it should also notify the main server of that event.
+Calculation servers hold the code for the computation of the scientific algorithms.
+These entities await for requests to arrive from the main server, process them and respond directly to the clients that triggered the requests.
+For our use case, the $\pi$ computation algorithm is simulated according to a parameter, as previously mentioned.
+Nevertheless, the code was made so that a real algorithm implementation can quickly replace the current simulation, and allowing additional algorithms to be 
+inserted so that the platform supports new computation requests.
+
+A Server is able to respond directly to the Client thanks to an internal mechanism:
+the request is initially sent by the Client to the Load Balancer;
+the Tactic Manager then adds the Client metadata to it and the Load Balancer forwards the updated message to the Calculation Server;
+with the added information, the Server gains the capacity to send the computation results to the Client without the help of the main server.
+All processing of requests is parallelized, preventing any undesired bottlenecks.
+
+Similarly to the Client, a Server needs a web socket server to receive the calculation requests, so it also needs to choose the port it will be active in. 
+The same physical constraints apply, so the servers need to exchange similar control messages on instantiation and shut down, including host IP address and port identification.
 
 \subsubsection{Load Balancer} \label{lb}
-This is one of the most important components of our architecture. It's existence started by being a project requisite, but we quickly understood and concluded that in fact it was a huge asset in our solution. This component proved to be quite paramount when handling the quality attributes we had to guarantee in this project. This component was mainly created to handle availability and scalability, reasons we will further detail in section \ref{constraints}. This section will describe how this component work.
 
-It's main purpose, as the name implies, is to distribute in a balanced way the incoming $\pi$ calculation requests across all registered servers. When one or more calculation requests are sent to the Load Balancer, for each request the least occupied server is requested from the Tactic Manager, enabling a balanced distribution; after knowing to which server the message should be redirected to, information such as the ip and port from the client requesting the service is also requested from the Tactic Manager, allowing the server to respond to the client directly, as stated by the project guide; finally, the message is redirected to the server with the client information added in a pre-defined fashion.
+We have mentioned the Load Balancer more than once, as it is a key asset to our solution, and in this section we explain why it is one of the most important 
+entities of our architecture.
+Its existence started by being a project requirement, but we quickly understood its actual importance when handling the quality attributes we wished to guarantee.
 
-Additionally, this and only this component is the one responsible for interacting with the system clients. This means that not only the already mentioned $\pi$ calculation requests but also some additional control messages that our team created need to be handled by the Load Balancer. These additional messages are related to the creation and destruction of a client. As already mentioned in section \ref{components}, we concluded and decided that the most logical approach was to enable each server to choose and define its port, due to physical restriction; this means that when a client is created, the server side of the system does not know its ip not its port, information that needs to be registered. Following that thought process, we created both a creation message, containing the client's ip and port and a deletion message containing only the client's id that was given by the Tactic Manager. Those messages in the creation or deletion of the client are sent to the Load Balancer, the only entity the client knows about in the system's server side.
+Load Balancer's main purpose, as the name implies, is to distribute in a balanced way the incoming $\pi$ calculation requests across all registered servers. 
+When one or more calculation requests are sent to it, Load Balancer asks the Tactic Manager via web socket to identify the least occupied Server and assigns the 
+task to that Server.
+It is in this stage, after the Server is chosen, that the Load Balancer asks the Tactic Manager for the Client's metadata to be inserted in the request.
 
-When receiving the client control messages, the Balancer acknowledges it as received it and redirects the message to the Tactic Manager, that will process and store the received information, and in the case it is a client creation, it will send to that client his just created internal id.
+It is important to state that the Load Balancer is the central entity of the infrastructure.
+It is only through it that the clients are able to interact with the remainder of the infrastructure and it is only this entity that the Client has knowledge 
+about from the very moment it is instantiated.
+The Tactic Manager only server this entity, although it holds the information about the remainder.
+If the process where the Load Balancer and Tactic Manager are running dies for some reason, the platform will not work; this is not true for the Client nor the 
+Calculation Server.
+In section \ref{constraints} we explore how the Load Balancer is able to handle availability and scalability.
 
 \subsubsection{Tactic Manager}
-This component can be considered as the brain of the cluster, since it should have the knowledge about every registered server, every registered client, the state and who is processing every message at anytime. This is necessary, for example,as stated in section \ref{lb}, to enable the Load Balancer to distribute in a balanced fashion the incoming calculation requests since the Manager knows the occupation of each server at anytime.
 
-One of its responsibilities is to be the entity, and the only one, with whom the servers talk too. For that reason, similarly to the control messages developed for the clients refereed in section \ref{lb}, we also needed to create control messages for the creation and destruction of each server, being sent in the appropriate time to the Task Manager, that will process the messages and store the information, also sending the created id in case of a server creation. Additionally, all servers when receiving or finishing to process a calculation request should notify this managing entity of its status change.
+If the Load Balancer is the heart of the platform, the Tactic Manager can easily be considered its brain.
+It is this entity that holds the knowledge about every registered Server, every connected Client, the state of each and all, and who is processing each request 
+at any time.
+With this knowledge, it is able to understand which Server has the least amount of pending requests (is least occupied) and provide the Load Balancer with an 
+informed answer.
+The shared GUI of the Load Balancer and Tactic Manager is always up-to-date because of this knowledge as well.
 
-Another responsibility of this component is the executions and possible consequent actions related to the health-check of all registered servers. This functionally was concluded to be paramount when assuring our quality attributes, namely Scalability, Performance, Availability and Usability. The flow of this process goes as follows: when the Tactic Manager is created, the Health-checking subprocess is initiated in parallel, and from then on, it will send a health-check to all registered servers on a time interval previously established, in our scenario it was defined at 30 seconds. In the case one server doesn't respond to the health-check, it is considered dead, and for that reason it is deleted form the internal registries and any request assigned to that server(which was previously registered by the server when alive) will be equally distributed by all remaining servers by sending them to the Load Balancer which will execute that task.
+Although the Calculation servers receive messages from the Load Balancer, they only communicate with the central server through the Tactic Manager (they only 
+send messages to it). 
+The Server initialization and shutdown control messages are sent to the Tactic Manager, that will process and store the information, also sending back the 
+created identifier in case of the Server creation.
+Additionally, all servers when receiving or finishing the processing of a calculation request should notify this management entity of their status change.
 
-\subsection{Auxiliary Components}
-In addition to all those  main component, there are some auxiliary ones that need to be mentioned since them role is quite important.
+A control mechanism already mentioned in section \ref{messages} but not yet explained is also responsibility of the Tactic Manager - the health-check of 
+registered servers.
+This feature was added as we concluded it would be paramount when assuring some quality attributes, namely availability, performance and usability.
+The flow of this process goes as follows: when the Tactic Manager is created, the Health-checking subprocess is initiated in parallel; from then on, this
+subprocess sends health checks to all registered servers on a time interval established \textit{a priori} (in our scenario it was defined as 30 seconds periods);
+in the event that one Server does not respond, it is considered dead and consequently deleted from the internal registries so that future requests are not sent 
+to it; if any requests assigned to the dead Server were incomplete, these are sent back to the Load Balancer for redistribution amongst the living Servers.
 
-The first ones are the SocketServer and SocketClient, both are wrappers for a WebSocket Server and a WebSocket Client, respectively. This enabled us to use our wrappers when in need of a WebSocket Server or Client without worrying of the internal working, allowing us to focus on the logic of the problem. The only consideration we needed to make was that every entity tht used the SocketServer needed to pass a MessageProcessor interface instance, take would supply all the logic when the server received a message. Additionally, some refactoring was made to these classes in relation to the one delivered in our first project, namely in the SocketServer. We added a AttendUser internal class to the SocketServer, which handled in a parallel way all the connections made to the WebSocket server.
+\subsection{System Components} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Another important component is the LoadDistributer, a class internal to the LoadBalancer that is responsible for the actual distribution of the incoming requests. Every request is processed in a parallel way. Lastly, there's the HealthChecker, internal to the TacticManager and as the name implies, it is the class that as the duty to health check all registered servers and take action in case some of them are not alive.
+We have discussed the entities that make up the logic of the solution - these are all represented in our architecture diagram in Figure \ref{pa3Arch}.
+However, there are additional system components that provide what is necessary for the integration of the whole infrastructure, some of them worth exploring in 
+depth due to their important roles.
 
-\subsection{User Interface} \label{ui} %%%%%%%%%%%%%%%%%%%%%%%%%%
+The first two important components are the LoadDistributer, a class internal to the LoadBalancer that is responsible for the actual distribution of incoming requests, 
+and the HealthChecker, internal to the TacticManager with the duty to health check all registered servers and take action in case any of them does not respond.
 
+\begin{figure}[H]
+  \centering
+  \begin{minipage}{\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{img/pa3Arch.png}
+  \end{minipage}%
+  \caption{Platform's architecture diagram.}
+  \label{pa3Arch}
+\end{figure} 
+
+Then we have the SocketServer and SocketClient, which are wrapper classes for a WebSocket Server and a WebSocket Client.
+They enabled us to use sockets personalized for our needs without worrying about the internal functioning of the original class, and in consequence keep our 
+focus on our problem domain alone.
+The only consideration we needed to make was that every entity that used the SocketServer needed to pass a MessageProcessor interface instance that would supply
+all of the message processing logic.
+The classes that implement MessageProcessor are the Client, the Server, the LoadBalancer and the TacticManager.
+An internal class called AttendUser was added to our SocketServer to handle all the connections made to the WebSocket server in parallel.
+
+\newpage
+\subsection{User Interface} \label{ui} %%%%%%%%%%%%%%%%%%%%%%%%%% 
+
+We defined from the very beginning that the GUIs would have to be as simple as possible, while providing both the basic and required elements for the user and 
+additional features that would enrich their usability and empower the user.
+The resulting interfaces are presented in this section.
+
+...
 
 \newpage
 \section{Architecture Constraints} \label{constraints} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -226,7 +312,7 @@ Another important component is the LoadDistributer, a class internal to the Load
 % validation, etc. You can resort to the tactics and anything else you think is necessary. The
 % stakeholder will use the GUI to validate your implementation.
 
-\subsection{User Cases Compliance} \label{compliance} %%%%%%%%%%%
+\subsection{Use Cases Compliance} \label{compliance} %%%%%%%%%%%
 
 
 \newpage
