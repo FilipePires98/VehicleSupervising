@@ -2,41 +2,66 @@
 
 \usepackage{scicite,times,graphicx,float,hyperref}
 \usepackage[skip=0pt]{caption}
+\usepackage{subcaption}
 \usepackage[utf8]{inputenc}
 \usepackage{enumitem}
 \usepackage{booktabs}
 \usepackage{multicol}
+\usepackage{listings}
+\usepackage{color}
+
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{
+  language=Java,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=3
+}
 
 \topmargin -1.0cm
 \oddsidemargin 0.0cm
-\textwidth 16cm 
+\textwidth 16cm
 \textheight 23cm
 \footskip 1.0cm
 
 \newenvironment{sciabstract}{%
-\begin{quote} \bf}
-{\end{quote}}
+  \begin{quote} \bf}
+    {\end{quote}}
 
 \newcounter{lastnote}
 \newenvironment{scilastnote}{%
   \setcounter{lastnote}{\value{enumiv}}%
   \addtocounter{lastnote}{+1}%
   \begin{list}%
-  {\arabic{lastnote}.}
-  {\setlength{\leftmargin}{.22in}}
-  {\setlength{\labelsep}{.5em}}
-}
-{\end{list}}
+    {\arabic{lastnote}.}
+    {\setlength{\leftmargin}{.22in}}
+    {\setlength{\labelsep}{.5em}}
+    }
+    {\end{list}}
 
-\title{Simulation of a Scientific Computation Platform\\With a Focus on Quality Attributes} 
+\title{Simulation of a Scientific Computation Platform\\With a Focus on Quality Attributes}
 
 \author
 {Filipe Pires [85122], João Alegria [85048]\\
-\\
-Software Architecture\\
-\normalsize{Department of Electronics, Telecommunications and Informatics}\\
-\normalsize{University of Aveiro}\\
-} 
+  \\
+  Software Architecture\\
+  \normalsize{Department of Electronics, Telecommunications and Informatics}\\
+  \normalsize{University of Aveiro}\\
+}
 
 \date{\today{}}
 
@@ -131,7 +156,7 @@ This is also true for each individual client.
 The orchestrator runs in an independent process as well, serving as both a load balancer and a tactic monitor - although these two are built as separate entities.
 So in order for entities to communicate with each other, the TCP/IP socket technology was made a requirement.
 
-For simplicity, only two service message types were defined:
+For simplicity, only 2 service message types were defined:
 \vspace{-10pt}
 \begin{itemize}[noitemsep]
   \item Request: $|$ \texttt{clientID} $|$ \texttt{requestID} $|$ \texttt{01} $|$ \texttt{\# iterations} $|$
@@ -141,20 +166,30 @@ For simplicity, only two service message types were defined:
 In them are the following parameters:
 \texttt{clientID}, a positive integer that uniquely identifies a client machine;
 \texttt{serverID}, a positive integer that uniquely identifies each physical server in the cluster;
-\texttt{requestID}, a positive integer that uniquely identifies a pi calculation request (computed as 1000 $\times$ \texttt{client id} $+$ increment);
+\texttt{requestID}, a positive integer that uniquely identifies a pi calculation request (computed as 1000 $\times$ \texttt{clientId} $+$ increment);
 \texttt{01} and \texttt{02}, the request and reply codes;
 \texttt{\# iterations}, the chosen value for the previously mentioned control variable used to simulate the number of iterations for the computation of pi
 (each iteration / cycle corresponds to 1 second);
-\texttt{pi}, the computed value of $\pi$.
+\texttt{pi}, the computed value of $\pi$. In addition, between internal server components we found the need to append to the request message some metadata to help us in implementing some mandatory features. We then extended that message format and ended up with \texttt{request-<clientHost>-<clientPort>-<request>}, a self-explanatory format but the parameters will be detailed below.
 
-A few additional message types were added during development for management purposes:
+Additional message types were added during development for management purposes:
 \vspace{-10pt}
 \begin{itemize}[noitemsep]
-  \item Heartbeat: ..................................
+  \item Health Check: \texttt{healthcheck}
+  \item New Client: \texttt{newClient-<clientHost>-<clientPort>}
+  \item Client Down: \texttt{clientDown-<clientId>}
+  \item New Server: \texttt{newServer-<serverHost>-<serverPort>}
+  \item Client Down: \texttt{serverDown-<serverId>}
+  \item New Request: \texttt{newRequest-<serverId>-<request>}
+  \item Request Processed: \texttt{processedRequest-<serverId>-<request>}
 \end{itemize}
 \vspace{-10pt}
-
-..............................................................................................
+As shown, some of these messages also need parameters: 
+\texttt{clientHost}, a string containing the host name of the client machine; 
+\texttt{clientPort}, a positive integer containing the port where the client process is running; 
+\texttt{serverHost}, a string containing the host name of the server machine; 
+\texttt{serverPort}, a positive integer containing the port where the server process is running; 
+\texttt{request}, a string containing the request message that triggered that event in the format mentioned above.
 
 \newpage
 \section{System Architecture} \label{architecture} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -167,7 +202,7 @@ These internal entities are independent from one another and when they need to c
 and awaiting for a response.
 
 The architecture follows a master/slave model as well in the sense that the $\pi$ calculation infrastructure is comprised of a main entity (the master) and a 
-set of calculation servers (the slaves): the calculation servers await for their master to assign them tasks; the main entity is actually made up of two 
+set of calculation servers (the slaves): the calculation servers await for their master to assign them tasks; the main entity is actually made up of 2 
 entities (a Load Balancer and a Tactic Manager) that run in the same process as we will detail further ahead and that does the interaction with the clients and 
 communicate with the slaves in order to deliver a response to the client requests.
 
@@ -255,11 +290,12 @@ to it; if any requests assigned to the dead Server were incomplete, these are se
 
 \subsection{System Components} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-We have discussed the entities that make up the logic of the solution - these are all represented in our architecture diagram in Figure \ref{pa3Arch}.
+We have discussed the entities that make up the logic of the solution - these are all represented in our architecture diagram in Figure \ref{fig:pa3Arch} as well
+as their interactions in Figure \ref{fig:pa3Interaction}.
 However, there are additional system components that provide what is necessary for the integration of the whole infrastructure, some of them worth exploring in 
 depth due to their important roles.
 
-The first two important components are the LoadDistributer, a class internal to the LoadBalancer that is responsible for the actual distribution of incoming requests, 
+The first two important components are the LoadDistributor, a class internal to the LoadBalancer that is responsible for the actual distribution of incoming requests, 
 and the HealthChecker, internal to the TacticManager with the duty to health check all registered servers and take action in case any of them does not respond.
 
 \begin{figure}[H]
@@ -269,7 +305,7 @@ and the HealthChecker, internal to the TacticManager with the duty to health che
     \includegraphics[width=\linewidth]{img/pa3Arch.png}
   \end{minipage}%
   \caption{Platform's architecture diagram.}
-  \label{pa3Arch}
+  \label{fig:pa3Arch}
 \end{figure} 
 
 Then we have the SocketServer and SocketClient, which are wrapper classes for a WebSocket Server and a WebSocket Client.
@@ -280,34 +316,324 @@ all of the message processing logic.
 The classes that implement MessageProcessor are the Client, the Server, the LoadBalancer and the TacticManager.
 An internal class called AttendUser was added to our SocketServer to handle all the connections made to the WebSocket server in parallel.
 
+\begin{figure}[H]
+  \centering
+  \begin{minipage}{\textwidth}
+    \centering
+    \includegraphics[width=.75\linewidth]{img/pa3Interaction.png}
+  \end{minipage}%
+  \caption{Platform's interaction diagram.}
+  \label{fig:pa3Interaction}
+\end{figure} 
+
 \newpage
 \subsection{User Interface} \label{ui} %%%%%%%%%%%%%%%%%%%%%%%%%% 
 
 We defined from the very beginning that the GUIs would have to be as simple as possible, while providing both the basic and required elements for the user and 
 additional features that would enrich their usability and empower the user.
-The resulting interfaces are presented in this section.
+The resulting interfaces are presented next.
 
-...
+On initialization, the system parses optional arguments passed to the Java application with the help of the Commons CLI library \cite{commonscli}.
+Two options are accepted as arguments: \texttt{-c} and \texttt{-s}, where the number of clients and servers (respectively) to deploy on initialization are defined.
+By default, if no arguments are passed, the platform deploys 1 instance of each.
+
+Their GUIs are presented in Figure \ref{fig:GUIs_init}.
+From the screen captures taken of each UI, it is possible to conclude a few aspects.
+First of all, the use of color coding helps the user immediately understand the state of the process; this is more important when the scale is bigger (more 
+instances of servers and/or clients).
+Also, the parameters for the IP addresses and ports are pre-filled considering available ports and avoiding collisions.
+Nevertheless, input fields are all active, meaning that the user can personalize them as he/she wishes to.
+
+For inexperienced users, the title of each interface helps him/her understand the respective role, although it does not yet uniquely identify the process;
+also, they can understand the purpose of each text area through the label placed above each one.
+The positioning of each element (input fields, buttons, text areas) was made strategically, adopting a dashboard-like structure for the Load Balancer and 
+Tactic Manager GUI.
+
+\begin{figure}[H] 
+  \centering
+  \begin{subfigure}{.55\textwidth}
+    \centering
+    \includegraphics[width=.95\linewidth]{img/LBM_init.png}
+    \caption{Load Balancer \& Tactic Manager GUI}
+    \label{fig:LBM_init}
+  \end{subfigure} \\
+  \begin{subfigure}{.5\textwidth}
+    \centering
+    \includegraphics[width=.95\linewidth]{img/S_init.png}
+    \caption{Server GUI}
+    \label{fig:S_init}
+  \end{subfigure}%
+  \begin{subfigure}{.5\textwidth}
+    \centering
+    \includegraphics[width=.95\linewidth]{img/C_init.png}
+    \caption{Client GUI}
+    \label{fig:C_init}
+  \end{subfigure}
+  \caption{GUIs of each independent process in the initial state of execution.}
+  \label{fig:GUIs_init}
+\end{figure} 
+
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}{.55\textwidth}
+    \centering
+    \includegraphics[width=.95\linewidth]{img/LBM_confirmed.png}
+    \caption{Load Balancer \& Tactic Manager GUI}
+    \label{fig:LBM_confirmed}
+  \end{subfigure} \\
+  \begin{subfigure}{.5\textwidth}
+    \centering
+    \includegraphics[width=.95\linewidth]{img/S_confirmed.png}
+    \caption{Server GUI}
+    \label{fig:S_confirmed}
+  \end{subfigure}%
+  \begin{subfigure}{.5\textwidth}
+    \centering
+    \includegraphics[width=.95\linewidth]{img/C_confirmed.png}
+    \caption{Client GUI}
+    \label{fig:C_confirmed}
+  \end{subfigure}
+  \caption{GUIs of each independent process after each is confirmed and ready to use.}
+  \label{fig:GUIs_confirmed}
+\end{figure} 
+
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}{.5\textwidth}
+    \centering
+    \includegraphics[width=.95\linewidth]{img/S_wrong.png}
+    \caption{Server GUI}
+    \label{fig:S_wrong}
+  \end{subfigure}%
+  \begin{subfigure}{.5\textwidth}
+    \centering
+    \includegraphics[width=.95\linewidth]{img/C_wrong.png}
+    \caption{Client GUI}
+    \label{fig:C_wrong}
+  \end{subfigure}
+  \caption{GUIs of each independent process presenting warning messages due to overlapping ports.}
+  \label{fig:GUIs_wrong}
+\end{figure} 
+
+In Figure \ref{fig:GUIs_confirmed} the system is fully deployed and active.
+To transition to an active (green) state, the user simply needs to confirm the values of the input fields by clicking on the "Confirm" button of each UI.
+In case the input is invalid, for example if the chosen ports are already in use, a warning message in red (again, using color coding) is shown on the bottom of
+the UI, as seen in Figure \ref{fig:GUIs_wrong}.
+Note that, once confirmed and validated, the input fields are made inactive as they should not be changed, and that the titles of the Client and Server change 
+so that they can be uniquely identified.
+
+\clearpage
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}{.55\textwidth}
+    \centering
+    \includegraphics[width=.95\linewidth]{img/LBM_active.png}
+    \caption{Load Balancer \& Tactic Manager GUI}
+    \label{fig:LBM_active}
+  \end{subfigure} \\
+  \begin{subfigure}{.5\textwidth}
+    \centering
+    \includegraphics[width=.95\linewidth]{img/S_active.png}
+    \caption{Server GUI}
+    \label{fig:S_active}
+  \end{subfigure}%
+  \begin{subfigure}{.5\textwidth}
+    \centering
+    \includegraphics[width=.95\linewidth]{img/C_active.png}
+    \caption{Client GUI}
+    \label{fig:C_active}
+  \end{subfigure}
+  \caption{GUIs of each independent process during the processing of multiple requests.}
+  \label{fig:GUIs_active}
+\end{figure} 
+
+With the input fields validated, the system can start receiving requests and processing them.
+In Figure \ref{fig:GUIs_active}, we present an example usage of the infrastructure, where several requests are done simultaneously, with different values for the 
+number of pi iterations, by different clients and distributed amongst different servers.
+
+The Server GUI is merely informative.
+It contains the Server status, its own IP address and port and of the main server, and 2 lists, one containing the received requests and the other those 
+already processed.
+The interface has an additional "Stop" button, meant to safely shutdown the Server through control messages.
+
+The Client GUI is similar, but instead of 2, it contains 3 lists: one for the requests sent, one for those under processing and one for those already 
+executed by the infrastructure and containing the results of the pi calculations.
+Besides the "Stop" button, this interface also has a "Send" button, obviously.
+The parameter for the number of iterations for the calculation of pi is placed right beside this button and the interaction method is through a spinner in order 
+to avoid user errors.
+
+The Load Balancer and Tactic Manager GUI naturally holds the most information about the infrastructure.
+Besides presenting the IP addresses and ports of the Load Balancer and of the Tactic Manager, it shows 4 lists, each with a specific purpose.
+The top 2 lists contain the requests successfully processed (on the left) and the requests being processed (on the right), both with the ID of the Server 
+responsible for each request.
+The bottom 2 lists contain the connected servers (on the left) and the connected clients (on the right).
+The servers are accompanied with their current occupation (the number of requests they are processing).
+On the left of these lists lies a column with global information and operations; here it is possible to learn the total number of requests processed and of 
+those being processed and the total occupation of the infrastructure; the user can also deploy new clients or servers through the "Add New Client" and "Add New
+Server" buttons; and he/she can also shutdown the process through the "Stop" button.
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}{\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{img/LBM_large.png}
+  \end{minipage}%
+  \caption{Load Balancer and Tactic Manager's GUI in expanded view during the processing of multiple requests in a cluster of 20 Calculation servers.}
+  \label{fig:LBM_large}
+\end{figure} 
+
+Finally we present a screen capture of the Load Balancer and Tactic Manager's GUI in expanded view (1920x1080) to show how the interface is able to adapt to 
+different sizes without loosing its natural format.
+In the scenario of Figure \ref{fig:LBM_large}, a cluster of 20 servers is deployed and the infrastructure is tested with many clients.
 
 \newpage
 \section{Architecture Constraints} \label{constraints} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
 \subsection{Quality Attributes Assurance} \label{qaa} %%%%%%%%%%%
 
-\subsubsection{Performance}
-% % 1. Replicas of computation: requests must be fairly distributed among the servers;
-% % 2. Concurrency (must use ReentrantLock): each request runs on its own thread in a server;
+We have stated that the designed architecture would rely on four of the most relevant quality attributes - performance, availability, scalability and usability - 
+and throughout this document these are visible in numerous circumstances.
+However, a critical analysis to the implementation was performed in order to determine how are these attributes actually ingrained and how well are they assured.
 
-\subsubsection{Availability}
+\subsubsection{Performance} \label{performance}
+
+As detailed by our stakeholder, this quality attribute should focus on the following points: 
+computational replicas, providing multiple instances able to calculate $\pi$, which translates to faster response times, as requests can be processed in 
+parallel assuming that they are equally distributed amongst replicas;
+concurrency, defining by design that each request is processed in its own thread and providing synchronization with resort to Reentrant Locks.
+
+With this in mind, we developed several mechanisms to ensure that the the guidelines were followed and the solution was fit for its purposes.  
+To illustrate the load distribution amongst replicas, we present a code snippet from the LoadDistributer:
+ 
+\begin{lstlisting}[label={loadDistributor}]
+//LoadDistributor
+String[] server=myClient.send("leastOccupiedServer").split("-");
+if(server[1].equals("none")){
+  // code hidden (not relevant here)
+}
+else{
+  SocketClient clientSocket=new SocketClient(
+    // code hidden (not relevant here)
+  );
+  try {
+    for(String msg:messages){
+      String[] tmp=msg.replaceAll("\\s+","").split("\\|");
+      String[] processed=Arrays.copyOfRange(tmp,1,tmp.length);
+      String[] client=myClient.send("clientInfo-"+processed[0]).split("-");
+      clientSocket.send("request-" + client[2] +"-"+ client[3] +"-"+ msg);
+    }
+  } catch (IOException ex) {
+    myClient.send("serverDown-"+server[1]);
+  }
+  clientSocket.close();
+}
+\end{lstlisting}
+
+In relation to the concurrency aspect and the synchronization, in this project we made sure that all clients were handled by separate processes and every request 
+made by each client also treated in a dedicated thread on a Server. 
+Reentrant Lock synchronization was only found useful in the Tactic Manager; as it stores information that must be at all times consistent and reliable, we 
+implemented an internal monitor using a \textit{ReentrantLock} instance to ensure the mutually exclusive access to the global information between all threads 
+created to handle each message arriving at the Tactic Manager.
+
+3 code snippets are presented below, as they were found relevant for this quality attribute assurance.
+The first belongs to the SocketServer wrapper, showing that each client is handled by an independent thread;
+the second belongs to the Calculation Server, showing that each incoming request is handled by an independent thread;
+and the last belongs to the Tactic Manager's internal monitor.
+
+\begin{lstlisting}
+//SocketServer
+socket = new ServerSocket(this.port);
+mp.setSocketStatus(1);
+while(continueRunning){
+  Socket inSocket = socket.accept();
+  Thread t=new Thread(new AttendClient(inSocket));
+  t.start();
+}
+socket.close();
+\end{lstlisting}
+
+\begin{lstlisting}
+//Server
+String[] processedMessage = message.split("-");
+switch(processedMessage[0]){
+  // code hidden (not relevant here)
+  case "request":
+    SocketClient manager = new SocketClient(tmHost,tmPort);
+    try {
+      manager.send("newRequest-"+this.id+"-"+processedMessage[3]);
+      manager.close();
+      processingRequests.add(processedMessage[3]);updateProcessing();
+      PiCalculation request = new PiCalculation(processedMessage[1], Integer.valueOf(processedMessage[2]), processedMessage[3]);
+      Thread requestProcessing = new Thread(request);
+      requestProcessing.start();
+    } catch (IOException ex) {
+      Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+    }
+    break;
+  }
+}
+\end{lstlisting}
+
+\begin{lstlisting}
+//ClusterInfo(Monitor)
+private final ReentrantLock rl;
+// code hidden (not relevant here)
+public void addServer(String host, int port){
+  rl.lock();
+  int id=0;
+  while(serverInfo.keySet().contains(id)){id++;}
+  ServerInfo si = new ServerInfo(id, host, port);
+  serverInfo.put(id, si);
+  SocketClient client=new SocketClient(host, port);
+  try {client.send("serverId-"+id);} 
+  catch (IOException ex) {removeServer(id);}
+  client.close();updateServers();
+  rl.unlock();
+}
+\end{lstlisting}
+
+\subsubsection{Availability} \label{availability}
 % 1. Redundancy: to reallocate requests in case a server goes down;
 % 2. Monitor: to supervise the cluster’s status (up/down servers (heartbeat), clients:
 % identification, requests being processed, processed requests), etc., etc.). 
 
-\subsubsection{Scalability}
+The stakeholder's guidelines outlined 2 key points related to availability:
+the first was on providing redundancy, meaning that on the event of a Server going down, the system should react and reallocate every pending request that Server
+was responsible for to other servers;
+the second was on the implementation of a monitoring entity, enabling a supervision of the entire cluster status, active servers, registered clients and requests status.
+
+Redundancy could be achieved by one of 2 alternatives: 
+either the task distribution would have associated a message receiving acknowledgement from the servers, that in the event it did not arrive, it would mean that 
+the Server is down;
+or servers would have to be consistently monitored to understand their status.
+In our solution, we actually adopted both strategies, resorting to the already discussed health check mechanism for the later.
+Going back to the code snippet from the LoadDistributor, it is possible to understand that when a exception is raised it means that the Server did not reply
+with an acknowledge message, so it is assumed dead, removed from the internal registry and the request reallocation process is executed.
+The code snippet below belongs to ClusterInfo's internal class HealthCheck and presents the logic behind this mechanism.
+The flow of this process is described in our interaction diagram as well (see Figure \ref{fig:pa3Interaction}).
+All these mechanisms and the constant (but consistent) updates to Tactic Manager's registry ensure that the infrastructure is available to users and that they 
+see a faithful representation of the system at all times.
+
+\begin{lstlisting}
+//HealthCheck
+while(true){
+  try {Thread.sleep(30000);}
+  catch (InterruptedException ex) {
+    Logger.getLogger(TacticManager.class.getName()).log(Level.SEVERE, null, ex);
+  }
+  for(ServerInfo si : serverInfo.values()){
+    try {
+      SocketClient client=new SocketClient(si.getHost(), si.getPort());
+      client.send("healthcheck");client.close();
+    } catch (IOException ex) {removeServer(si.getId());}
+  }
+}
+\end{lstlisting}
+
+\subsubsection{Scalability} \label{scalability}
 % 1. Horizontal scalability: add new servers whenever necessary
 
-\subsubsection{Usability}
+\subsubsection{Usability} \label{usability}
 % All GUI must be driven by Usability for the EVALUATION PROCESS: usage, trace, verification,
 % validation, etc. You can resort to the tactics and anything else you think is necessary. The
 % stakeholder will use the GUI to validate your implementation.
@@ -352,16 +678,22 @@ In terms of work percentage, we believe it was about 50\% for each student.
   \bibliographystyle{Science}
 
   \bibitem{pisky}
-  \textit{Pi in the sky: Calculating a record-breaking 31.4 trillion digits of Archimedes' constant on Google Cloud}.
-  Taken from \href{https://web.archive.org/web/20191019023120/https://cloud.google.com/blog/products/compute/calculating-31-4-trillion-digits-of-archimedes-constant-on-google-cloud}{web.archive.org}.
-  Retrieved May 2020.
+    \textit{Pi in the sky: Calculating a record-breaking 31.4 trillion digits of Archimedes' constant on Google Cloud}.
+    Taken from \href{https://web.archive.org/web/20191019023120/https://cloud.google.com/blog/products/compute/calculating-31-4-trillion-digits-of-archimedes-constant-on-google-cloud}{web.archive.org}.
+    Retrieved May 2020.
 
   \bibitem{jorg}
-  Arndt, Jorg \& Haenel, Christoph (2006).
-  \textit{Pi Unleashed}, in Springer-Verlag.
-  ISBN 978-3-540-66572-4.
-  Retrieved May 2020.
-  English translation by Catriona and David Lischka.
+    Arndt, Jorg \& Haenel, Christoph (2006).
+    \textit{Pi Unleashed}, in Springer-Verlag.
+    ISBN 978-3-540-66572-4.
+    Retrieved May 2020.
+    English translation by Catriona and David Lischka.
+
+  \bibitem{commonscli}
+    The Apache Software Foundation,
+    \textit{Commons CLI}.
+    \href{https://commons.apache.org/proper/commons-cli/}{commons.apache.org}.
+    Retrieved May 2020.
 
   % \bibitem{uml}
   %   Object Management Group,
