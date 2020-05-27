@@ -38,7 +38,7 @@ Software Architecture\\
 \normalsize{University of Aveiro}\\
 } 
 
-\date{\today{}}
+\date{April 21, 2020} %\today{}
 
 %%%%%%%%%%%%%%%%% END OF PREAMBLE %%%%%%%%%%%%%%%%
 
@@ -431,15 +431,16 @@ Those constrains are:
 \end{multicols}
 \vspace{-10pt}
 
-A further note needs to be made in relation to the HEARTBEAT message type and consumption strategy adopted. The fact this message type was meant to be generated in a much larger scale in relation to the other message types, a consumer group was mandatory to be implemented to efficiently consume the massive amounts of HEARTBEAT messages.
+A further note needs to be made in relation to the HEARTBEAT message type and consumption strategy adopted. 
+The fact that this message type was meant to be generated in a much larger scale in relation to the other message types, a consumer group was mandatory to be 
+implemented to efficiently consume the massive amounts of HEARTBEAT messages.
 When analyzing possible strategies, 2 options stood out: either 3 different consumer groups would be instantiated per topic, with one or more consumers assigned 
 to them to make possible a greater control over the constraints assigned to each message type; or one consumer group would be instantiated per topic with the 
 most restricting constraints with one or more consumers assigned to it. 
 The first strategy was not as efficient in terms of performance, since each message was going to be consumed 3 times more just to make possible the separation 
 of messages in the 3 available types. 
-This way, scalability is compromised, since if there were 100 messages types, 100 consumer groups would be needed and thus unnecessary overhead would be created.For that reason we implemented only one consumer group per topic which deals with all messages types in a efficient way. 
-
-To ensure the mentioned constraints, efforts can be made in several points along the data flow.
+This way, scalability is compromised, since if there were 100 messages types, 100 consumer groups would be needed and thus unnecessary overhead would be created.
+For that reason we implemented only one consumer group per topic which deals with all messages types in a efficient way. 
 
 \subsubsection{Message Lost}\label{lost}
 
@@ -449,14 +450,14 @@ Additionally a specific Consumer behavior was taken in consideration to further 
 
 On the Producer side, the \texttt{acks} property, related to the way the Kafka leader considers the "send" request complete, was the most relevant for our purposes. 
 "Acknowledge" has 3 options: 
-when receiving a request to store a message, the leader immediately considers the request complete, not making sure of its persistence in its logs nor requesting 
+when receiving a request to store a message, the leader immediately considers it complete, not making sure of its persistence in its logs nor requesting 
 the acknowledgement from any of its followers; 
 alternatively, the leader itself can assure message persistence, returning "request complete" without requesting acknowledgement from its followers; 
-or, the last and most secure way, "request complete" is only returned after the leader and all of its followers acknowledge the persistence of the message. 
+or "request complete" is only returned after the leader and all of its followers acknowledge the persistence of the message. 
 The codification of these modes is made by assigning "0" to no acknowledges, "1" to only the leader's acknowledge and "-1" or "all" to the acknowledge of both 
 leader and followers. 
-Property \texttt{acks} was set to "0" mode for the HEARTBEAT message type since it can be lost, and "all" mode for the STATUS message type since it cannot. 
-For the SPEED message type, although it can be lost, the \texttt{acks} mode was set to "all" due to another constraint (see section \ref{reprocessing}).
+Property \texttt{acks} was set to "0" mode for the HEARTBEAT message type since it can be lost, and "all" for the STATUS message type since it cannot. 
+For the SPEED message type, although it can be lost, \texttt{acks} was set to "all" due to another constraint (see section \ref{reprocessing}).
 
 Additionally, for messages of types HEARTBEAT and SPEED, the \textit{fireAndForget()} method of sending message discussed in section \ref{components} was used, since 
 the Kafka response was not important to assert if the persistance of the message was successful or not.
@@ -491,7 +492,7 @@ The \texttt{retries} property establishes a maximum number of retries per send r
 The \texttt{max.in.flight.requests.per.connection} establishes a maximum number of unacknowledged requests per connection to the Kafka leader. 
 These properties, when combined, can minimize - or even neutralize - the reordering probability. 
 
-The values these properties have by default, which are 2147483647 for the \texttt{retries} and 5 for the \texttt{max.in.flight.requests.per.connection} allow 
+The values these properties have by default, which are over 2 billion for the \texttt{retries} and 5 for the \texttt{max.in.flight.requests.per.connection} allow 
 messages to be reordered.
 To illustrate this, a brief example is here given:
 suppose that we send a message but the Kafka leader takes some time to respond and, in that time, a new connection with another message is also produced; 
@@ -519,15 +520,14 @@ This last internal constraint was the reason the \texttt{acks} property was set 
 decreases the message loss probability but remains possible due to the \textit{fireAndForget()} method.
 
 Lastly, for the consumers efforts, we found that the usage of a Rebalance Listener was necessary. 
-A Rebalance Listener is an entity which follows a Kafka defined behavior (interface), that enables the injection of code in two specific events when assign to a consumer. 
-Those events are the occurrence of new partitions or topics being assigned to the consumer or being revoked from that consumer, due to either the consumer not 
-signalling it is alive for a long time or a new consumer being added to the consumer group. 
-Obviously we were more interested in the last event, where partitions and topics are removed from the consumer, since that enabled commiting the latest processed offsets.
+A Rebalance Listener is an entity which follows a Kafka defined behavior (interface), that enables the injection of code in two specific events when assigned to a consumer. 
+Those events are the occurrence of new partitions or topics being assigned or being revoked to/from the consumer, due to either not signalling it is alive for 
+a long time or to a new consumer being added to the group. 
+The last event was more relevant, where partitions and topics are removed from the consumer, since that enabled committing the latest processed offsets.
 
-Given the fact mentioned in section \ref{topics} and the fact that every topic may contain every message type, the order constraint of the SPEED message type meant that we needed to implement the Rebalance 
-Listener to every consumer of every consumer group.
+Given the fact mentioned in section \ref{topics} and the fact that every topic may contain every message type, the order constraint of the SPEED message type 
+meant that we needed to implement the Rebalance Listener to every consumer of every consumer group.
 
-\newpage
 \subsubsection{Code Configuration}
 
 For further analysis, we make available relevant code portions related to the configuration of the Kafka producers, consumers and topics.

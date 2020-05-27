@@ -8,7 +8,7 @@
 \usepackage{booktabs}
 \usepackage{multicol}
 \usepackage{listings}
-\usepackage{color}
+\usepackage{color} 
 
 
 \definecolor{dkgreen}{rgb}{0,0.6,0}
@@ -90,29 +90,6 @@ We also mention how the work was distributed amongst the authors.
 All code developed is publicly accessible in our GitHub repository:
 
 \url{https://github.com/FilipePires98/AS/}
-
-% \vspace{-10pt}
-% \begin{itemize}[noitemsep]
-%   \item Prepare - the selected farmers move to a Standing Area, ready for orders.
-%   \item Start - the actual simulation begins and farmers start moving.
-%   \item Collect - farmers collect corn cobs from the Granary (where the cobs initially are).
-%   \item Return - farmers return to the Storehouse with the collected corn cobs.
-%   \item Stop - farmers stop whatever they are doing and return to the Storehouse.
-%   \item Exit - simulation ends and the program closes.
-% \end{itemize}
-% \vspace{-10pt}
-
-% \begin{figure}[H]
-%   \centering
-%   \begin{minipage}{\textwidth}
-%     \centering
-%     \includegraphics[width=\linewidth]{img/Design_FI.png}
-%   \end{minipage}%
-%   \caption{Visual representation of the farm, taken from \cite{assign}.}
-%   \label{Design_FI}
-% \end{figure} 
-
-%\texttt{java -cp <userdir>/build/classes fi.FarmInfrastructure}
 
 \newpage
 \section{Scientific Computation and Custom Systems} \label{scientificcomputation} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -593,9 +570,6 @@ public void addServer(String host, int port){
 \end{lstlisting}
 
 \subsubsection{Availability} \label{availability}
-% 1. Redundancy: to reallocate requests in case a server goes down;
-% 2. Monitor: to supervise the cluster’s status (up/down servers (heartbeat), clients:
-% identification, requests being processed, processed requests), etc., etc.). 
 
 The stakeholder's guidelines outlined 2 key points related to availability:
 the first was on providing redundancy, meaning that on the event of a Server going down, the system should react and reallocate every pending request that Server
@@ -631,48 +605,109 @@ while(true){
 \end{lstlisting}
 
 \subsubsection{Scalability} \label{scalability}
-% 1. Horizontal scalability: add new servers whenever necessary
+
+Our stakeholder also wished for the platform to be scalable.
+The way we tackled this was to allow for the user controlling the system to scale the infrastructure horizontally according to its needs.
+By having access to the information of the Load Balancer and Tactic Manager GUI, the infrastructure manager can manually determine when it is necessary to deploy
+additional Calculation servers and deploy them without needing to worry about technical aspects such as choosing the Server's port.
+
+On the code snippet below belonging to the LoadBalancerTacticManager class, the process of deploying a new Server is depicted.
+The Server receives an automatically generated unique identifier from the Tactic Manager and is able to provide a suggestion for the port to be used by the new 
+host - this value assumes that the user resorted to the recommended ports on previous servers and has no consideration for external services that might be using 
+the suggested port.
+The independent process is launched with the help of our Utilities class.
+
+\begin{lstlisting}
+//LoadBalancerTacticManager
+int serverID = tm.getNewServerID();
+String userDir = System.getProperty("user.dir");
+String jars = userDir + "/dist/lib/*:";
+String[] commands = new String[1];
+commands[0] = "java -cp " + jars + userDir + "/build/classes entities.Server "  + (6100+serverID+1) + " " + this.hostTM.getText() + " " + Integer.valueOf(this.portTM.getText()); // launch Servers
+try {
+    Utilities.runProcess(commands);
+} catch (Exception ex) {
+    System.err.println("Error: unable to assign process to an entity.");
+    ex.printStackTrace();
+}
+\end{lstlisting}
 
 \subsubsection{Usability} \label{usability}
 % All GUI must be driven by Usability for the EVALUATION PROCESS: usage, trace, verification,
 % validation, etc. You can resort to the tactics and anything else you think is necessary. The
 % stakeholder will use the GUI to validate your implementation.
 
+It is only natural to expect that the interface between the user and the system is intuitive and allows performing the required actions for the proper usage of 
+the system.
+But we were aware that our stakeholder would evaluate our solution based on the graphical interfaces we provided, so this quality attribute had also a great 
+weight on our development strategy.
+
+We focused on the 5 quality components intrinsic to usability: learnability, efficiency, memorability, errors and satisfaction.
+Starting with learnability, we made sure the GUIs were self explanatory by placing labels and suggestive terms on each interaction element.
+Also, for information entries out of the format predefined by the stakeholder, we used actual words instead of codification (e.g. the "Connected Servers" list,
+where entries follow the format \texttt{Server:X|Occupation:Y}).
+
+The UIs were made efficient in the sense that for every action performed, the user receives an immediate reaction, even if his/her request has not been completed yet.
+This means that, once users are comfortable with the interface, their workflow can be very quick as they do not waist time determining whether their action was 
+captured or not.
+At this front, the color codification also comes in hand, as it allows for an experienced user with access to multiple Server GUIs to almost instantly detect 
+if a Server is down.
+
+With regards to memorability, what we did was to resort to well known interaction methods like buttons and spinners.
+For the Load Balancer and Tactic Manager GUI the adopted dashboard-like structure might have a positive influence on people used to deal with such UIs.
+
+User error handling was made as tight as possible, preventing the user to make mistakes that could compromise the entire platform or parts of it.
+The spinner placed on the Client GUI for selecting the number of iterations is a good example of this.
+However, it is worth mentioning that the IP address and port input fields all assume that the user fills them correctly; we did not insist on protecting these 
+input fields 100\% as if a user does not know how to deal them, perhaps it is not yet qualified fo be working with such infrastructure.
+It is also assumed that the user confirms each GUI in the correct order: first the LoadBalancerTacticManager, then the servers and only then the clients; in 
+a real case scenario this is the order in which each entity would be deployed, so we found it to be something not worth worrying about.
+
+Finally with regards to user satisfaction, the interface simplicity and the usage of small details previously mentioned like labels and colors made us confident
+that the quality provided is near the desired for such scenario.
+We kept the healtcheck messages hidden as they do not provide any value to the user and they serve their purpose being transparent to him/her.
+Additionally, by exposing colleagues from other departments to the system (with a brief introduction) and asking for them to evaluate in terms of user experience,
+they showed positive results with minor tweaks to make.
+
 \subsection{Use Cases Compliance} \label{compliance} %%%%%%%%%%%
 
+...
 
 \newpage
 \section{Additional Remarks} \label{remarks} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \subsection{Documentation} \label{documentation} %%%%%%%%%%%%%%%%
 
-Our attitude towards the developed code was to ensure it could be applied to other similar scenarios and reused in systems intended to be deployed in real scenarios.
-With this in mind, we took great care with regards to code readability.
-By maintaining a code style equal throughout the project and defining intuitive and self-explaining variable and method names, we made the code easy to understand
-by someone already contextualized with Kafka.
+We understand that a solution of this kind is generic in the sense that it can be applied to other scenarios other than the scientific one where high computation
+is required without much need of refactoring.
+Nevertheless, in the event this would ever occur and that we would not be the development team responsible for the infrastructure adaptation to the new context,
+the existence of code documentation would clearly be a valuable asset to hold.
 
-Nevertheless, we wanted to make sure this was also true to someone looking at our project for the first time, so we resorted to the well-known Javadoc
-\cite{javadoc} tool to manage all code documentation.
-Comments were also added in key points throughout the code, including the scripts.
+With this in mind, and also as a tool to help us understand the code that the other team member had developed during the implementation phase, we applied efforts
+on the writting of Javadoc for the Java classes and methods.
+This and other concerns such as code readability, code style consistency and intuitive variable and function naming conventions are a good habit we try to maintain
+in all of our software development assignments.
 
 \subsection{Assignment Contributions} \label{contributions} %%%%%
 
-As the entire development phase took place in a time where on-site cooperation was not possible, we resorted to online communication platforms to debate decisions
-and discuss difficulties.
+As with the second assignment, the entire development phase took place in a time where on-site cooperation was not possible, so we resorted to online 
+communication platforms to debate decisions and discuss difficulties.
 Team scheduling allowed us to work on the project simultaneously, so no member suffered from unbalanced workloads.
 The dimension of the project did not appeal to the usage of repository pull requests and other synchronization tools.
 However, each small solution was verified and agreed by both team members.
 
-Having said this, it is difficult to isolate what each member actually implemented, as the influence of both is present in all components.
-Nevertheless, one might say that each had stronger responsibilities on a set of project aspects:
-Filipe took care of the execution of the individual Java processes and of the Shell scripts, while João developed the Kafka-related classes such as Consumer,
-Producer and EntityAction; Filipe developed the Python script for generation of \texttt{CAR.TXT}, while João developed the Shell scripts for Kafka initialization
-and deletion; each implemented 2 entities and each wrote a portion of this report; Filipe made sure everything was coherent throughout the report and the code
-documentation, while João solved the most critical issues regarding the configuration of the topics.
+Having said this, the influence of both team members is present in all components, but one might say that each had stronger responsibilities on a set of project aspects:
+Filipe took care of the execution of the individual Java processes, while João developed the classes related to the main server; 
+Filipe then focused on the servers, while João did the clients;
+João was also responsible for the communication channels, while Filipe worried about the GUIs;
+Filipe made sure everything was coherent throughout the report and the code
+documentation, while João solved the most critical issues regarding the configuration and synchronization of the cluster.
 In terms of work percentage, we believe it was about 50\% for each student.
 
 \newpage
 \section*{Conclusions} \label{conclusions} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+...
 
 \begin{thebibliography}{9} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   \bibliographystyle{Science}
