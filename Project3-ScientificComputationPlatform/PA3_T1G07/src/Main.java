@@ -21,11 +21,11 @@ public class Main {
         Options options = new Options();
         
         Option nServers = new Option("s", "servers", true, "number of servers");
-        nServers.setRequired(true);
+        //nServers.setRequired(true);
         options.addOption(nServers);
 
         Option nClients = new Option("c", "clients", true, "number of clients");
-        nClients.setRequired(true);
+        //nClients.setRequired(true);
         options.addOption(nClients);
 
         CommandLineParser parser = new DefaultParser();
@@ -42,13 +42,15 @@ public class Main {
         
         int ns = 1;
         int nc = 1;
-        try {
-            ns = Integer.parseInt(cmd.getOptionValue("servers"));
-            nc = Integer.parseInt(cmd.getOptionValue("clients"));
-        } catch(Exception e){
-            System.err.println("Error: program arguments 'number of servers' and 'number of clients' must have integer values.");
-            e.printStackTrace();
-            System.exit(1);
+        if(cmd.getOptions().length > 0) {
+            try {
+                ns = Integer.parseInt(cmd.getOptionValue("servers"));
+                nc = Integer.parseInt(cmd.getOptionValue("clients"));
+            } catch(Exception e){
+                System.err.println("Error: program arguments 'number of servers' and 'number of clients' must have integer values.");
+                e.printStackTrace();
+                System.exit(1);
+            }
         }
         
         /* Instantiate required variables */
