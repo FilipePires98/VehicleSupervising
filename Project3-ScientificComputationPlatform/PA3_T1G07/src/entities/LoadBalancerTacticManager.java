@@ -1,24 +1,13 @@
 package entities;
 
-import LoadBalancerTacticManager.ClusterInfo;
 import LoadBalancerTacticManager.LoadBalancer;
 import LoadBalancerTacticManager.TacticManager;
 import common.Utilities;
 import java.awt.Color;
 import java.awt.event.WindowEvent;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /**
- *
- * @author fp
+ * Entity containing the GUI of the Load Balancer and Tactic Manager. This entity is also responsible for initializing the composing entities, Load Balancer and Tactic Manager.
+ * @author Filipe Pires (85122) and João Alegria (85048)
  */
 public class LoadBalancerTacticManager extends javax.swing.JFrame implements UiController{
     
@@ -325,9 +314,6 @@ public class LoadBalancerTacticManager extends javax.swing.JFrame implements UiC
         status.setBackground(Color.green);
     }//GEN-LAST:event_confirmMouseClicked
 
-    /**
-     * @param args the command line arguments
-     */
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -391,6 +377,10 @@ public class LoadBalancerTacticManager extends javax.swing.JFrame implements UiC
     private javax.swing.JList<String> upServers;
     // End of variables declaration//GEN-END:variables
 
+    /**
+     * Updates the server list of the GUI.
+     * @param servers String[] containing the server list information
+     */
     @Override
     public void defineUpServers(String[] servers) {
         this.upServers.setListData(servers);
@@ -402,11 +392,19 @@ public class LoadBalancerTacticManager extends javax.swing.JFrame implements UiC
         this.nOccupation.setText(""+occupation);
     }
 
+    /**
+     * Updates the client list of the GUI.
+     * @param clients String[] containing the client list information
+     */
     @Override
     public void defineClients(String[] clients) {
         this.clients.setListData(clients);
     }
 
+    /**
+     * Updates the processing messages list of the GUI.
+     * @param messages String[] containing the processing messages list information
+     */
     @Override
     public void addProcessingMessage(String[] messages) {
         this.processingRequests.setListData(messages);
@@ -414,6 +412,10 @@ public class LoadBalancerTacticManager extends javax.swing.JFrame implements UiC
         this.nRequests.setText(""+nReq);
     }
 
+    /**
+     * Updates the processed messages list of the GUI.
+     * @param messages String[] containing the processed messages list information
+     */
     @Override
     public void addProcessedMessage(String[] messages) {
         this.processedRequests.setListData(messages);

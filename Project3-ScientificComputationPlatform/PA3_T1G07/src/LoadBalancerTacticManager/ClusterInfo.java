@@ -19,8 +19,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
- * @author joaoalegria
+ * Monitor storing all the critical cluster info.
+ * @author Filipe Pires (85122) and João Alegria (85048)
  */
 public class ClusterInfo {
     
@@ -54,6 +54,11 @@ public class ClusterInfo {
         this.loadBalancer=new SocketClient(balancerIp, balancerPort);
     }
     
+    /**
+     * Updates the internal Load Balancing host ip and port.
+     * @param ip String representing the host ip of the machine running LB
+     * @param port int representing the port of the process running the LB.
+     */
     public void updateLoadBalancer(String ip, int port){
         this.balancerIp=ip;
         this.balancerPort=port;
@@ -61,6 +66,10 @@ public class ClusterInfo {
         this.loadBalancer=new SocketClient(ip, port);
     }
 
+    /**
+     * Calculates and return the least occupied server at the moment.
+     * @return ServerInfo containing all the metadata of the server in question.
+     */
     public ServerInfo leastOccupiedServer() {
         rl.lock();
         List<ServerInfo> servers = new ArrayList(serverInfo.values());
@@ -74,6 +83,11 @@ public class ClusterInfo {
         }
     }
     
+    /**
+     * Adds a new client to the centered cluster information database.
+     * @param host String representing the host ip of the machine running the client.
+     * @param port int representing the port of the process running the client.
+     */
     public void addClient(String host, int port){
         rl.lock();
         int id=0;
@@ -93,6 +107,10 @@ public class ClusterInfo {
         rl.unlock();
     }
     
+    /**
+     * Returns a server id not existing in the current database.
+     * @return int with the new server id.
+     */
     public int getNewServerId() {
         int id=0;
         while(serverInfo.keySet().contains(id)){
@@ -101,6 +119,10 @@ public class ClusterInfo {
         return id;
     }
     
+    /**
+     * Returns a client id not existing in the current database.
+     * @return int with the new client id.
+     */
     public int getNewClientId() {
         int id=0;
         while(clientInfo.keySet().contains(id)){
@@ -109,6 +131,10 @@ public class ClusterInfo {
         return id;
     }
     
+    /**
+     * Removes a certain client from the current database.
+     * @param id int representing the id of the client to be removed.
+     */
     public void removeClient(int id){
         rl.lock();
         clientInfo.remove(id);
@@ -116,6 +142,11 @@ public class ClusterInfo {
         rl.unlock();
     }
     
+    /**
+     * Adds a new server to the centered cluster information database.
+     * @param host String representing the host ip of the machine running the server.
+     * @param port int representing the port of the process running the server.
+     */
     public void addServer(String host, int port){
         rl.lock();
         int id=0;
@@ -135,6 +166,10 @@ public class ClusterInfo {
         rl.unlock();
     }
     
+    /**
+     * Removes a certain server from the current database.
+     * @param id int representing the id of the server to be removed.
+     */
     public void removeServer(int id){
         rl.lock();
         ServerInfo si=serverInfo.get(id);
@@ -153,6 +188,11 @@ public class ClusterInfo {
         rl.unlock();
     }
     
+    /**
+     * Registers a new request to be processed in the centered cluster information database.
+     * @param id int representing the id of the server in which the request will be processed.
+     * @param request String containing the request itself.
+     */
     public void addRequest(int id, String request){
         rl.lock();
         serverInfo.get(id).addRequest(request);
@@ -162,6 +202,11 @@ public class ClusterInfo {
         rl.unlock();
     }
     
+    /**
+     * Removes the processed request from cluster information database.
+     * @param id int representing the id of the server in which the request was processed.
+     * @param request String containing the request itself.
+     */
     public void removeRequest(int id, String request){
         rl.lock();
         serverInfo.get(id).removeRequest(request);
@@ -173,10 +218,18 @@ public class ClusterInfo {
         rl.unlock();
     }
     
+    /**
+     * Returns the client associated with the given id.
+     * @param id int representing the id of the intended client
+     * @return ClientInfo containing all the metadata associated with the client
+     */
     public ClientInfo getClient(int id){
         return clientInfo.get(id);
     }
     
+    /**
+     * Updates the server list of the associated GUI.
+     */
     private void updateServers(){
         List<String> servers=new ArrayList();
         for(ServerInfo si : serverInfo.values()){
@@ -187,6 +240,9 @@ public class ClusterInfo {
         uc.defineUpServers(tmp);
     }
     
+    /**
+     * Updates the client list of the associated GUI.
+     */
     private void updateClients(){
         List<String> clients=new ArrayList();
         for(ClientInfo ci : clientInfo.values()){
@@ -197,12 +253,18 @@ public class ClusterInfo {
         uc.defineClients(tmp);
     }
     
+    /**
+     * Updates the processing requests list of the associated GUI.
+     */
     private void updateProcessingRequests(){
         String[] tmp=new String[processing.size()];
         processing.toArray(tmp);
         uc.addProcessingMessage(tmp);
     }
     
+    /**
+     * Updates the processed requests list of the associated GUI.
+     */
     private void updateProcessedRequests(){
         List<String> clients=new ArrayList();
         for(ClientInfo ci : clientInfo.values()){
@@ -213,8 +275,14 @@ public class ClusterInfo {
         uc.addProcessedMessage(tmp);
     }
     
+    /**
+     * Auxiliary class with the objective of running the server's healthcheck background process.
+     */
     private class HealthCheck implements Runnable{
 
+        /**
+         * Lifecycle of healthcheck worker.
+         */
         @Override
         public void run() {
             while(true){

@@ -6,8 +6,8 @@
 package entities;
 
 /**
- *
- * @author joaoalegria
+ * Interface created to standardize the controls available to the public in the Load Balancer and Tactic Manager GUI.
+ * @author Filipe Pires (85122) and João Alegria (85048)
  */
 public interface UiController {
     public void defineUpServers(String[] servers);

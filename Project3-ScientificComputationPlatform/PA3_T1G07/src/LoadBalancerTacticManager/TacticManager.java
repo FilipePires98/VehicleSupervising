@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package LoadBalancerTacticManager;
 
 import common.MessageProcessor;
@@ -10,8 +5,9 @@ import common.SocketServer;
 import entities.UiController;
 
 /**
- *
- * @author joaoalegria
+ * Entity containing all the Tactic Manager logic. The objective of the Tactic Manager is gather all the cluster information and supply that crucial information if necessary. 
+ * It is also this entity that enables the existence of a centralized and consistence source of the cluster status at all times.
+ * @author Filipe Pires (85122) and João Alegria (85048)
  */
 public class TacticManager implements MessageProcessor{
     
@@ -26,10 +22,20 @@ public class TacticManager implements MessageProcessor{
         this.ci=new ClusterInfo(loadIp, loadPort, uc);
     }
 
+    /**
+     * Updates the internal Load Balancing host ip and port.
+     * @param ip String representing the host ip of the machine running LB
+     * @param port int representing the port of the process running the LB.
+     */
     public void updateLoadBalancer(String ip, int port){
         this.ci.updateLoadBalancer(ip, port);
     }
     
+    /**
+     * Establishes the logic to use when processing incoming messages.
+     * @param message String containing the incoming message
+     * @return String containing the acknowledge message intended to be returned to the message sender 
+     */
     @Override
     public String processMessage(String message) {
         String[] p=message.split("-");
@@ -53,19 +59,34 @@ public class TacticManager implements MessageProcessor{
         }
     }
     
+    /**
+     * Updates the current server socket status.
+     * @param socketStatus int representing the status of the socket.
+     */
     @Override
     public void setSocketStatus(int socketStatus) {
         // does nothing
     }
     
+    /**
+     * Returns a server id that doesn't exist in the database. This is so a new server can be created.
+     * @return int representing the new server id.
+     */
     public int getNewServerID() {
         return ci.getNewServerId();
     }
     
+    /**
+     * Returns a client id that doesn't exist in the database. This is so a new client can be created.
+     * @return int representing the new client id.
+     */
     public int getNewClientID() {
         return ci.getNewClientId();
     }
     
+    /**
+     * Auxiliary class created to parallelize the processing of some incoming messages.
+     */
     private class UpdateStatus implements Runnable{
         
         private String[] processed;
@@ -76,6 +97,9 @@ public class TacticManager implements MessageProcessor{
             this.processed = message.trim().split("-");
         }
 
+        /**
+         * Lifecycle of the message processing worker worker thread.
+         */
         @Override
         public void run() {
             ServerInfo si=null;

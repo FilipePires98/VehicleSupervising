@@ -10,16 +10,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /**
- *
- * @author fp
+ * Entity containing the logic and GUI of the CLient entity. The GUI was created to facilitate the user's interaction with the entity and for a better understanding of what is happening inside.
+ * This entity is the one responsible for making the requests to the server.
+ * @author Filipe Pires (85122) and João Alegria (85048)
  */
 public class Client extends javax.swing.JFrame implements MessageProcessor{
     
@@ -53,7 +47,11 @@ public class Client extends javax.swing.JFrame implements MessageProcessor{
         this.mainServerPort.setText(args[2]);
     }
     
-    public boolean initManagerClient(){
+    /**
+     * Register client in Load Balancer, that consequently will register in the Tactic Manager.
+     * @return boolean signaling if the process was successful or not.
+     */
+    public boolean registerClient(){
         try {
             SocketClient socketManager = new SocketClient(this.mainServerHost.getText(), Integer.valueOf(this.mainServerPort.getText()));
             socketManager.send("newClient-" + this.host.getText() + "-" + this.port.getText());
@@ -286,7 +284,7 @@ public class Client extends javax.swing.JFrame implements MessageProcessor{
                 return;
             }
         }
-        if(this.initManagerClient()){
+        if(this.registerClient()){
             this.warning.setVisible(false);
             this.send.setEnabled(true);
             this.confirm.setEnabled(false);
@@ -298,9 +296,6 @@ public class Client extends javax.swing.JFrame implements MessageProcessor{
         
     }//GEN-LAST:event_confirmMouseClicked
 
-    /**
-     * @param args the command line arguments
-     */
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -333,6 +328,11 @@ public class Client extends javax.swing.JFrame implements MessageProcessor{
         });
     }
 
+    /**
+     * Establishes the logic to use when processing incoming messages.
+     * @param message String containing the incoming message
+     * @return String containing the acknowledge message intended to be returned to the message sender 
+     */
     @Override
     public String processMessage(String message) {
         String[] processedMessage;
@@ -359,6 +359,10 @@ public class Client extends javax.swing.JFrame implements MessageProcessor{
         return "Message processed with success.";
     }
     
+    /**
+     * Updates the current server socket status.
+     * @param socketStatus int representing the status of the socket.
+     */
     @Override
     public void setSocketStatus(int socketStatus) {
         this.socketStatus = socketStatus;
@@ -389,18 +393,27 @@ public class Client extends javax.swing.JFrame implements MessageProcessor{
     private javax.swing.JLabel warning;
     // End of variables declaration//GEN-END:variables
 
+    /**
+     * Updates the GUI sent requests list.
+     */
     private void updateSent(){
         String[] tmp = new String[sentRequests.size()];
         sentRequests.toArray(tmp);
         sent.setListData(tmp);
     }
 
+    /**
+     * Updates the GUI pending requests list.
+     */
     private void updatePending(){
         String[] tmp = new String[pendingRequests.size()];
         pendingRequests.toArray(tmp);
         pending.setListData(tmp);
     }
     
+    /**
+     * Updates the GUI executed requests list.
+     */
     private void updateExecuted(){
         String[] tmp = new String[executedRequests.size()];
         executedRequests.toArray(tmp);

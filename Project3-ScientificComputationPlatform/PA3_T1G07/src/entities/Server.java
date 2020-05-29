@@ -10,8 +10,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
- * @author fp
+ * Server entity. Contains a GUI to help the user interact with the entity and see what is happening internally.
+ * Entity responsible for making the pi calculation themselves.
+ * @author Filipe Pires (85122) and João Alegria (85048)
  */
 public class Server extends javax.swing.JFrame implements MessageProcessor {
     
@@ -205,7 +206,7 @@ public class Server extends javax.swing.JFrame implements MessageProcessor {
                 return;
             }
         }
-        if(this.initManagerClient()){
+        if(this.registerServer()){
             this.warning.setVisible(false);
             this.confirm.setEnabled(false);
             this.host.setEnabled(false);
@@ -215,9 +216,6 @@ public class Server extends javax.swing.JFrame implements MessageProcessor {
         }
     }//GEN-LAST:event_confirmMouseClicked
 
-    /**
-     * @param args the command line arguments
-     */
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -250,7 +248,11 @@ public class Server extends javax.swing.JFrame implements MessageProcessor {
         });
     }
     
-    public boolean initManagerClient(){
+    /**
+     * Registers the server in the Tactic manager.
+     * @return boolean representing if the action was successful or not.
+     */
+    public boolean registerServer(){
         try {
             SocketClient socketManager = new SocketClient(this.mainServerHost.getText(), Integer.valueOf(this.mainServerPort.getText()));
             socketManager.send("newServer-localhost-" + Integer.valueOf(this.port.getText()));
@@ -264,6 +266,11 @@ public class Server extends javax.swing.JFrame implements MessageProcessor {
         }
     }
 
+    /**
+     * Establishes the logic to use when processing incoming messages.
+     * @param message String containing the incoming message
+     * @return String containing the acknowledge message intended to be returned to the message sender 
+     */
     @Override
     public String processMessage(String message) {
         String[] processedMessage = message.split("-");
@@ -294,11 +301,18 @@ public class Server extends javax.swing.JFrame implements MessageProcessor {
         return "Message processed with success.";
     }
 
+    /**
+     * Updates the current server socket status.
+     * @param socketStatus int representing the satus of the socket.
+     */
     @Override
     public void setSocketStatus(int socketStatus) {
         this.socketStatus = socketStatus;
     }
     
+    /**
+     * Auxiliary class created to execute the pi calculation themselves. Worker thread created to each client.
+     */
     private class PiCalculation implements Runnable{
         
         private String message;
@@ -317,6 +331,9 @@ public class Server extends javax.swing.JFrame implements MessageProcessor {
             this.clientPort=clientPort;
         }
         
+        /**
+         * Lifecycle of the pi calculation  worker thread.
+         */
         @Override
         public void run() {
             try {
@@ -369,12 +386,18 @@ public class Server extends javax.swing.JFrame implements MessageProcessor {
     private javax.swing.JLabel warning;
     // End of variables declaration//GEN-END:variables
 
+    /**
+     * Updates the GUI processing requests list.
+     */
     private void updateProcessing(){
         String[] tmp=new String[processingRequests.size()];
         processingRequests.toArray(tmp);
         processing.setListData(tmp);
     }
     
+    /**
+     * Updates the GUI processed requests list.
+     */
     private void updateProcessed(){
         String[] tmp=new String[processedRequests.size()];
         processedRequests.toArray(tmp);

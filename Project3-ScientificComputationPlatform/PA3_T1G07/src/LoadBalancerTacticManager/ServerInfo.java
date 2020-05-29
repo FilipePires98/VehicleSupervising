@@ -1,16 +1,11 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package LoadBalancerTacticManager;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
- * @author joaoalegria
+ * Entity created to represent a server. It contains all the necessary metadata of the server, such as host, port, id and request being processed.
+ * @author Filipe Pires (85122) and João Alegria (85048)
  */
 public class ServerInfo implements Comparable<ServerInfo>{
     
@@ -26,10 +21,18 @@ public class ServerInfo implements Comparable<ServerInfo>{
         this.requests=new ArrayList();
     }
     
+    /**
+     * Adds a new request to the in being processed requests list.
+     * @param request String containing the request itself.
+     */
     public void addRequest(String request){
         this.requests.add(request);
     }
     
+    /**
+     * Removes a certain request from the being processed requests list.
+     * @param request SString containing the request itself.
+     */
     public void removeRequest(String request){
         this.requests.remove(request);
     }
@@ -50,6 +53,11 @@ public class ServerInfo implements Comparable<ServerInfo>{
         return id;
     }
     
+    /**
+     * Compares the current server to another one in terms of number of requests being processed.
+     * @param t ServerInfo representing the other server to compare with
+     * @return int representing if the current server has more, less or the same number of request being processed.
+     */
     @Override
     public int compareTo(ServerInfo t) {
         return this.requests.size()-t.getRequests().size();

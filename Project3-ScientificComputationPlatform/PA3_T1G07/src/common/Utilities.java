@@ -3,6 +3,10 @@ package common;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
+/**
+ * Auxiliary static that centralized the necessary process to deploy new server and clients.
+ * @author Filipe Pires (85122) and João Alegria (85048)
+ */
 public class Utilities {
     /**
      * Executes other independent processes. 

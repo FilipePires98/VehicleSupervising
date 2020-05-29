@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package LoadBalancerTacticManager;
 
 import common.MessageProcessor;
@@ -15,8 +10,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
- * @author joaoalegria
+ * Entity containing all the Load Balancer logic. The objective of the Load Balancer is simply to distribute in a balanced way all the incoming requests.
+ * @author Filipe Pires (85122) and João Alegria (85048)
  */
 public class LoadBalancer implements MessageProcessor{
     
@@ -35,6 +30,11 @@ public class LoadBalancer implements MessageProcessor{
         this.monitorClient=new SocketClient(monitorIp, monitorPort);
     }
     
+    /**
+     * Updates the internal Tactic Manager host ip and port.
+     * @param endpoint String representing the host ip of the machine running TM.
+     * @param port int representing the port of the process running the TM.
+     */
     public void updateTacticMonitor(String endpoint, int port){
         this.monitorIp=endpoint;
         this.monitorPort=port;
@@ -42,6 +42,11 @@ public class LoadBalancer implements MessageProcessor{
         this.monitorClient=new SocketClient(endpoint, port);
     }
 
+    /**
+     * Establishes the logic to use when processing incoming messages.
+     * @param message String containing the incoming message
+     * @return String containing the acknowledge message intended to be returned to the message sender 
+     */
     @Override
     public String processMessage(String message) {
         String[] processed = message.split("-");
@@ -78,11 +83,18 @@ public class LoadBalancer implements MessageProcessor{
         return "Message processed with success.";
     }
     
+    /**
+     * Updates the current server socket status.
+     * @param socketStatus int representing the status of the socket.
+     */
     @Override
     public void setSocketStatus(int socketStatus) {
         // does nothing
     }
     
+    /**
+     * Auxiliary class created to process  every incoming message(s) in a parallel way. A worker thread is created for each incoming message(s). 
+     */
     public class LoadDistributor implements Runnable{
         
         private List<String> messages;
@@ -93,6 +105,9 @@ public class LoadBalancer implements MessageProcessor{
             this.myClient=new SocketClient(monitorIp, monitorPort);
         }
 
+        /**
+         * Lifecycle of the distributing worker thread.
+         */
         @Override
         public void run() {
             try {

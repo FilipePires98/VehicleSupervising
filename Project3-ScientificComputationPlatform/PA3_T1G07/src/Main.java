@@ -2,6 +2,10 @@
 import org.apache.commons.cli.*;
 import common.Utilities;
 
+/**
+ * Main class responsible for instantiating the Load Balancer, 2 Servers and 2 Clients. This instantiation is meant to facilitate the deployment phase and speed up testing.
+ * @author Filipe Pires (85122) and João Alegria (85048)
+ */
 public class Main {
     
     private static final String monitorServerHost="localhost";

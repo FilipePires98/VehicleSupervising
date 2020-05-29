@@ -9,7 +9,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * 
+ * Wrapper developed to ease the implementation of socket server.
  * @author Filipe Pires (85122) and João Alegria (85048)
  */
 public class SocketServer implements Runnable{
@@ -23,6 +23,10 @@ public class SocketServer implements Runnable{
      * Instance of the message processor assigned to the server.
      */
     private MessageProcessor mp;
+    
+    /**
+     * Auxiliary flag signaling if the server must stop or not.
+     */
     private boolean continueRunning;
 
     /**
@@ -61,6 +65,9 @@ public class SocketServer implements Runnable{
             
     }
     
+    /**
+     * Auxiliary class with the objective of parralelizing the repsonses to the several clients. Work thread created for each client that connect to the server.
+     */
     private class AttendClient implements Runnable{
 
         private Socket inSocket;
@@ -69,6 +76,9 @@ public class SocketServer implements Runnable{
             this.inSocket=inSocket;
         }
         
+        /**
+         * Lifecycle of the client responding worker thread.
+         */
         @Override
         public void run() {
             try {
