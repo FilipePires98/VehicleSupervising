@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
@@ -90,10 +91,7 @@ public class ClusterInfo {
      */
     public void addClient(String host, int port){
         rl.lock();
-        int id=0;
-        while(clientInfo.keySet().contains(id)){
-            id++;
-        }
+        int id=getNewClientId();
         ClientInfo ci = new ClientInfo(id, host, port);
         clientInfo.put(id, ci);
         SocketClient client=new SocketClient(host, port);
@@ -112,11 +110,12 @@ public class ClusterInfo {
      * @return int with the new server id.
      */
     public int getNewServerId() {
-        int id=0;
-        while(serverInfo.keySet().contains(id)){
-            id++;
+        if(serverInfo.keySet().isEmpty()){
+            return 0;
         }
-        return id;
+        List<Integer> serverIds=new ArrayList(serverInfo.keySet());
+        Collections.sort(serverIds);
+        return serverIds.get(serverIds.size()-1)+1;
     }
     
     /**
@@ -124,11 +123,12 @@ public class ClusterInfo {
      * @return int with the new client id.
      */
     public int getNewClientId() {
-        int id=0;
-        while(clientInfo.keySet().contains(id)){
-            id++;
+        if(clientInfo.keySet().isEmpty()){
+            return 0;
         }
-        return id;
+        List<Integer> clientIds=new ArrayList(clientInfo.keySet());
+        Collections.sort(clientIds);
+        return clientIds.get(clientIds.size()-1)+1;
     }
     
     /**
@@ -149,10 +149,7 @@ public class ClusterInfo {
      */
     public void addServer(String host, int port){
         rl.lock();
-        int id=0;
-        while(serverInfo.keySet().contains(id)){
-            id++;
-        }
+        int id=getNewServerId();
         ServerInfo si = new ServerInfo(id, host, port);
         serverInfo.put(id, si);
         SocketClient client=new SocketClient(host, port);
@@ -175,14 +172,16 @@ public class ClusterInfo {
         ServerInfo si=serverInfo.get(id);
         List<String> messages=si.getRequests();
         serverInfo.remove(id);
-        String messageToLoadBalancer="sendMessages";
-        for(String msg : messages){
-            messageToLoadBalancer+="-"+msg;
-        }
-        try {
-            this.loadBalancer.send(messageToLoadBalancer);
-        } catch (IOException ex) {
-            Logger.getLogger(ClusterInfo.class.getName()).log(Level.SEVERE, null, ex);
+        if(messages.size()>0){
+            String messageToLoadBalancer="sendMessages";
+            for(String msg : messages){
+                messageToLoadBalancer+="-"+msg;
+            }
+            try {
+                this.loadBalancer.send(messageToLoadBalancer);
+            } catch (IOException ex) {
+                Logger.getLogger(ClusterInfo.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
         updateServers();
         rl.unlock();

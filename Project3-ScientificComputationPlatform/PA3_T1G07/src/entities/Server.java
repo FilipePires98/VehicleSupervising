@@ -16,7 +16,7 @@ import java.util.logging.Logger;
  */
 public class Server extends javax.swing.JFrame implements MessageProcessor {
     
-    private int id;
+    private int id=-1;
     
     private SocketServer socketServer;
     private Thread serverThread;
@@ -180,15 +180,16 @@ public class Server extends javax.swing.JFrame implements MessageProcessor {
     }// </editor-fold>//GEN-END:initComponents
 
     private void stopMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_stopMouseClicked
-        try {
-            SocketClient socketManager = new SocketClient(this.mainServerHost.getText(), Integer.valueOf(this.mainServerPort.getText()));
-            socketManager.send("serverDown-" + this.id);
-            socketManager.close();
-            System.exit(0);
-        } catch (IOException ex) {
-            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+        if(this.id>=0){
+            try {
+                SocketClient socketManager = new SocketClient(this.mainServerHost.getText(), Integer.valueOf(this.mainServerPort.getText()));
+                socketManager.send("serverDown-" + this.id);
+                socketManager.close();
+            } catch (IOException ex) {
+                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
-        
+        System.exit(0);
     }//GEN-LAST:event_stopMouseClicked
 
     private void confirmMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_confirmMouseClicked

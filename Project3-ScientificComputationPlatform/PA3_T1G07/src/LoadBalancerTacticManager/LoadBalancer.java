@@ -111,30 +111,29 @@ public class LoadBalancer implements MessageProcessor{
         @Override
         public void run() {
             try {
-                String[] server = this.myClient.send("leastOccupiedServer").split("-"); //serverInfo-serverId-serverIp-serverPort
-                if(server[1].equals("none")){
-                    for(String msg:messages){
-                        String[] tmp=msg.replaceAll("\\s+","").split("\\|");
-                        String[] processed = Arrays.copyOfRange(tmp, 1, tmp.length);
-                        String[] client = this.myClient.send("clientInfo-"+processed[0]).split("-");//clientInfo-clientId-clientIp-clientPort
-                        SocketClient clientSocketClient=new SocketClient(client[2], Integer.valueOf(client[3]));
-                        clientSocketClient.send("| None | "+processed[0]+" | "+processed[1]+" | Server unavailable.");
-                        clientSocketClient.close();
-                    }
-                }
-                else{
-                    SocketClient clientSocket=new SocketClient(server[2], Integer.valueOf(server[3]));
-                    try {
-                        for(String msg:messages){
+                for(String msg:messages){
+                    String[] server = this.myClient.send("leastOccupiedServer").split("-"); //serverInfo-serverId-serverIp-serverPort
+                    if(server[1].equals("none")){
+
                             String[] tmp=msg.replaceAll("\\s+","").split("\\|");
                             String[] processed = Arrays.copyOfRange(tmp, 1, tmp.length);
                             String[] client = this.myClient.send("clientInfo-"+processed[0]).split("-");//clientInfo-clientId-clientIp-clientPort
-                            clientSocket.send("request-"+client[2]+"-"+client[3]+"-"+msg);
-                        }
-                    } catch (IOException ex) {
-                        this.myClient.send("serverDown-"+server[1]);
+                            SocketClient clientSocketClient=new SocketClient(client[2], Integer.valueOf(client[3]));
+                            clientSocketClient.send("| None | "+processed[0]+" | "+processed[1]+" | Server unavailable.");
+                            clientSocketClient.close();
                     }
-                    clientSocket.close();
+                    else{
+                        SocketClient clientSocket=new SocketClient(server[2], Integer.valueOf(server[3]));
+                        try {
+                                String[] tmp=msg.replaceAll("\\s+","").split("\\|");
+                                String[] processed = Arrays.copyOfRange(tmp, 1, tmp.length);
+                                String[] client = this.myClient.send("clientInfo-"+processed[0]).split("-");//clientInfo-clientId-clientIp-clientPort
+                                clientSocket.send("request-"+client[2]+"-"+client[3]+"-"+msg);
+                        } catch (IOException ex) {
+                            this.myClient.send("serverDown-"+server[1]);
+                        }
+                        clientSocket.close();
+                    }
                 }
             } catch (IOException ex) {
                 Logger.getLogger(LoadBalancer.class.getName()).log(Level.SEVERE, null, ex);
