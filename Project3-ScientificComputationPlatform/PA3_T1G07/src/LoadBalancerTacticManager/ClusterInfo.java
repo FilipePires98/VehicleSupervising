@@ -40,6 +40,12 @@ public class ClusterInfo {
     private String balancerIp;
     private int balancerPort;
 
+    /**
+     * Creates instance of the cluster information.
+     * @param balancerIp LoadBalancer's host IP address
+     * @param balancerPort LoadBalancer's port
+     * @param uc reference to the UI controller (the GUI process)
+     */
     public ClusterInfo(String balancerIp, int balancerPort, UiController uc) {
         this.uc=uc;
         this.serverInfo=new HashMap();

@@ -26,7 +26,8 @@ public class Server extends javax.swing.JFrame implements MessageProcessor {
     private List<String> processedRequests;
     
     /**
-     * Creates new form Server
+     * Creates new form Server.
+     * @param args main server host IP address and port.
      */
     public Server(String args[]) {
         this.processingRequests=new ArrayList();

@@ -10,6 +10,12 @@ public class ClientInfo{
     private String host;
     private int port;
 
+    /**
+     * Creates instance of client information.
+     * @param id client unique identifier
+     * @param host client host IP address
+     * @param port client port
+     */
     public ClientInfo(int id, String host, int port) {
         this.id=id;
         this.host = host;
@@ -23,7 +29,7 @@ public class ClientInfo{
     public int getPort() {
         return port;
     }
-
+    
     public int getId() {
         return id;
     }

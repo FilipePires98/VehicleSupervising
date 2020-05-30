@@ -39,6 +39,8 @@ public class SocketClient {
     /**
      * Sends a text message to the subscribed socket server. 
      * @param message string containing the message to send.
+     * @return response message (acknowledge).
+     * @throws IOException socket-related error (most likely failure in socket creation).
      */
     public String send(String message) throws IOException{
         if(this.socket==null){

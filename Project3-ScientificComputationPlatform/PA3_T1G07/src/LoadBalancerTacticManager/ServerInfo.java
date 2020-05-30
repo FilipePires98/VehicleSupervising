@@ -14,6 +14,12 @@ public class ServerInfo implements Comparable<ServerInfo>{
     private int port;
     private List<String> requests;
 
+    /**
+     * Creates instance of server information.
+     * @param id server unique identifier
+     * @param host server host IP address
+     * @param port server port
+     */
     public ServerInfo(int id, String host, int port) {
         this.id=id;
         this.host = host;

@@ -29,7 +29,8 @@ public class Client extends javax.swing.JFrame implements MessageProcessor{
     private List<String> executedRequests;
 
     /**
-     * Creates new form Client
+     * Creates new form Client.
+     * @param args main server host IP address and port.
      */
     public Client(String args[]) {
         this.reqID = 0;

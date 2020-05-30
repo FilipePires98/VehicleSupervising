@@ -6,8 +6,17 @@ package common;
  */
 public interface MessageProcessor {
 
+    /**
+     * Defines the method to use when processing incoming messages.
+     * @param message String containing the incoming message
+     * @return String containing the acknowledge message intended to be returned
+     */
     String processMessage(String message);
     
+    /**
+     * Updates the class's socket status.
+     * @param status int representing the status of the socket.
+     */
     void setSocketStatus(int status);
     
 }
