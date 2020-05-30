@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package LoadBalancerTacticManager;
 
 import common.SocketClient;
@@ -13,8 +8,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -238,7 +231,7 @@ public class ClusterInfo {
     private void updateServers(){
         List<String> servers=new ArrayList();
         for(ServerInfo si : serverInfo.values()){
-            servers.add("Server: "+si.getId()+"  |  Occupation: "+si.getRequests().size());
+            servers.add("Occupation: "+si.getRequests().size() +" | "+si.toString());
         }
         String[] tmp=new String[servers.size()];
         servers.toArray(tmp);
@@ -251,7 +244,7 @@ public class ClusterInfo {
     private void updateClients(){
         List<String> clients=new ArrayList();
         for(ClientInfo ci : clientInfo.values()){
-            clients.add("Client: "+ci.getId());
+            clients.add(ci.toString());
         }
         String[] tmp=new String[clients.size()];
         clients.toArray(tmp);

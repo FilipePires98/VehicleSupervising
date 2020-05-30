@@ -33,5 +33,11 @@ public class ClientInfo{
     public int getId() {
         return id;
     }
+
+    @Override
+    public String toString() {
+        return "Client: " + id + " | Host: " + host + " | Port: " + port;
+    }
+    
     
 }

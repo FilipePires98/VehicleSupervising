@@ -68,6 +68,10 @@ public class ServerInfo implements Comparable<ServerInfo>{
     public int compareTo(ServerInfo t) {
         return this.requests.size()-t.getRequests().size();
     }
-    
+
+    @Override
+    public String toString() {
+        return "Server: " + id + " | Host: " + host + " | Port: " + port;
+    }
     
 }

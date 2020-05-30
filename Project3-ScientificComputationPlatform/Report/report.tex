@@ -161,26 +161,26 @@ Additional message types were added during development for management purposes:
   \item Request Processed: \texttt{processedRequest-<serverId>-<request>}
 \end{itemize}
 \vspace{-10pt}
-As shown, some of these messages also need parameters: 
-\texttt{clientHost}, a string containing the host name of the client machine; 
-\texttt{clientPort}, a positive integer containing the port where the client process is running; 
-\texttt{serverHost}, a string containing the host name of the server machine; 
-\texttt{serverPort}, a positive integer containing the port where the server process is running; 
+As shown, some of these messages also need parameters:
+\texttt{clientHost}, a string containing the host name of the client machine;
+\texttt{clientPort}, a positive integer containing the port where the client process is running;
+\texttt{serverHost}, a string containing the host name of the server machine;
+\texttt{serverPort}, a positive integer containing the port where the server process is running;
 \texttt{request}, a string containing the request message that triggered that event in the format mentioned above.
 
 \newpage
 \section{System Architecture} \label{architecture} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 The adopted architecture was a hybrid version of client/server and master/slave.
-First of all, the clients that connect to and use our system act as a typical client entity and, from their perspective, there is only one server entity 
+First of all, the clients that connect to and use our system act as a typical client entity and, from their perspective, there is only one server entity
 responding to their requests.
 The server, however, is in fact made up of several entities, each with its specific responsibility.
-These internal entities are independent from one another and when they need to communicate they do so in a client/server manner, making the necessary requests 
+These internal entities are independent from one another and when they need to communicate they do so in a client/server manner, making the necessary requests
 and awaiting for a response.
 
-The architecture follows a master/slave model as well in the sense that the $\pi$ calculation infrastructure is comprised of a main entity (the master) and a 
-set of calculation servers (the slaves): the calculation servers await for their master to assign them tasks; the main entity is actually made up of 2 
-entities (a Load Balancer and a Tactic Manager) that run in the same process as we will detail further ahead and that does the interaction with the clients and 
+The architecture follows a master/slave model as well in the sense that the $\pi$ calculation infrastructure is comprised of a main entity (the master) and a
+set of calculation servers (the slaves): the calculation servers await for their master to assign them tasks; the main entity is actually made up of 2
+entities (a Load Balancer and a Tactic Manager) that run in the same process as we will detail further ahead and that does the interaction with the clients and
 communicate with the slaves in order to deliver a response to the client requests.
 
 As predefined by our stakeholder, all communications are done through web sockets.
@@ -190,89 +190,89 @@ Below, we provide a detailed description of each entity as well as of the commun
 
 \subsubsection{Client}
 
-The Client acts as the system entity that provides the user a graphical interface (GUI) in order to make calculation requests to the scientific computation 
+The Client acts as the system entity that provides the user a graphical interface (GUI) in order to make calculation requests to the scientific computation
 platform.
 It is the Client that parses the user input and sends requests to the Load Balancer, awaiting for responses to arrive to provide the user with the answers he/she needs.
 The user can make how many requests he/she desires, as the Client does not need to wait for each computation response in order to request another.
 
 A key design decision was made when implementing the communication mechanism for clients.
 After some deliberation, we concluded that the best approach for the web sockets' ports definition would be to make the Client responsible for choosing the port
-it uses, since there could be constraints related to the machine where the process is running and it wouldn't be viable for the Client to receive the port 
-indication from a server that might have no knowledge about the ports already in use on the Client's machine. 
+it uses, since there could be constraints related to the machine where the process is running and it wouldn't be viable for the Client to receive the port
+indication from a server that might have no knowledge about the ports already in use on the Client's machine.
 This way, the Client instantiates a web socket with a port defined by itself, allowing the computation responses to be sent to it asynchronously.
 
 A Client instantiation imposes the exchange of some control messages.
 When initiating, the Client needs to send a message to notify the main server that it was created, indicating its web socket host IP address and chosen port.
 In response, the main server sends to the Client an internal identifier (used for the server to recognize it in future messages).
-When the Client is stopped, it sends a new message notifying the main server that it will shut down. 
+When the Client is stopped, it sends a new message notifying the main server that it will shut down.
 
 \subsubsection{Calculation Server}
 
 Calculation servers hold the code for the computation of the scientific algorithms.
 These entities await for requests to arrive from the main server, process them and respond directly to the clients that triggered the requests.
 For our use case, the $\pi$ computation algorithm is simulated according to a parameter, as previously mentioned.
-Nevertheless, the code was made so that a real algorithm implementation can quickly replace the current simulation, and allowing additional algorithms to be 
+Nevertheless, the code was made so that a real algorithm implementation can quickly replace the current simulation, and allowing additional algorithms to be
 inserted so that the platform supports new computation requests.
 
 A Server is able to respond directly to the Client thanks to an internal mechanism:
 the request is initially sent by the Client to the Load Balancer;
-the Tactic Manager then adds the Client metadata to it and the Load Balancer forwards the updated message to the Calculation Server;
+it requests some Client metadata to the Tactic Manager, adds it to the request and then the Load Balancer forwards the updated message to the Calculation Server;
 with the added information, the Server gains the capacity to send the computation results to the Client without the help of the main server.
 All processing of requests is parallelized, preventing any undesired bottlenecks.
 
-Similarly to the Client, a Server needs a web socket server to receive the calculation requests, so it also needs to choose the port it will be active in. 
+Similarly to the Client, a Server needs a web socket server to receive the calculation requests, so it also needs to choose the port it will be active in.
 The same physical constraints apply, so the servers need to exchange similar control messages on instantiation and shut down, including host IP address and port identification.
 
 \subsubsection{Load Balancer} \label{lb}
 
-We have mentioned the Load Balancer more than once, as it is a key asset to our solution, and in this section we explain why it is one of the most important 
+We have mentioned the Load Balancer more than once, as it is a key asset to our solution, and in this section we explain why it is one of the most important
 entities of our architecture.
 Its existence started by being a project requirement, but we quickly understood its actual importance when handling the quality attributes we wished to guarantee.
 
-Load Balancer's main purpose, as the name implies, is to distribute in a balanced way the incoming $\pi$ calculation requests across all registered servers. 
-When one or more calculation requests are sent to it, Load Balancer asks the Tactic Manager via web socket to identify the least occupied Server and assigns the 
+Load Balancer's main purpose, as the name implies, is to distribute in a balanced way the incoming $\pi$ calculation requests across all registered servers.
+When one or more calculation requests are sent to it, Load Balancer asks the Tactic Manager via web socket to identify the least occupied Server and assigns the
 task to that Server.
 It is in this stage, after the Server is chosen, that the Load Balancer asks the Tactic Manager for the Client's metadata to be inserted in the request.
 
 It is important to state that the Load Balancer is the central entity of the infrastructure.
-It is only through it that the clients are able to interact with the remainder of the infrastructure and it is only this entity that the Client has knowledge 
+It is only through it that the clients are able to interact with the remainder of the infrastructure and it is only this entity that the Client has knowledge
 about from the very moment it is instantiated.
 The Tactic Manager only server this entity, although it holds the information about the remainder.
-If the process where the Load Balancer and Tactic Manager are running dies for some reason, the platform will not work; this is not true for the Client nor the 
+If the process where the Load Balancer and Tactic Manager are running dies for some reason, the platform will not work; this is not true for the Client nor the
 Calculation Server.
 In section \ref{constraints} we explore how the Load Balancer is able to handle availability and scalability.
 
 \subsubsection{Tactic Manager}
 
 If the Load Balancer is the heart of the platform, the Tactic Manager can easily be considered its brain.
-It is this entity that holds the knowledge about every registered Server, every connected Client, the state of each and all, and who is processing each request 
+It is this entity that holds the knowledge about every registered Server, every connected Client, the state of each and all, and who is processing each request
 at any time.
-With this knowledge, it is able to understand which Server has the least amount of pending requests (is least occupied) and provide the Load Balancer with an 
+With this knowledge, it is able to understand which Server has the least amount of pending requests (is least occupied) and provide the Load Balancer with an
 informed answer.
 The shared GUI of the Load Balancer and Tactic Manager is always up-to-date because of this knowledge as well.
 
-Although the Calculation servers receive messages from the Load Balancer, they only communicate with the central server through the Tactic Manager (they only 
-send messages to it). 
-The Server initialization and shutdown control messages are sent to the Tactic Manager, that will process and store the information, also sending back the 
+Although the Calculation servers receive messages from the Load Balancer, they only communicate with the central server through the Tactic Manager (they only
+send messages to it).
+The Server initialization and shutdown control messages are sent to the Tactic Manager, that will process and store the information, also sending back the
 created identifier in case of the Server creation.
 Additionally, all servers when receiving or finishing the processing of a calculation request should notify this management entity of their status change.
 
-A control mechanism already mentioned in section \ref{messages} but not yet explained is also responsibility of the Tactic Manager - the health-check of 
+A control mechanism already mentioned in section \ref{messages} but not yet explained is also responsibility of the Tactic Manager - the health-check of
 registered servers.
 This feature was added as we concluded it would be paramount when assuring some quality attributes, namely availability, performance and usability.
 The flow of this process goes as follows: when the Tactic Manager is created, the Health-checking subprocess is initiated in parallel; from then on, this
 subprocess sends health checks to all registered servers on a time interval established \textit{a priori} (in our scenario it was defined as 30 seconds periods);
-in the event that one Server does not respond, it is considered dead and consequently deleted from the internal registries so that future requests are not sent 
+in the event that one Server does not respond, it is considered dead and consequently deleted from the internal registries so that future requests are not sent
 to it; if any requests assigned to the dead Server were incomplete, these are sent back to the Load Balancer for redistribution amongst the living Servers.
 
 \subsection{System Components} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 We have discussed the entities that make up the logic of the solution - these are all represented in our architecture diagram in Figure \ref{fig:pa3Arch} as well
 as their interactions in Figure \ref{fig:pa3Interaction}.
-However, there are additional system components that provide what is necessary for the integration of the whole infrastructure, some of them worth exploring in 
+However, there are additional system components that provide what is necessary for the integration of the whole infrastructure, some of them worth exploring in
 depth due to their important roles.
 
-The first two important components are the LoadDistributor, a class internal to the LoadBalancer that is responsible for the actual distribution of incoming requests, 
+The first two important components are the LoadDistributor, a class internal to the LoadBalancer that is responsible for the actual distribution of incoming requests,
 and the HealthChecker, internal to the TacticManager with the duty to health check all registered servers and take action in case any of them does not respond.
 
 \begin{figure}[H]
@@ -283,10 +283,10 @@ and the HealthChecker, internal to the TacticManager with the duty to health che
   \end{minipage}%
   \caption{Platform's architecture diagram.}
   \label{fig:pa3Arch}
-\end{figure} 
+\end{figure}
 
 Then we have the SocketServer and SocketClient, which are wrapper classes for a WebSocket Server and a WebSocket Client.
-They enabled us to use sockets personalized for our needs without worrying about the internal functioning of the original class, and in consequence keep our 
+They enabled us to use sockets personalized for our needs without worrying about the internal functioning of the original class, and in consequence keep our
 focus on our problem domain alone.
 The only consideration we needed to make was that every entity that used the SocketServer needed to pass a MessageProcessor interface instance that would supply
 all of the message processing logic.
@@ -301,12 +301,12 @@ An internal class called AttendUser was added to our SocketServer to handle all 
   \end{minipage}%
   \caption{Platform's interaction diagram.}
   \label{fig:pa3Interaction}
-\end{figure} 
+\end{figure}
 
 \newpage
 \subsection{User Interface} \label{ui} %%%%%%%%%%%%%%%%%%%%%%%%%% 
 
-We defined from the very beginning that the GUIs would have to be as simple as possible, while providing both the basic and required elements for the user and 
+We defined from the very beginning that the GUIs would have to be as simple as possible, while providing both the basic and required elements for the user and
 additional features that would enrich their usability and empower the user.
 The resulting interfaces are presented next.
 
@@ -316,17 +316,17 @@ By default, if no arguments are passed, the platform deploys 1 instance of each.
 
 Their GUIs are presented in Figure \ref{fig:GUIs_init}.
 From the screen captures taken of each UI, it is possible to conclude a few aspects.
-First of all, the use of color coding helps the user immediately understand the state of the process; this is more important when the scale is bigger (more 
+First of all, the use of color coding helps the user immediately understand the state of the process; this is more important when the scale is bigger (more
 instances of servers and/or clients).
 Also, the parameters for the IP addresses and ports are pre-filled considering available ports and avoiding collisions.
 Nevertheless, input fields are all active, meaning that the user can personalize them as he/she wishes to.
 
 For inexperienced users, the title of each interface helps him/her understand the respective role, although it does not yet uniquely identify the process;
 also, they can understand the purpose of each text area through the label placed above each one.
-The positioning of each element (input fields, buttons, text areas) was made strategically, adopting a dashboard-like structure for the Load Balancer and 
+The positioning of each element (input fields, buttons, text areas) was made strategically, adopting a dashboard-like structure for the Load Balancer and
 Tactic Manager GUI.
 
-\begin{figure}[H] 
+\begin{figure}[H]
   \centering
   \begin{subfigure}{.55\textwidth}
     \centering
@@ -348,7 +348,7 @@ Tactic Manager GUI.
   \end{subfigure}
   \caption{GUIs of each independent process in the initial state of execution.}
   \label{fig:GUIs_init}
-\end{figure} 
+\end{figure}
 
 \begin{figure}[H]
   \centering
@@ -372,7 +372,7 @@ Tactic Manager GUI.
   \end{subfigure}
   \caption{GUIs of each independent process after each is confirmed and ready to use.}
   \label{fig:GUIs_confirmed}
-\end{figure} 
+\end{figure}
 
 \begin{figure}[H]
   \centering
@@ -390,13 +390,13 @@ Tactic Manager GUI.
   \end{subfigure}
   \caption{GUIs of each independent process presenting warning messages due to overlapping ports.}
   \label{fig:GUIs_wrong}
-\end{figure} 
+\end{figure}
 
 In Figure \ref{fig:GUIs_confirmed} the system is fully deployed and active.
 To transition to an active (green) state, the user simply needs to confirm the values of the input fields by clicking on the "Confirm" button of each UI.
 In case the input is invalid, for example if the chosen ports are already in use, a warning message in red (again, using color coding) is shown on the bottom of
 the UI, as seen in Figure \ref{fig:GUIs_wrong}.
-Note that, once confirmed and validated, the input fields are made inactive as they should not be changed, and that the titles of the Client and Server change 
+Note that, once confirmed and validated, the input fields are made inactive as they should not be changed, and that the titles of the Client and Server change
 so that they can be uniquely identified.
 
 \clearpage
@@ -422,30 +422,30 @@ so that they can be uniquely identified.
   \end{subfigure}
   \caption{GUIs of each independent process during the processing of multiple requests.}
   \label{fig:GUIs_active}
-\end{figure} 
+\end{figure}
 
 With the input fields validated, the system can start receiving requests and processing them.
-In Figure \ref{fig:GUIs_active}, we present an example usage of the infrastructure, where several requests are done simultaneously, with different values for the 
+In Figure \ref{fig:GUIs_active}, we present an example usage of the infrastructure, where several requests are done simultaneously, with different values for the
 number of pi iterations, by different clients and distributed amongst different servers.
 
 The Server GUI is merely informative.
-It contains the Server status, its own IP address and port and of the main server, and 2 lists, one containing the received requests and the other those 
+It contains the Server status, its own IP address and port and of the main server, and 2 lists, one containing the received requests and the other those
 already processed.
 The interface has an additional "Stop" button, meant to safely shutdown the Server through control messages.
 
-The Client GUI is similar, but instead of 2, it contains 3 lists: one for the requests sent, one for those under processing and one for those already 
+The Client GUI is similar, but instead of 2, it contains 3 lists: one for the requests sent, one for those under processing and one for those already
 executed by the infrastructure and containing the results of the pi calculations.
 Besides the "Stop" button, this interface also has a "Send" button, obviously.
-The parameter for the number of iterations for the calculation of pi is placed right beside this button and the interaction method is through a spinner in order 
+The parameter for the number of iterations for the calculation of pi is placed right beside this button and the interaction method is through a spinner in order
 to avoid user errors.
 
 The Load Balancer and Tactic Manager GUI naturally holds the most information about the infrastructure.
 Besides presenting the IP addresses and ports of the Load Balancer and of the Tactic Manager, it shows 4 lists, each with a specific purpose.
-The top 2 lists contain the requests successfully processed (on the left) and the requests being processed (on the right), both with the ID of the Server 
+The top 2 lists contain the requests successfully processed (on the left) and the requests being processed (on the right), both with the ID of the Server
 responsible for each request.
 The bottom 2 lists contain the connected servers (on the left) and the connected clients (on the right).
 The servers are accompanied with their current occupation (the number of requests they are processing).
-On the left of these lists lies a column with global information and operations; here it is possible to learn the total number of requests processed and of 
+On the left of these lists lies a column with global information and operations; here it is possible to learn the total number of requests processed and of
 those being processed and the total occupation of the infrastructure; the user can also deploy new clients or servers through the "Add New Client" and "Add New
 Server" buttons; and he/she can also shutdown the process through the "Stop" button.
 
@@ -457,29 +457,29 @@ Server" buttons; and he/she can also shutdown the process through the "Stop" but
   \end{minipage}%
   \caption{Load Balancer and Tactic Manager's GUI in expanded view during the processing of multiple requests in a cluster of 20 Calculation servers.}
   \label{fig:LBM_large}
-\end{figure} 
+\end{figure}
 
-Finally we present a screen capture of the Load Balancer and Tactic Manager's GUI in expanded view (1920x1080) to show how the interface is able to adapt to 
+Finally we present a screen capture of the Load Balancer and Tactic Manager's GUI in expanded view (1920x1080) to show how the interface is able to adapt to
 different sizes without loosing its natural format.
 In the scenario of Figure \ref{fig:LBM_large}, a cluster of 20 servers is deployed and the infrastructure is tested with many clients.
 
 \newpage
 \section{Architecture Constraints} \label{constraints} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-We have stated that the designed architecture would rely on four of the most relevant quality attributes - performance, availability, scalability and usability - 
+We have stated that the designed architecture would rely on four of the most relevant quality attributes - performance, availability, scalability and usability -
 and throughout this document these are visible in numerous circumstances.
 However, a critical analysis to the implementation was performed in order to determine how are these attributes actually ingrained and how well are they assured.
 
 \subsection{Performance} \label{performance}
 
-As detailed by our stakeholder, this quality attribute should focus on the following points: 
-computational replicas, providing multiple instances able to calculate $\pi$, which translates to faster response times, as requests can be processed in 
+As detailed by our stakeholder, this quality attribute should focus on the following points:
+computational replicas, providing multiple instances able to calculate $\pi$, which translates to faster response times, as requests can be processed in
 parallel assuming that they are equally distributed amongst replicas;
 concurrency, defining by design that each request is processed in its own thread and providing synchronization with resort to Reentrant Locks.
 
-With this in mind, we developed several mechanisms to ensure that the the guidelines were followed and the solution was fit for its purposes.  
+With this in mind, we developed several mechanisms to ensure that the the guidelines were followed and the solution was fit for its purposes.
 To illustrate the load distribution amongst replicas, we present a code snippet from the LoadDistributer:
- 
+
 \begin{lstlisting}[label={loadDistributor}]
 //LoadDistributor
 String[] server=myClient.send("leastOccupiedServer").split("-");
@@ -505,10 +505,10 @@ else{
 \end{lstlisting}
 
 \newpage
-In relation to the concurrency aspect and the synchronization, in this project we made sure that all clients were handled by separate processes and every request 
-made by each client also treated in a dedicated thread on a Server. 
-Reentrant Lock synchronization was only found useful in the Tactic Manager; as it stores information that must be at all times consistent and reliable, we 
-implemented an internal monitor using a \textit{ReentrantLock} instance to ensure the mutually exclusive access to the global information between all threads 
+In relation to the concurrency aspect and the synchronization, in this project we made sure that all clients were handled by separate processes and every request
+made by each client also treated in a dedicated thread on a Server.
+Reentrant Lock synchronization was only found useful in the Tactic Manager; as it stores information that must be at all times consistent and reliable, we
+implemented an internal monitor using a \textit{ReentrantLock} instance to ensure the mutually exclusive access to the global information between all threads
 created to handle each message arriving at the Tactic Manager.
 
 3 code snippets are presented below, as they were found relevant for this quality attribute assurance.
@@ -556,8 +556,7 @@ private final ReentrantLock rl;
 // code hidden (not relevant here)
 public void addServer(String host, int port){
   rl.lock();
-  int id=0;
-  while(serverInfo.keySet().contains(id)){id++;}
+  int id=getNewServerId();
   ServerInfo si = new ServerInfo(id, host, port);
   serverInfo.put(id, si);
   SocketClient client=new SocketClient(host, port);
@@ -575,8 +574,8 @@ the first was on providing redundancy, meaning that on the event of a Server goi
 was responsible for to other servers;
 the second was on the implementation of a monitoring entity, enabling a supervision of the entire cluster status, active servers, registered clients and requests status.
 
-Redundancy could be achieved by one of 2 alternatives: 
-either the task distribution would have associated a message receiving acknowledgement from the servers, that in the event it did not arrive, it would mean that 
+Redundancy could be achieved by one of 2 alternatives:
+either the task distribution would have associated a message receiving acknowledgement from the servers, that in the event it did not arrive, it would mean that
 the Server is down;
 or servers would have to be consistently monitored to understand their status.
 In our solution, we actually adopted both strategies, resorting to the already discussed health check mechanism for the later.
@@ -584,7 +583,7 @@ Going back to the code snippet from the LoadDistributor, it is possible to under
 with an acknowledge message, so it is assumed dead, removed from the internal registry and the request reallocation process is executed.
 The code snippet below belongs to ClusterInfo's internal class HealthCheck and presents the logic behind this mechanism.
 The flow of this process is described in our interaction diagram as well (see Figure \ref{fig:pa3Interaction}).
-All these mechanisms and the constant (but consistent) updates to Tactic Manager's registry ensure that the infrastructure is available to users and that they 
+All these mechanisms and the constant (but consistent) updates to Tactic Manager's registry ensure that the infrastructure is available to users and that they
 see a faithful representation of the system at all times.
 
 \begin{lstlisting}
@@ -592,8 +591,7 @@ see a faithful representation of the system at all times.
 while(true){
   try {Thread.sleep(30000);}
   catch (InterruptedException ex) {
-    Logger.getLogger(TacticManager.class.getName()).log(Level.SEVERE, null, ex);
-  }
+    Logger.getLogger(TacticManager.class.getName()).log(Level.SEVERE, null, ex);}
   for(ServerInfo si : serverInfo.values()){
     try {
       SocketClient client=new SocketClient(si.getHost(), si.getPort());
@@ -611,8 +609,8 @@ By having access to the information of the Load Balancer and Tactic Manager GUI,
 additional Calculation servers and deploy them without needing to worry about technical aspects such as choosing the Server's port.
 
 On the code snippet below belonging to the LoadBalancerTacticManager class, the process of deploying a new Server is depicted.
-The Server receives an automatically generated unique identifier from the Tactic Manager and is able to provide a suggestion for the port to be used by the new 
-host - this value assumes that the user resorted to the recommended ports on previous servers and has no consideration for external services that might be using 
+The Server receives an automatically generated unique identifier from the Tactic Manager and is able to provide a suggestion for the port to be used by the new
+host - this value assumes that the user resorted to the recommended ports on previous servers and has no consideration for external services that might be using
 the suggested port.
 The independent process is launched with the help of our Utilities class.
 
@@ -636,20 +634,20 @@ try {
 % validation, etc. You can resort to the tactics and anything else you think is necessary. The
 % stakeholder will use the GUI to validate your implementation.
 
-It is only natural to expect that the interface between the user and the system is intuitive and allows performing the required actions for the proper usage of 
+It is only natural to expect that the interface between the user and the system is intuitive and allows performing the required actions for the proper usage of
 the system.
-But we were aware that our stakeholder would evaluate our solution based on the graphical interfaces we provided, so this quality attribute had also a great 
+But we were aware that our stakeholder would evaluate our solution based on the graphical interfaces we provided, so this quality attribute had also a great
 weight on our development strategy.
 
 We focused on the 5 quality components intrinsic to usability: learnability, efficiency, memorability, errors and satisfaction.
 Starting with learnability, we made sure the GUIs were self explanatory by placing labels and suggestive terms on each interaction element.
 Also, for information entries out of the format predefined by the stakeholder, we used actual words instead of codification (e.g. the "Connected Servers" list,
-where entries follow the format \texttt{Server:X|Occupation:Y}).
+where entries follow the format \texttt{Occupation:X|Server:Y|Host:Z|Port:K}).
 
 The UIs were made efficient in the sense that for every action performed, the user receives an immediate reaction, even if his/her request has not been completed yet.
-This means that, once users are comfortable with the interface, their workflow can be very quick as they do not waist time determining whether their action was 
+This means that, once users are comfortable with the interface, their workflow can be very quick as they do not waist time determining whether their action was
 captured or not.
-At this front, the color codification also comes in hand, as it allows for an experienced user with access to multiple Server GUIs to almost instantly detect 
+At this front, the color codification also comes in hand, as it allows for an experienced user with access to multiple Server GUIs to almost instantly detect
 if a Server is down.
 
 With regards to memorability, what we did was to resort to well known interaction methods like buttons and spinners.
@@ -657,9 +655,9 @@ For the Load Balancer and Tactic Manager GUI the adopted dashboard-like structur
 
 User error handling was made as tight as possible, preventing the user to make mistakes that could compromise the entire platform or parts of it.
 The spinner placed on the Client GUI for selecting the number of iterations is a good example of this.
-However, it is worth mentioning that the IP address and port input fields all assume that the user fills them correctly; we did not insist on protecting these 
-input fields 100\% as if a user does not know how to deal them, perhaps it is not yet qualified fo be working with such infrastructure.
-It is also assumed that the user confirms each GUI in the correct order: first the LoadBalancerTacticManager, then the servers and only then the clients; in 
+However, it is worth mentioning that the IP address and port input fields all assume that the user fills them correctly; we did not insist on protecting these
+input fields 100\% as if a user does not know how to deal them, perhaps it is not yet qualified to be working with such infrastructure.
+It is also assumed that the user confirms each GUI in the correct order: first the LoadBalancerTacticManager, then the servers and only then the clients; in
 a real case scenario this is the order in which each entity would be deployed, so we found it to be something not worth worrying about.
 
 Finally with regards to user satisfaction, the interface simplicity and the usage of small details previously mentioned like labels and colors made us confident
@@ -685,36 +683,36 @@ in all of our software development assignments.
 
 \subsection{Assignment Contributions} \label{contributions} %%%%%
 
-As with the second assignment, the entire development phase took place in a time where on-site cooperation was not possible, so we resorted to online 
+As with the second assignment, the entire development phase took place in a time where on-site cooperation was not possible, so we resorted to online
 communication platforms to debate decisions and discuss difficulties.
 Team scheduling allowed us to work on the project simultaneously, so no member suffered from unbalanced workloads.
 The dimension of the project did not appeal to the usage of repository pull requests and other synchronization tools.
 However, each small solution was verified and agreed by both team members.
 
 Having said this, the influence of both team members is present in all components, but one might say that each had stronger responsibilities on a set of project aspects:
-Filipe took care of the execution of the individual Java processes, while João developed the classes related to the main server; 
+Filipe took care of the execution of the individual Java processes, while João developed the classes related to the main server;
 Filipe then focused on the servers, while João did the clients;
 João was also responsible for the communication channels, while Filipe worried about the GUIs;
 Filipe made sure everything was coherent throughout the report and the code
 documentation, while João did the class and interaction diagrams and solved the most critical issues regarding the configuration and synchronization of the cluster.
-In terms of work percentage, we believe it was about 50\% for each student. 
+In terms of work percentage, we believe it was about 50\% for each student.
 
 \newpage
 \section*{Conclusions} \label{conclusions} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-For this software development assignment, our stakeholder proposed to us the design and implementation of a platform made up of a cluster of servers to provide 
+For this software development assignment, our stakeholder proposed to us the design and implementation of a platform made up of a cluster of servers to provide
 clients with a computation infrastructure.
-With a well defined target audience and a list of constraints in terms of features to provide through the user interfaces, the stakeholder moved on to define 
+With a well defined target audience and a list of constraints in terms of features to provide through the user interfaces, the stakeholder moved on to define
 a set of quality attributes on which the software architecture should rely.
 
 After a planning phase, we executed the implementation under the time interval defined and added some features beyond the requested in search for pleasing our client.
-These quality attributes - performance, availability, scalability and usability - were our main focus from the beginning and it is our belief that we were able 
+These quality attributes - performance, availability, scalability and usability - were our main focus from the beginning and it is our belief that we were able
 to achieve high quality results considering the requirements.
-Our infrastructure is easily controlled through the 3 different UIs, supports horizontal scaling by manually adding servers through the click of a button, 
-contains mechanisms for reallocating requests in case of server failures remaining constantly available (as long as the main server and at least one calculation 
+Our infrastructure is easily controlled through the 3 different UIs, supports horizontal scaling by manually adding servers through the click of a button,
+contains mechanisms for reallocating requests in case of server failures remaining constantly available (as long as the main server and at least one calculation
 server are still up and running), and provides fast, asynchronous and fairly distributed execution of client requests for the computation of $\pi$.
 
-Our overall perspective on the results is very positive and we believe that the solution can indeed be adapted both to other scenarios and even real scenarios 
+Our overall perspective on the results is very positive and we believe that the solution can indeed be adapted both to other scenarios and even real scenarios
 with little code modifications.
 For future work we would add a feature for shutting down servers on the main server and then focus on security-related quality attributes.
 
@@ -722,22 +720,22 @@ For future work we would add a feature for shutting down servers on the main ser
   \bibliographystyle{Science}
 
   \bibitem{pisky}
-    \textit{Pi in the sky: Calculating a record-breaking 31.4 trillion digits of Archimedes' constant on Google Cloud}.
-    Taken from \href{https://web.archive.org/web/20191019023120/https://cloud.google.com/blog/products/compute/calculating-31-4-trillion-digits-of-archimedes-constant-on-google-cloud}{web.archive.org}.
-    Retrieved May 2020.
+  \textit{Pi in the sky: Calculating a record-breaking 31.4 trillion digits of Archimedes' constant on Google Cloud}.
+  Taken from \href{https://web.archive.org/web/20191019023120/https://cloud.google.com/blog/products/compute/calculating-31-4-trillion-digits-of-archimedes-constant-on-google-cloud}{web.archive.org}.
+  Retrieved May 2020.
 
   \bibitem{jorg}
-    Arndt, Jorg \& Haenel, Christoph (2006).
-    \textit{Pi Unleashed}, in Springer-Verlag.
-    ISBN 978-3-540-66572-4.
-    Retrieved May 2020.
-    English translation by Catriona and David Lischka.
+  Arndt, Jorg \& Haenel, Christoph (2006).
+  \textit{Pi Unleashed}, in Springer-Verlag.
+  ISBN 978-3-540-66572-4.
+  Retrieved May 2020.
+  English translation by Catriona and David Lischka.
 
   \bibitem{commonscli}
-    The Apache Software Foundation,
-    \textit{Commons CLI}.
-    \href{https://commons.apache.org/proper/commons-cli/}{commons.apache.org}.
-    Retrieved May 2020.
+  The Apache Software Foundation,
+  \textit{Commons CLI}.
+  \href{https://commons.apache.org/proper/commons-cli/}{commons.apache.org}.
+  Retrieved May 2020.
 
   % \bibitem{uml}
   %   Object Management Group,

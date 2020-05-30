@@ -5,6 +5,7 @@ import LoadBalancerTacticManager.TacticManager;
 import common.Utilities;
 import java.awt.Color;
 import java.awt.event.WindowEvent;
+import java.util.Arrays;
 /**
  * Entity containing the GUI of the Load Balancer and Tactic Manager. This entity is also responsible for initializing the composing entities, Load Balancer and Tactic Manager.
  * @author Filipe Pires (85122) and João Alegria (85048)
@@ -386,8 +387,8 @@ public class LoadBalancerTacticManager extends javax.swing.JFrame implements UiC
         this.upServers.setListData(servers);
         this.occupation = 0;
         for(String s: servers) {
-            String[] details = s.split("Occupation: ");
-            this.occupation += Integer.valueOf(details[1].trim());
+            String[] details = s.split("\\|");
+            this.occupation += Integer.valueOf(details[0].split("Occupation: ")[1].trim());
         }
         this.nOccupation.setText(""+occupation);
     }

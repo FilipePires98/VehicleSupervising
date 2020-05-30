@@ -187,7 +187,7 @@ public class Server extends javax.swing.JFrame implements MessageProcessor {
                 socketManager.send("serverDown-" + this.id);
                 socketManager.close();
             } catch (IOException ex) {
-                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+//                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
         System.exit(0);

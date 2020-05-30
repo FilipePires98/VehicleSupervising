@@ -266,7 +266,7 @@ public class Client extends javax.swing.JFrame implements MessageProcessor{
                 socketManager.send("clientDown-" + this.id);
                 socketManager.close();
             } catch (IOException ex) {
-                Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+//                Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
         System.exit(0);
