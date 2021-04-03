@@ -1,31 +1,32 @@
-# Projects on Software Architecture
+# Vehicle Supervising
+A Kafka-based Centralized Platform for Smart Vehicle Supervising
 
 ## Description
 
-This repository contains the work done by the authors on the practical assignments for the course in Software Architecture of the MSc. in Informatics Engineering of the University of Aveiro.
-Each project directory contains its own 'README.md' with details on the assignment and instructions on how to run the code.
+The goal of this project is to provide a system focused on a platform that collects and processes information from simulated vehicles.
+The programming tools used are: Java for the application; Apache Kafka for the messaging system; Java Swing for the graphical interfaces.
 
-'Project 1 - Harvest Simulation' contains the first assignment, focused on an architecture where concurrency (processes and threads) are a key aspect.
-
-![UserInterface1](https://github.com/FilipePires98/Projects-on-SoftwareArchitecture/blob/master/Project1-HarvestSimulation/Report/img/UserInterface_CC_2.png)
-
-'Project 2 - Vehicle Supervising' contains the second assignment, focused on a platform based on Apache Kafka that collects and processes information from 
-simulated vehicles.
+There are four entities: Collect, Report, Batch and Alarm.
+Each entity has its own main method and is held accountable for a set of responsibilities around three kafka topics.
 
 ![UserInterface2](https://github.com/FilipePires98/Projects-on-SoftwareArchitecture/blob/master/Project2-VehicleSupervising/Report/img/GUI_3.png)
 
-'Project 3 - Scientific Computation Platform' contains the third assignment, focused on a scientific computation platform that relies on four of the most relevant 
-quality attributes: performance, availability, scalability and usability.
+## Repository Structure
 
-![UserInterface3-c](https://github.com/FilipePires98/Projects-on-SoftwareArchitecture/blob/master/Project3-ScientificComputationPlatform/Report/img/C_active.png)
-![UserInterface3-s](https://github.com/FilipePires98/Projects-on-SoftwareArchitecture/blob/master/Project3-ScientificComputationPlatform/Report/img/S_active.png)
+/docs - contains project report and diagrams
 
-![UserInterface3-lbm](https://github.com/FilipePires98/Projects-on-SoftwareArchitecture/blob/master/Project3-ScientificComputationPlatform/Report/img/LBM_large.png)
+/src - contains the source code, written in Java
+
+## Instructions to Build and Run
+
+1. Have installed Java SE8.
+2. Have installed NetBeans or other IDE (only tested with Netbeans).
+3. Open the project folder 'PA2_P1G07' on your IDE.
+4. Make sure you have a folder named 'kafka_2.12-2.4.1' inside 'PA2_P1G07' and that that Kafka version is compatible with your Operating System.
+5. Run the Main class and enjoy the Vehicle Supervising Simulation.
 
 ## Authors:
 
-The authors of this repository are Filipe Pires and João Alegria.
+The authors of this repository are Filipe Pires and João Alegria, and the project was developed for the Software Architecture Course of the Master's degree in Informatics Engineering of the University of Aveiro.
 
-For further information, please read our reports or contact us at filipesnetopires@ua.pt or joao.p@ua.pt.
-
-
+For further information, please read our [report](https://github.com/FilipePires98/VehicleSupervising/blob/master/docs/report.pdf) or contact us at filipesnetopires@ua.pt or joao.p@ua.pt.
