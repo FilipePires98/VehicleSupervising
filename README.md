@@ -1,6 +1,12 @@
 # Vehicle Supervising
 A Kafka-based Centralized Platform for Smart Vehicle Supervising
 
+![](https://img.shields.io/badge/Academical%20Project-Yes-success)
+![](https://img.shields.io/badge/License-Free%20To%20Use-green)
+![](https://img.shields.io/badge/Made%20With-Java-red)
+![](https://img.shields.io/badge/Made%20With-Kafka-red)
+![](https://img.shields.io/badge/Maintained-No-red)
+
 ## Description
 
 The goal of this project is to provide a system focused on a platform that collects and processes information from simulated vehicles.
@@ -9,7 +15,7 @@ The programming tools used are: Java for the application; Apache Kafka for the m
 There are four entities: Collect, Report, Batch and Alarm.
 Each entity has its own main method and is held accountable for a set of responsibilities around three kafka topics.
 
-![UserInterface2](https://github.com/FilipePires98/Projects-on-SoftwareArchitecture/blob/master/Project2-VehicleSupervising/Report/img/GUI_3.png)
+![UserInterface2](https://github.com/FilipePires98/VehicleSupervising/blob/master/docs/img/GUI_3.png)
 
 ## Repository Structure
 
